@@ -25,7 +25,7 @@ import { pathState, readText, listDir, realPath, entriesByMetadata, denialCode, 
 import { ownedByPerson, ownerName } from '../lib/owners.mjs';
 import { safe, saw, withdrawUnreceipted } from '../lib/report.mjs';
 import { escapeHidden, escapeJsonHidden } from '../lib/escape.mjs';
-import { trustFix, readMacosVersion, appleNote, appleFixState, appleUnknownNote, appleFileCheck, appleSystemRow, backupRows, certPemReviewRow, macosUpdateRow } from '../lib/macos.mjs';
+import { trustFix, readMacosRelease, appleVersionLabel, appleNote, appleFixState, appleUnknownNote, appleFileCheck, appleSystemRow, backupRows, certPemReviewRow, macosUpdateRow } from '../lib/macos.mjs';
 import { checkSshole } from '../lib/sshd.mjs';
 import { lockfilesUnder, checkLockfile, LOCK_DEPTH, NOT_WALKED as LOCK_NOT_WALKED } from '../lib/lockfiles.mjs';
 import { measure as measureReach, lines as reachLines, toJson as reachJson } from '../lib/reach.mjs';
@@ -415,7 +415,8 @@ for (const inc of chosen) {
     if (!json) console.log(c('2', `Asks each runtime to connect to ${inc.canaries.length} test hosts signed with the compromised keys.`));
     // On a Mac the macOS version chooses between the fix texts for the built-in curl (lib/macos.mjs): Apple's update to
     // 27.2.1, 26.7.3 or 15.8.3 is the fix for /etc/ssl/cert.pem from 9 Nov 2026. It never changes a status.
-    const macos = platform() === 'darwin' && inc.appleFix ? readMacosVersion() : '';
+    // a beta is labelled with its build, which appleFixState can't place: never "fixed" by its number (review B2)
+    const macos = platform() === 'darwin' && inc.appleFix ? appleVersionLabel(readMacosRelease()) : '';
     const fixFor = (rt) => trustFix(inc, rt, { os: platform(), macos });
     // a test host counts as up only when it presents the compromised chain's issuer: a TLS-inspecting firewall or a DNS
     // filter answering in its place would otherwise make every refusal look like the runtime's own (0.1.4 to 0.1.8)
@@ -586,7 +587,8 @@ for (const inc of chosen) {
   // 0.1.18: this Mac's macOS against Apple's latest security releases (lib/macos.mjs macosUpdateRow), from the version in
   // SystemVersion.plist; nothing is run
   if (inc.type === 'macos') {
-    const r = macosUpdateRow(inc, platform() === 'darwin' ? readMacosVersion() : '', platform());
+    const rel = platform() === 'darwin' ? readMacosRelease() : { version: '', build: '' };
+    const r = macosUpdateRow(inc, rel.version, platform(), rel.build);
     results.push({ incident: inc.id, kind: 'macos', ...r });
     print(r.status, `macOS${r.version ? ` ${r.version}` : ''}${r.status === 'SAFE' && !r.version ? '' : `  ${r.file}`}`);
     note({ EXPOSED: '31', SAFE: '2' }[r.status] ?? '33', r.reason);
@@ -734,7 +736,7 @@ for (const inc of chosen) {
     // macOS's own copy (Apple's notes of 9 Nov 2026): one row from the version and Apple's words, never from its bytes,
     // which are inside the system and not a file read here; the row says so. It is its own row and stands in for no
     // other: the all-clear for copies on disk below still comes, naming where it looked.
-    const apple = platform() === 'darwin' && inc.appleSystem ? appleSystemRow(inc, readMacosVersion()) : null;
+    const apple = platform() === 'darwin' && inc.appleSystem ? appleSystemRow(inc, appleVersionLabel(readMacosRelease())) : null;
     if (apple) rows.unshift(apple);
     for (const r of rows) {
       results.push({ incident: inc.id, kind: 'bundled', ...r });

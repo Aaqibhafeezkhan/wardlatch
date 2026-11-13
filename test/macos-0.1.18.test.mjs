@@ -14,7 +14,7 @@ import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, realpathSy
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { macosUpdateRow, productVersion, SYSTEM_VERSION_PLIST } from '../lib/macos.mjs';
+import { macosUpdateRow, productVersion, productBuild, isBetaBuild, appleVersionLabel, appleFixState, appleSystemRow, SYSTEM_VERSION_PLIST } from '../lib/macos.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const BIN = join(ROOT, 'bin', 'wardlatch.mjs');
@@ -23,8 +23,9 @@ let dir;
 before(() => { dir = realpathSync(mkdtempSync(join(tmpdir(), 'wardlatch-macos18-'))); });
 after(() => rmSync(dir, { recursive: true, force: true }));
 const fresh = (name) => { const d = join(dir, `${name}-${Math.random().toString(36).slice(2, 8)}`); mkdirSync(d, { recursive: true }); return d; };
-const plist = (v) => `<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0">\n<dict>\n  <key>ProductBuildVersion</key>\n  <string>26B131</string>\n  <key>ProductName</key>\n  <string>macOS</string>\n  <key>ProductVersion</key>\n  <string>${v}</string>\n</dict>\n</plist>\n`;
-const at = (v) => macosUpdateRow(INC, v, 'darwin');
+const plist = (v, build = '26B131') => `<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0">\n<dict>\n${build === null ? '' : `  <key>ProductBuildVersion</key>\n  <string>${build}</string>\n`}  <key>ProductName</key>\n  <string>macOS</string>\n  <key>ProductVersion</key>\n  <string>${v}</string>\n</dict>\n</plist>\n`;
+// a release build unless a test says otherwise (27.2.1's is 26B131)
+const at = (v, build = '26B131') => macosUpdateRow(INC, v, 'darwin', build);
 
 test('M1 the table is Apple\'s and the CVE records\': each line\'s latest release, each exploited flaw\'s fix, the frozen line', () => {
   const by = Object.fromEntries(INC.macosLines.map((l) => [l.major, l]));
@@ -53,7 +54,7 @@ test('M2 every verdict, at and around each boundary', () => {
 
 test('M3 what each line says: the CVE and its fix, the release to move to, Sonoma\'s frozen line, and a SAFE that names what it read', () => {
   const e = at('26.7.0');
-  assert.equal(e.reason, `macOS 26.7.0, read from ${SYSTEM_VERSION_PLIST}: lacks Apple's fix for CVE-2026-86950 (fixed in 26.7.1), which CISA lists as exploited`);
+  assert.equal(e.reason, `macOS 26.7.0 (build 26B131), read from ${SYSTEM_VERSION_PLIST}: lacks Apple's fix for CVE-2026-86950 (fixed in 26.7.1), which CISA lists as exploited`);
   assert.equal(e.fix, 'Update macOS to 26.7.3 or later: System Settings, General, Software Update.');
   assert.match(at('26.5').reason, /CVE-2026-86950 \(fixed in 26\.7\.1\) and CVE-2026-65400 \(fixed in 26\.6\.1\)/);
   assert.match(at('14.4').reason, /CVE-2024-27834 \(fixed in 14\.5\) and CVE-2026-65400 \(fixed in 14\.8\.9\)/);
@@ -65,7 +66,7 @@ test('M3 what each line says: the CVE and its fix, the release to move to, Sonom
   assert.match(s.reason, /It does not say Sonoma is affected, so this is not judged EXPOSED/);
   assert.match(at('13.7').reason, /no fix for macOS 13 or older/);
   const ok = at('27.2.1');
-  assert.deepEqual(ok.searched, [SYSTEM_VERSION_PLIST, 'version 27.2.1']);
+  assert.deepEqual(ok.searched, [SYSTEM_VERSION_PLIST, 'version 27.2.1', 'build 26B131']);
   // off a Mac: nothing to check, said so, with the platform as its receipt
   const lin = macosUpdateRow(INC, '', 'linux');
   assert.equal(lin.status, 'SAFE'); assert.match(lin.reason, /^not a Mac \(linux\)/);
@@ -76,23 +77,55 @@ test('M3 what each line says: the CVE and its fix, the release to move to, Sonom
 test('M4 each rule, removed, changes the answer: the KEV fixes, the latest release, the frozen line', () => {
   const lines = (f) => ({ ...INC, macosLines: INC.macosLines.map(f) });
   // without the KEV fixes, a Tahoe that lacks the exploited flaw's fix reads only REVIEW
-  assert.equal(macosUpdateRow(lines((l) => ({ ...l, kev: [] })), '26.7.0', 'darwin').status, 'REVIEW');
+  assert.equal(macosUpdateRow(lines((l) => ({ ...l, kev: [] })), '26.7.0', 'darwin', '25G100').status, 'REVIEW');
   // without the latest release (latest = the KEV fix), 26.7.1 reads SAFE
-  assert.equal(macosUpdateRow(lines((l) => (l.major === 26 ? { ...l, latest: '26.7.1' } : l)), '26.7.1', 'darwin').status, 'SAFE');
+  assert.equal(macosUpdateRow(lines((l) => (l.major === 26 ? { ...l, latest: '26.7.1' } : l)), '26.7.1', 'darwin', '25H100').status, 'SAFE');
   // without `frozen`, Sonoma's last release reads SAFE, the answer this check exists to refuse
-  assert.equal(macosUpdateRow(lines(({ frozen, ...l }) => ({ ...l, latestSays: 'x' })), '14.8.9', 'darwin').status, 'SAFE');
+  assert.equal(macosUpdateRow(lines(({ frozen, ...l }) => ({ ...l, latestSays: 'x' })), '14.8.9', 'darwin', '23J100').status, 'SAFE');
   // as shipped
   assert.deepEqual(['26.7.0', '26.7.1', '14.8.9'].map((v) => at(v).status), ['EXPOSED', 'REVIEW', 'REVIEW']);
+});
+
+test('M4b a beta is never SAFE (an independent review\'s B2): 27.3 beta 1 (26C5035r, 3 Nov) is REVIEW, and so is a build that can\'t be read', () => {
+  assert.ok(isBetaBuild('26C5035r') && isBetaBuild('25A5279m') && !isBetaBuild('26B131') && !isBetaBuild('') && !isBetaBuild('26C5035R'));
+  const b = at('27.3', '26C5035r');
+  assert.equal(b.status, 'REVIEW');
+  assert.match(b.reason, /^macOS 27\.3 \(build 26C5035r\), read from .*: a beta\. Apple's security notes cover its releases, and whether this beta carries the fixes of 27\.2\.1 is not stated$/);
+  assert.match(b.fix, /^Install the release/);
+  assert.doesNotMatch(b.reason, /at or past/);
+  // a beta of a newer major, and a version past the latest with no build key
+  assert.equal(at('28.0', '27A5218g').status, 'REVIEW');
+  assert.equal(at('27.3', '').status, 'REVIEW'); assert.match(at('27.3', '').reason, /its build could not be read/);
+  assert.equal(macosUpdateRow(INC, '27.2.1', 'darwin').status, 'REVIEW', 'no build given is no build read');
+  // a beta below a KEV fix is still EXPOSED; a release build of 27.2.1 is SAFE
+  assert.equal(at('26.7', '25H5020a').status, 'EXPOSED');
+  assert.equal(at('27.2.1', '26B131').status, 'SAFE');
+  assert.equal(at('27.3', '26C70').status, 'SAFE', 'a release build of 27.3, when it comes, is past 27.2.1');
+  // the control: judged without the build, as before this fix, 27.3 beta 1 read SAFE
+  assert.equal(macosUpdateRow(INC, '27.3', 'darwin', '26C70').status, 'SAFE');
+});
+
+test('M4c the older eMudhra and Brotli judgements (appleFixState): a beta is labelled with its build and can\'t be placed, so it is never "fixed"', () => {
+  assert.equal(appleVersionLabel({ version: '27.3', build: '26C5035r' }), '27.3 (beta build 26C5035r)');
+  assert.equal(appleVersionLabel({ version: '27.2.1', build: '26B131' }), '27.2.1');
+  assert.equal(appleFixState('27.3', ['27.2.1', '26.7.3', '15.8.3']), 'fixed', 'the control: the bare number reads fixed');
+  assert.equal(appleFixState(appleVersionLabel({ version: '27.3', build: '26C5035r' }), ['27.2.1', '26.7.3', '15.8.3']), 'unknown');
+  const brotli = JSON.parse(readFileSync(join(ROOT, 'lib', 'incidents', 'brotli-2026-10.json'), 'utf8'));
+  const row = appleSystemRow(brotli, '27.3 (beta build 26C5035r)');
+  assert.equal(row.status, 'UNKNOWN'); assert.match(row.reason, /is a beta: .*Apple's notes don't say whether a beta carries the fix$/);
+  assert.equal(appleSystemRow(brotli, '27.3').status, 'SAFE', 'the control: by its number alone the beta read SAFE');
 });
 
 test('M5 the version is read from the plist\'s ProductVersion, as the command reads it', () => {
   assert.equal(productVersion(plist('26.7.1')), '26.7.1');
   assert.equal(productVersion(plist('26.7.1').replace('ProductVersion', 'ProductOther')), '');
+  assert.equal(productBuild(plist('27.3', '26C5035r')), '26C5035r');
+  assert.equal(productBuild(plist('27.3', null)), '');
 });
 
 // The command, on a Mac: SystemVersion.plist is this test's own (a preload maps the path), as in brotli-0.1.16's B4
-const cli = (v, args = []) => {
-  const f = join(fresh('plist'), 'SystemVersion.plist'); writeFileSync(f, v === null ? '<plist/>' : plist(v));
+const cli = (v, args = [], build) => {
+  const f = join(fresh('plist'), 'SystemVersion.plist'); writeFileSync(f, v === null ? '<plist/>' : plist(v, build));
   const pre = join(fresh('pre'), 'map.cjs');
   writeFileSync(pre, `const fs = require('node:fs'); const P = ${JSON.stringify(SYSTEM_VERSION_PLIST)}, V = ${JSON.stringify(f)};
 for (const k of ['statSync', 'lstatSync', 'realpathSync', 'openSync', 'existsSync']) { const o = fs[k]; fs[k] = (p, ...a) => o(String(p) === P ? V : p, ...a); }
@@ -113,6 +146,8 @@ test('M6 the command on a Mac: EXPOSED exit 1 with the CISA lines and the fix, R
   const r = cli('14.8.9');
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.match(r.stdout, /^REVIEW +macOS 14\.8\.9 /m); assert.match(r.stdout, /check: Apple ships no more updates for macOS Sonoma/);
+  const beta = cli('27.3', ['--json'], '26C5035r');
+  assert.equal(beta.status, 0, beta.stdout); assert.deepEqual(JSON.parse(beta.stdout).results.map((x) => [x.status, x.build]), [['REVIEW', '26C5035r']]);
   const s = cli('27.2.1', ['--json']);
   assert.equal(s.status, 0); assert.deepEqual(JSON.parse(s.stdout).results.map((x) => x.status), ['SAFE']);
   const u = cli(null);

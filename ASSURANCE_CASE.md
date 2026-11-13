@@ -310,7 +310,8 @@ of the two strings in an `extension.js`, and a `.stk_` file holding another key 
 is UNKNOWN. The malicious `extension.js` is not in this repository: the tests use a stand-in with the hash pointed at it.
 
 **A macOS version is read, never asked for, and a frozen line is not called exposed.** `macos-2026-11` reads
-`ProductVersion` from `SystemVersion.plist` (no `sw_vers`). It says EXPOSED only below the fix Apple's CVE record names for
+`ProductVersion` and `ProductBuildVersion` from `SystemVersion.plist` (no `sw_vers`); a SAFE stands on a release build
+only, since a beta carries the next release's number. It says EXPOSED only below the fix Apple's CVE record names for
 a flaw in CISA's catalog on that same line. A line Apple has stopped updating (Sonoma 14), or one older than every line it
 names, is REVIEW: Apple's records don't say those releases are affected, and a verdict that rests on what a vendor did
 not say is a guess. A Rapid Security Response or a Safari update shipped apart from macOS is not seen.

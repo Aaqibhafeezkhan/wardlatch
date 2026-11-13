@@ -134,7 +134,12 @@ Every check reads files only and runs nothing it finds.
   26.6.1, 15.7.9, 14.8.9) and CVE-2024-27834 (14.5). Below one of those fixes on its own line is EXPOSED, with CISA's
   dates under the title; past them but below the latest release, REVIEW; any Sonoma 14, and 13 or older, REVIEW,
   because Apple ships them nothing and does not say they are affected; at or past the latest, SAFE. A version that
-  can't be read, or was never a macOS release, is UNKNOWN. Tests: `test/macos-0.1.18.test.mjs`; the KEV snapshot
+  can't be read, or was never a macOS release, is UNKNOWN. The build is read from the same file: a would-be SAFE on a
+  beta (a build ending in a lowercase letter, as 27.3 beta 1's `26C5035r` of 3 Nov, before 27.2.1, does), or on a
+  build that can't be read, is REVIEW (an independent review's B2). The same blind spot in the eMudhra and Brotli
+  checks' reading of the version (`appleFixState`) is closed without changing their rules: a beta is passed to them
+  as `27.3 (beta build 26C5035r)`, which they can't place, so the Brotli row for macOS's own copy is UNKNOWN on a beta,
+  not SAFE, and the built-in tools' `cert.pem` is not read in place of their control. Tests: `test/macos-0.1.18.test.mjs`; the KEV snapshot
   (catalog 2026.11.10, unchanged) now records the three rows.
 - **Visual Studio Code before 1.145.3** (`vscode-2026-11`). Microsoft published 16 advisories on 10 Nov 2026, each
   naming versions before 1.145.3 as affected and 1.145.3 as patched; three are remote code execution through MCP
