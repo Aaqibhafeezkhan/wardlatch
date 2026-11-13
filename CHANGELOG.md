@@ -120,6 +120,13 @@ Every check reads files only and runs nothing it finds.
   because Apple ships them nothing and does not say they are affected; at or past the latest, SAFE. A version that
   can't be read, or was never a macOS release, is UNKNOWN. Tests: `test/macos-0.1.18.test.mjs`; the KEV snapshot
   (catalog 2026.11.10, unchanged) now records the three rows.
+- **Visual Studio Code before 1.145.3** (`vscode-2026-11`). Microsoft published 16 advisories on 10 Nov 2026, each
+  naming versions before 1.145.3 as affected and 1.145.3 as patched; three are remote code execution through MCP
+  servers (CVE-2026-120779, CVE-2026-114171, CVE-2026-119983). None is in CISA's catalog, and the check says
+  "fixed in", never "exploited". Reads `CFBundleShortVersionString` from VS Code's `Info.plist` (and Insiders', with
+  its own REVIEW reason, since an Insiders number runs ahead of the stable release) or dpkg's `code` stanza; never
+  starts it. Below 1.145.3 is EXPOSED; at or past it REVIEW, as for Chrome. Editors built on VS Code are not read.
+  Tests: `test/vscode-0.1.18.test.mjs`.
 
 ## [0.1.17] - 2026-11-11
 

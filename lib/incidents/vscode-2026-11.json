@@ -1,0 +1,53 @@
+{
+  "id": "vscode-2026-11",
+  "type": "installs",
+  "title": "Visual Studio Code before 1.145.3: 16 advisories, three of them code execution through MCP servers",
+  "date": "2026-11-10",
+  "summary": "Microsoft published 16 security advisories for Visual Studio Code on 10 November 2026, each naming versions before 1.145.3 as affected and 1.145.3 as patched. Among them are three remote code execution flaws through MCP servers: CVE-2026-120779 (\"Remote Code Execution via MCP Elicitation Notifications\", GHSA-66hq-jw93-462h), CVE-2026-114171 (\"via Malicious MCP Installation Links\", GHSA-crhv-2887-p3xr) and CVE-2026-119983 (\"via Unvalidated MCP SSE Endpoints\", GHSA-4x35-6qr8-ww48); the others include workspace-trust bypasses, code execution through the JavaScript debugger's auto-attach and through extension text rendered as Markdown, and command injection in the extension trust dialog. CISA's catalog (version 2026.11.10) lists none of them, and Microsoft's advisories say nothing of exploitation. Wardlatch reads the installed version from the app's Info.plist on a Mac and dpkg's record on Debian and Ubuntu; it never starts VS Code.",
+  "advisory": "https://github.com/microsoft/vscode/security/advisories/GHSA-66hq-jw93-462h",
+  "sources": [
+    "https://github.com/microsoft/vscode/security/advisories",
+    "https://github.com/microsoft/vscode/security/advisories/GHSA-crhv-2887-p3xr",
+    "https://github.com/microsoft/vscode/security/advisories/GHSA-4x35-6qr8-ww48",
+    "https://www.cve.org/CVERecord?id=CVE-2026-120779"
+  ],
+  "versionFiles": {
+    "product": "Visual Studio Code",
+    "minVersion": "1.145.3",
+    "files": [
+      {
+        "path": "/Applications/Visual Studio Code.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>(\\d+(?:\\.\\d+)+)</string>",
+        "label": "Mac app",
+        "reviewWhenFixed": "this VS Code, as installed, is 1.145.3 or later, the version Microsoft's advisories of 10 Nov 2026 name as patched; a window left open from before an update keeps running the old version until VS Code restarts, and Wardlatch can't see which version is running"
+      },
+      {
+        "path": "~/Applications/Visual Studio Code.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>(\\d+(?:\\.\\d+)+)</string>",
+        "label": "Mac app",
+        "reviewWhenFixed": "this VS Code, as installed, is 1.145.3 or later, the version Microsoft's advisories of 10 Nov 2026 name as patched; a window left open from before an update keeps running the old version until VS Code restarts, and Wardlatch can't see which version is running"
+      },
+      {
+        "path": "/Applications/Visual Studio Code - Insiders.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>(\\d+(?:\\.\\d+)+)",
+        "label": "Mac app",
+        "product": "Visual Studio Code - Insiders",
+        "reviewWhenFixed": "this Insiders build is numbered 1.145.3 or later, but Microsoft's advisories name only the stable 1.145.3, and an Insiders build's number runs ahead of the stable release it will become: whether it has the fixes depends on its build date, which Wardlatch does not read",
+        "reviewFix": "Update VS Code Insiders (it updates daily: Code - Insiders menu, Check for Updates) and restart it."
+      },
+      {
+        "path": "/var/lib/dpkg/status",
+        "presentRe": "^Package: code$",
+        "re": "^Package: code\\nStatus: install ok installed\\n(?:[^\\n]+\\n)*?Version: (\\d+(?:\\.\\d+)+)",
+        "label": "Debian or Ubuntu package",
+        "maxBytes": 33554432,
+        "reviewWhenFixed": "this VS Code, as installed, is 1.145.3 or later, the version Microsoft's advisories of 10 Nov 2026 name as patched; a window left open from before an update keeps running the old version until VS Code restarts, and Wardlatch can't see which version is running"
+      }
+    ],
+    "fix": "Update Visual Studio Code to 1.145.3 or later: Code menu, Check for Updates, then Restart to Update (on Debian or Ubuntu: sudo apt update && sudo apt install --only-upgrade code). Until then, don't open MCP installation links or add MCP servers you don't trust.",
+    "lookedIn": "VS Code's Info.plist in /Applications and ~/Applications, VS Code Insiders' in /Applications, and dpkg's record of the code package"
+  },
+  "reviewFix": "Restart VS Code (quit it with Code, Quit Visual Studio Code, and open it again), so the version that runs is the one installed.",
+  "safeText": "no Visual Studio Code found in the places this check reads",
+  "notCovered": "Editors built on VS Code (Cursor, Windsurf, VSCodium and others), which number their releases their own way and say nothing of these advisories; VS Code installed by snap, Flatpak or an RPM, or anywhere but /Applications and ~/Applications on a Mac; VS Code Server and Remote installs on other machines; Windows."
+}
