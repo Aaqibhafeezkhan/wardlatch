@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'lib', 'incidents');
 const incidents = readdirSync(DIR).filter((f) => f.endsWith('.json')).map((f) => ({ file: f, ...JSON.parse(readFileSync(join(DIR, f), 'utf8')) }));
-const TYPES = ['sshd', 'trust', 'binaries', 'workflows', 'secrets', 'wordpress', 'installs', 'bundled', 'headers', 'lockfiles'];
+const TYPES = ['sshd', 'trust', 'binaries', 'workflows', 'secrets', 'wordpress', 'installs', 'bundled', 'headers', 'lockfiles', 'iocs'];
 const https = (u) => typeof u === 'string' && new URL(u).protocol === 'https:';
 // the start of a date window: an explicit instant in UTC, to the second (lib/workflows.mjs windowStart reads only this)
 const INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
@@ -51,6 +51,17 @@ test('every incident has the fields its check reads, named after its file', () =
       if (i.dockerDigestPrefixes || i.dockerTags) assert.ok(i.dockerFix);
     }
     if (i.type === 'headers') assert.ok(i.fix && i.notCovered);
+    if (i.type === 'iocs') {
+      // 0.1.18: a vendor's indicators, each in the exact form it is matched in
+      const x = i.iocs;
+      assert.ok(x.fix && x.reviewFix && i.safeText && i.notCovered, `${i.id}: fix, reviewFix, safeText, notCovered`);
+      for (const h of [...(x.extensions?.sha256 ?? []), ...(x.vsixSha256 ?? [])]) assert.match(h, /^[0-9a-f]{64}$/, `${i.id}: ${h}`);
+      if (x.extensions) { new RegExp(x.extensions.nameRe); assert.ok(x.extensions.markers.length && x.extensions.badVersions.length && x.extensions.file); }
+      if (x.sshKey) { assert.match(x.sshKey.blob, /^AAAA[A-Za-z0-9+/]+={0,2}$/); assert.match(x.sshKey.fingerprint, /^SHA256:[A-Za-z0-9+/]{43}$/); }
+      if (x.tmpKey) { new RegExp(x.tmpKey.nameRe); assert.match(x.tmpKey.fingerprint, /^SHA256:[A-Za-z0-9+/]{43}$/); }
+      for (const f of x.files ?? []) { assert.match(f.path, /^~\//); assert.ok(f.why, `${i.id}: ${f.path} says why`); }
+      for (const c of x.vsixCaches ?? []) assert.match(c, /^~\//);
+    }
     if (i.type === 'bundled') {
       // the two strings the decoder check counts: plain words of the decoder's error table, nothing a pattern could misread
       assert.match(i.markers.table, /^_ERROR_[A-Z0-9_]+$/); assert.match(i.markers.fixed, /^_ERROR_[A-Z0-9_]+$/); assert.match(i.markers.nodeConstant, /^[A-Z_]+$/);

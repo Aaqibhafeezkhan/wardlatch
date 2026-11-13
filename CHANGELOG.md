@@ -96,6 +96,21 @@ Every check reads files only and runs nothing it finds.
   the tests follow the vendors' published version formats. Opera and Arc have no published fixed version and are not
   read. A version file may now carry its own `product`, `rule`, `fix`, `reviewFix` and `reviewAlways`
   (`lib/installs.mjs`). Tests: `test/chrome-0.1.18.test.mjs`, and `test/chrome-0.1.16.test.mjs` updated.
+- **The tampered Claude Code extension builds 2.1.312 and 2.1.313** (`claude-code-extension-2026-10`, a new kind of
+  check, `iocs`, in `lib/iocs.mjs`). Cursor's VS Code Extension Marketplace served them on 29 Oct 2026; the loader tried
+  to add an attacker's SSH key, open a reverse SSH tunnel and persist through a LaunchAgent
+  ([Cursor's notice](https://cursor.com/blog/claude-code-extension-security-notice), updated 30 Oct). Wardlatch checks
+  Cursor's indicators by reading files: every `~/.<editor>/extensions/anthropic.claude-code-*` folder (`extension.js` by
+  its SHA-256, and by the two strings Cursor names, in any version, since the tampered bundle keeps the real number),
+  cached extension packages by the four VSIX SHA-256s, `authorized_keys` and `authorized_keys2` for the attacker's key
+  (by the key and its fingerprint, wherever it sits on a line, not by its `svc-telemetry` comment),
+  `~/Library/LaunchAgents/com.apple.sysmond.plist`, `~/.config/.smt` and `.smtk`, and `.stk_<10 hex>` tunnel keys in the
+  temp folders. EXPOSED for any indicator found, with the clean-up steps; REVIEW for a 2.1.312 or 2.1.313 folder with
+  none, one of the two strings alone, the comment on another key, or a `.stk_` file holding another key; UNKNOWN for a
+  place it could not open. It starts no ssh program and reads no process list, so running tunnels are named under what
+  it does not cover, with the Linux crontab line and Windows. The cached-package folder names follow VS Code's layout
+  and were not measured on a real Cursor install. Tests: `test/claude-code-extension-0.1.18.test.mjs` (a stand-in for
+  the malicious file; it is not in the repository).
 
 ## [0.1.17] - 2026-11-11
 

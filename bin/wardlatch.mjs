@@ -29,6 +29,7 @@ import { trustFix, readMacosVersion, appleNote, appleFixState, appleUnknownNote,
 import { checkSshole } from '../lib/sshd.mjs';
 import { lockfilesUnder, checkLockfile, LOCK_DEPTH, NOT_WALKED as LOCK_NOT_WALKED } from '../lib/lockfiles.mjs';
 import { measure as measureReach, lines as reachLines, toJson as reachJson } from '../lib/reach.mjs';
+import { checkIocs } from '../lib/iocs.mjs';
 
 // npx puts the current project's node_modules/.bin, and each parent folder's, first on PATH. Wardlatch finds git,
 // python3, node, curl, php, go and the container engines on PATH and runs some of them, so a project could otherwise
@@ -381,7 +382,7 @@ for (const inc of chosen) {
   // only where the home folder is read: the trust check (the probes' ~/.curlrc, the go env file, the engine's config),
   // installs and headers always; the folder checks only when their usual folders, in the home, are the ones searched;
   // never the version checks, which read PATH
-  const readsHome = ['trust', 'installs', 'bundled', 'headers'].includes(inc.type) || (['workflows', 'secrets', 'wordpress', 'lockfiles'].includes(inc.type) && !explicitPaths);
+  const readsHome = ['trust', 'installs', 'bundled', 'headers', 'iocs'].includes(inc.type) || (['workflows', 'secrets', 'wordpress', 'lockfiles'].includes(inc.type) && !explicitPaths);
   if (sudoHomeMissing && readsHome) { results.push({ incident: inc.id, kind: 'home', status: 'UNKNOWN', reason: sudoHomeMissing }); print('UNKNOWN', 'home folder'); note('33', sudoHomeMissing); }
   // Windows is not supported yet: the program checks look only for macOS and Linux names (no .exe), so on Windows they
   // would read SAFE without having looked. Say so instead (README). A malware's temp-folder trace still counts: the
@@ -403,7 +404,7 @@ for (const inc of chosen) {
   }
   // installed software and bundled decoders are looked for only in macOS and Linux places (no Windows Python folders,
   // install paths or DLL names)
-  if (platform() === 'win32' && (inc.type === 'installs' || inc.type === 'bundled')) {
+  if (platform() === 'win32' && ['installs', 'bundled', 'iocs'].includes(inc.type)) {
     results.push({ incident: inc.id, kind: 'install', status: 'UNKNOWN', reason: 'not checked on Windows yet (Windows is not supported)' });
     print('UNKNOWN', 'not checked on Windows yet'); note('33', 'this check looks only in macOS and Linux locations; Windows is not supported yet');
     all.push(...results); if (!json) console.log(c('2', `Source: ${inc.advisory}`)); continue;
@@ -577,6 +578,23 @@ for (const inc of chosen) {
     results.push(row);
     print(r.status, r.reason);
     if (r.status === 'EXPOSED' || r.status === 'REVIEW') note('2', `${r.status === 'EXPOSED' ? 'fix' : 'check'}: ${inc.fix}`);
+    note('2', `not covered: ${inc.notCovered}`);
+  }
+
+  // A vendor's indicators of compromise (lib/iocs.mjs), read from files only: nothing found is run, no ssh program is
+  // started, no process list is read
+  if (inc.type === 'iocs') {
+    let r;
+    try { r = checkIocs(inc.iocs, { home: HOME, tmpDirs: tempDirs() }); } catch (e) { r = { rows: [{ status: 'UNKNOWN', what: 'indicators', reason: `this check stopped on an error, so the indicators were not all looked for: ${String(e?.message ?? e).slice(0, 160)}` }], searched: [] }; }
+    for (const row of r.rows) {
+      const fix = row.status === 'EXPOSED' ? inc.iocs.fix : row.status === 'REVIEW' ? inc.iocs.reviewFix : undefined;
+      results.push({ incident: inc.id, kind: 'ioc', ...row, fix });
+      print(row.status, `${row.what}${row.path ? `  ${short(row.path)}` : ''}`);
+      note({ EXPOSED: '31' }[row.status] ?? '33', row.reason);
+    }
+    if (r.rows.some((x) => x.status === 'EXPOSED')) note('2', `fix: ${inc.iocs.fix}`);
+    else if (r.rows.some((x) => x.status === 'REVIEW')) note('2', `check: ${inc.iocs.reviewFix}`);
+    if (!r.rows.length) allClear(results, inc, 'ioc', `${inc.safeText} (looked in ${r.searched.length} place${r.searched.length === 1 ? '' : 's'}: the editors' extension folders, cached extension packages, authorized_keys, the dropped files' paths and the temp folders)`, r.searched, undefined, { why: 'this check reads the home folder\'s editor, ssh and LaunchAgent folders and the temp folders, and --paths does not add to them' });
     note('2', `not covered: ${inc.notCovered}`);
   }
 
