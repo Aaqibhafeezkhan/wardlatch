@@ -169,7 +169,8 @@ Every check reads files only and runs nothing it finds.
   program's bytes (never run), and dpkg's `git` (the epoch stripped). Homebrew's below its line's fix is EXPOSED, and a
   line older than 2.50 is end of life. Apple's and a distribution's below it are REVIEW (`reviewBelow`, new): they
   backport fixes without changing the number, and Apple has not said its git has these. Apple's `2.54.0 (Apple
-  Git-157)` reads REVIEW. Tests: `test/git-0.1.18.test.mjs`.
+  Git-157)` reads REVIEW. CVE-2026-111760's record is not published yet, so the source is git's release notes for
+  2.56.1. Tests: `test/git-0.1.18.test.mjs`.
 - **GPUStack before 2.2.0** (`gpustack-2026-11`, CVE-2026-102895, GHSA-gj9m-f8ph-pmhr). CISA added it to its catalog on
   9 Nov 2026 (due 12 Nov), and the line under the title says so. Read from the `gpustack-<version>.dist-info` folder
   names in the site-packages folders the LiteLLM check already walks (`distVersions`, new in `lib/installs.mjs`; a
@@ -177,7 +178,9 @@ Every check reads files only and runs nothing it finds.
   2.2.0 up to 2.3.1 is EXPOSED too (the owner, 13 Nov 2026), worded "fixed in 2.3.1" and never "exploited":
   GPUStack's advisory GHSA-gjf9-3p3r-9h9c (critical, 11 Nov 2026, no CVE, not in CISA's catalog) names `>= 2.0.0,
   < 2.3.1` as affected, in which evaluating a model's configuration runs the repository's Python in the server. Its
-  other advisories since, none in the catalog, are fixed in 2.2.2 (CVE-2026-102894), 2.3.0 and 2.3.1. Tests: `test/gpustack-0.1.18.test.mjs`; the KEV snapshot (same 2026.11.10 feed)
+  other advisories since, none in the catalog, are fixed in 2.2.2 (CVE-2026-102894), 2.3.0 and 2.3.1. CISA's line
+  under the title says "(versions below 2.2.0)", so a 2.3.0 row under it isn't read as exploited: a KEV row may carry
+  `affects` (`lib/kev.mjs`, an independent review's N8). Tests: `test/gpustack-0.1.18.test.mjs`; the KEV snapshot (same 2026.11.10 feed)
   records the row.
 
 ## [0.1.17] - 2026-11-11

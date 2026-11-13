@@ -27,7 +27,9 @@ const site = (names) => { const d = fresh('site'); for (const n of names) { mkdi
 const judge = (names, rule = SP) => checkSitePackages(rule, [site(names)]).map((r) => [r.status, r.version]);
 
 test('P1 the facts are GPUStack\'s and CISA\'s: 2.2.0 for the exploited flaw, 2.3.1 for the critical code execution', () => {
-  assert.deepEqual(INC.kev, [{ cve: 'CVE-2026-102895', vendorProject: 'GPUStack', product: 'GPUStack', dateAdded: '2026-11-09', dueDate: '2026-11-12' }]);
+  assert.deepEqual(INC.kev, [{ cve: 'CVE-2026-102895', vendorProject: 'GPUStack', product: 'GPUStack', dateAdded: '2026-11-09', dueDate: '2026-11-12', affects: 'versions below 2.2.0' }]);
+  // the summary names the 2.3.1 advisory once (review N8)
+  assert.equal(INC.summary.split('GHSA-gjf9-3p3r-9h9c').length - 1, 1);
   const d = SP.distVersions[0];
   assert.deepEqual([d.name, d.minVersion, d.exposedBelow, d.cve], ['gpustack', '2.2.0', '2.3.1', 'CVE-2026-102895']);
   assert.match(d.exposedWhy, /^fixed in 2\.3\.1, by GPUStack's advisory GHSA-gjf9-3p3r-9h9c of 11 Nov 2026 \(critical/);
@@ -72,7 +74,7 @@ test('P3 the command: a venv with GPUStack 2.1.1 is EXPOSED, exit 1, with CISA\'
   const cli = (args) => spawnSync(process.execPath, ['--require', join(ROOT, 'test', 'support', 'hide-machine-places.cjs'), BIN, '--incident', 'gpustack-2026-11', ...args], { encoding: 'utf8', env: { ...rest, HOME: fresh('home'), PATH: fresh('p'), WARDLATCH_TEST_OWN_DIR: dir } });
   const t = cli(['--paths', root]);
   assert.equal(t.status, 1, t.stdout + t.stderr);
-  assert.match(t.stdout, /^CISA KEV: GPUStack GPUStack CVE-2026-102895 is known to be exploited · added 9 Nov 2026/m);
+  assert.match(t.stdout, /^CISA KEV: GPUStack GPUStack CVE-2026-102895 is known to be exploited \(versions below 2\.2\.0\) · added 9 Nov 2026/m);
   assert.match(t.stdout, /^EXPOSED +gpustack-2\.1\.1\.dist-info /m);
   assert.match(t.stdout, /fix: Update GPUStack to 2\.3\.1 or later/);
   // 2.3.0: EXPOSED, exit 1, "fixed in 2.3.1"; CISA's line still stands under the title, for the incident's KEV flaw
@@ -81,8 +83,13 @@ test('P3 the command: a venv with GPUStack 2.1.1 is EXPOSED, exit 1, with CISA\'
   assert.equal(t23.status, 1, t23.stdout + t23.stderr);
   assert.match(t23.stdout, /^EXPOSED +gpustack-2\.3\.0\.dist-info /m);
   assert.match(t23.stdout, /GPUStack 2\.3\.0 has the fix for CVE-2026-102895, but is below 2\.3\.1: fixed in 2\.3\.1/);
+  // the KEV line above it says which versions the exploited flaw is in, so 2.3.0's row isn't read as exploited (review N8)
+  assert.match(t23.stdout, /^CISA KEV: GPUStack GPUStack CVE-2026-102895 is known to be exploited \(versions below 2\.2\.0\) · added 9 Nov 2026/m);
   const clean = fresh('clean');
   const s = cli(['--paths', clean, '--json']);
   assert.equal(s.status, 0, s.stdout + s.stderr);
-  assert.deepEqual(JSON.parse(s.stdout).results.map((r) => r.status), ['SAFE']);
+  const ok = JSON.parse(s.stdout).results;
+  assert.deepEqual(ok.map((r) => r.status), ['SAFE']);
+  // the all-clear names the bar it was held to, 2.3.1, never the KEV fix alone (the review's surviving mutant P12)
+  assert.match(ok[0].reason, /^no GPUStack below 2\.3\.1 found/);
 });

@@ -7,7 +7,7 @@
   "advisory": "https://github.blog/open-source/git/git-security-vulnerabilities-announced-7/",
   "sources": [
     "https://github.com/git/git/blob/master/Documentation/RelNotes/2.50.2.adoc",
-    "https://www.cve.org/CVERecord?id=CVE-2026-111760"
+    "https://github.com/git/git/blob/master/Documentation/RelNotes/2.56.1.adoc"
   ],
   "versionFiles": {
     "product": "Git",

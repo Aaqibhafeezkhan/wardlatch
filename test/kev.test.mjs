@@ -93,6 +93,9 @@ test('K5 a malformed row is a broken incident file: dates, ids and fields are ch
   assert.throws(() => kevRows({ id: 'x', kev: [{ ...ok, cve: 'CVE-2026-9999', dateAdded: '2026-11-10', dueDate: '2026-11-09' }] }), /due date is before the date it was added/);
   assert.doesNotThrow(() => kevRows({ id: 'x', kev: [{ ...ok, cve: 'CVE-2026-9999', dateAdded: '2026-11-09', dueDate: '2026-11-09' }] }), 'same day is allowed');
   assert.throws(() => kevRows({ id: 'x', kev: {} }), /non-empty/);
+  // 0.1.18: `affects`, when given, is a non-empty string, printed after "exploited"
+  assert.throws(() => kevRows({ id: 'x', kev: [{ ...ok, cve: 'CVE-2026-9999', affects: '' }] }), /affects must be a non-empty string/);
+  assert.match(kevLines({ id: 'x', kev: [{ ...ok, cve: 'CVE-2026-9999', affects: 'versions below 2.2.0' }] })[0], /known to be exploited \(versions below 2\.2\.0\) · added 1 Nov 2026/);
   // end to end, on a copy of the tool whose SSHole file has a bad date
   const copy = fresh('copy');
   for (const d of ['bin', 'lib', 'package.json']) cpSync(join(ROOT, d), join(copy, d), { recursive: true });
