@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'lib', 'incidents');
 const incidents = readdirSync(DIR).filter((f) => f.endsWith('.json')).map((f) => ({ file: f, ...JSON.parse(readFileSync(join(DIR, f), 'utf8')) }));
-const TYPES = ['sshd', 'trust', 'binaries', 'workflows', 'secrets', 'wordpress', 'installs', 'bundled', 'headers', 'lockfiles', 'iocs', 'macos'];
+const TYPES = ['sshd', 'trust', 'binaries', 'workflows', 'secrets', 'wordpress', 'installs', 'bundled', 'headers', 'lockfiles', 'iocs', 'macos', 'claudecode'];
 const https = (u) => typeof u === 'string' && new URL(u).protocol === 'https:';
 // the start of a date window: an explicit instant in UTC, to the second (lib/workflows.mjs windowStart reads only this)
 const INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
@@ -60,6 +60,12 @@ test('every incident has the fields its check reads, named after its file', () =
         assert.ok(l.frozen || l.latestSays, `${i.id}: ${l.major} says what its latest release fixes, or that it is frozen`);
         for (const k of l.kev) { assert.ok(kev.has(k.cve), `${i.id}: ${k.cve} is a kev row`); assert.equal(Number(k.fixed.split('.')[0]), l.major, `${i.id}: ${k.cve}`); }
       }
+    }
+    if (i.type === 'claudecode') {
+      const c = i.claudeCode;
+      assert.ok(i.fix && i.reviewFix && i.safeText && i.notCovered, `${i.id}: texts`);
+      assert.match(c.fixed, /^\d+\.\d+\.\d+$/); new RegExp(c.extensionName);
+      for (const p of [c.link, c.versionsDir, ...c.npmPackages, ...c.casks]) assert.match(p, /^(\/|~\/)/, `${i.id}: ${p}`);
     }
     if (i.type === 'iocs') {
       // 0.1.18: a vendor's indicators, each in the exact form it is matched in

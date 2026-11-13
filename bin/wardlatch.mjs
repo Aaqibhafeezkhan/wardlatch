@@ -30,6 +30,7 @@ import { checkSshole } from '../lib/sshd.mjs';
 import { lockfilesUnder, checkLockfile, LOCK_DEPTH, NOT_WALKED as LOCK_NOT_WALKED } from '../lib/lockfiles.mjs';
 import { measure as measureReach, lines as reachLines, toJson as reachJson } from '../lib/reach.mjs';
 import { checkIocs } from '../lib/iocs.mjs';
+import { checkClaudeCode } from '../lib/claudecode.mjs';
 
 // npx puts the current project's node_modules/.bin, and each parent folder's, first on PATH. Wardlatch finds git,
 // python3, node, curl, php, go and the container engines on PATH and runs some of them, so a project could otherwise
@@ -382,7 +383,7 @@ for (const inc of chosen) {
   // only where the home folder is read: the trust check (the probes' ~/.curlrc, the go env file, the engine's config),
   // installs and headers always; the folder checks only when their usual folders, in the home, are the ones searched;
   // never the version checks, which read PATH
-  const readsHome = ['trust', 'installs', 'bundled', 'headers', 'iocs'].includes(inc.type) || (['workflows', 'secrets', 'wordpress', 'lockfiles'].includes(inc.type) && !explicitPaths);
+  const readsHome = ['trust', 'installs', 'bundled', 'headers', 'iocs', 'claudecode'].includes(inc.type) || (['workflows', 'secrets', 'wordpress', 'lockfiles'].includes(inc.type) && !explicitPaths);
   if (sudoHomeMissing && readsHome) { results.push({ incident: inc.id, kind: 'home', status: 'UNKNOWN', reason: sudoHomeMissing }); print('UNKNOWN', 'home folder'); note('33', sudoHomeMissing); }
   // Windows is not supported yet: the program checks look only for macOS and Linux names (no .exe), so on Windows they
   // would read SAFE without having looked. Say so instead (README). A malware's temp-folder trace still counts: the
@@ -404,7 +405,7 @@ for (const inc of chosen) {
   }
   // installed software and bundled decoders are looked for only in macOS and Linux places (no Windows Python folders,
   // install paths or DLL names)
-  if (platform() === 'win32' && ['installs', 'bundled', 'iocs'].includes(inc.type)) {
+  if (platform() === 'win32' && ['installs', 'bundled', 'iocs', 'claudecode'].includes(inc.type)) {
     results.push({ incident: inc.id, kind: 'install', status: 'UNKNOWN', reason: 'not checked on Windows yet (Windows is not supported)' });
     print('UNKNOWN', 'not checked on Windows yet'); note('33', 'this check looks only in macOS and Linux locations; Windows is not supported yet');
     all.push(...results); if (!json) console.log(c('2', `Source: ${inc.advisory}`)); continue;
@@ -589,6 +590,22 @@ for (const inc of chosen) {
     print(r.status, `macOS${r.version ? ` ${r.version}` : ''}${r.status === 'SAFE' && !r.version ? '' : `  ${r.file}`}`);
     note({ EXPOSED: '31', SAFE: '2' }[r.status] ?? '33', r.reason);
     if (r.fix) note('2', `${r.status === 'EXPOSED' ? 'fix' : 'check'}: ${r.fix}`);
+    note('2', `not covered: ${inc.notCovered}`);
+  }
+
+  // 0.1.18: Claude Code's installs and their versions, from files only (lib/claudecode.mjs); claude is never run
+  if (inc.type === 'claudecode') {
+    let r;
+    try { r = checkClaudeCode(inc.claudeCode, { home: HOME, os: platform() }); } catch (e) { r = { rows: [{ status: 'UNKNOWN', what: 'Claude Code', version: '', reason: `this check stopped on an error, so Claude Code's installs were not all read: ${String(e?.message ?? e).slice(0, 160)}` }], searched: [] }; }
+    for (const row of r.rows) {
+      const fix = row.status === 'EXPOSED' ? inc.fix : row.status === 'REVIEW' ? inc.reviewFix : undefined;
+      results.push({ incident: inc.id, kind: 'claude-code', ...row, fix });
+      print(row.status, `Claude Code ${row.what}${row.version ? ` ${row.version}` : ''}${row.path ? `  ${short(row.path)}` : ''}`);
+      note({ EXPOSED: '31', SAFE: '2' }[row.status] ?? '33', row.reason);
+    }
+    if (r.rows.some((x) => x.status === 'EXPOSED')) note('2', `fix: ${inc.fix}`);
+    else if (r.rows.some((x) => x.status === 'REVIEW')) note('2', `check: ${inc.reviewFix}`);
+    if (!r.rows.length) allClear(results, inc, 'claude-code', `${inc.safeText} (looked in ${r.searched.length} place${r.searched.length === 1 ? '' : 's'}: the native installer's link and versions folder, npm's global folders, Homebrew's cask folder and the editors' extension folders)`, r.searched.length ? r.searched : [saw(`looked for ${inc.claudeCode.link}`)], undefined, { why: 'this check reads the places Claude Code\'s installers put it, and --paths does not add to them' });
     note('2', `not covered: ${inc.notCovered}`);
   }
 

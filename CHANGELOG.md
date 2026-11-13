@@ -127,6 +127,16 @@ Every check reads files only and runs nothing it finds.
   its own REVIEW reason, since an Insiders number runs ahead of the stable release) or dpkg's `code` stanza; never
   starts it. Below 1.145.3 is EXPOSED; at or past it REVIEW, as for Chrome. Editors built on VS Code are not read.
   Tests: `test/vscode-0.1.18.test.mjs`.
+- **Claude Code before 2.1.251 on macOS** (`claude-code-2026-11`, CVE-2026-88968, GHSA-5xjx-9qx6-jcrv; not in
+  CISA's catalog, so "fixed in"). A new kind of check, `claudecode`, in `lib/claudecode.mjs`, reads the installs
+  without running `claude`: the target of `~/.local/bin/claude` (the native installer's link; the version is the file
+  name in `~/.local/share/claude/versions`), every other file in that folder, npm's global `package.json` (Homebrew,
+  `/usr/local`, `~/.npm-global`, nvm, fnm, Volta, asdf, mise), Homebrew's `Caskroom/claude-code` and editor extension
+  folders. The copy that runs (or an npm or cask install) below 2.1.251 is EXPOSED on a Mac, and the line says when it
+  is also below 2.1.260 (CVE-2026-103012, low); a copy left beside the one that runs, or an editor extension's copy,
+  is REVIEW; a link that can't be read, or that points outside the versions folder, is UNKNOWN. Off a Mac it is SAFE
+  with the reason. `readLink()` in `lib/files.mjs` reads a link without following it. Tests:
+  `test/claude-code-0.1.18.test.mjs`.
 
 ## [0.1.17] - 2026-11-11
 
