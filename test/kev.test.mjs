@@ -48,9 +48,9 @@ test('K2 an incident whose CVE CISA lists carries exactly that row; one CISA doe
     carried += have.length;
   }
   // the brief named SSHole and Brotli; the rule found PHP's two and Plex's four too, and CISA listed Chrome's on 10 Nov;
-  // 0.1.18 added macOS's three
-  assert.equal(carried, 12);
-  assert.deepEqual(Object.keys(SNAP.listed).sort(), ['brotli-2026-10', 'chrome-2026-11', 'macos-2026-11', 'php-2026-10', 'plex-2026-10', 'sshole-2026-11']);
+  // 0.1.18 added macOS's three and GPUStack's
+  assert.equal(carried, 13);
+  assert.deepEqual(Object.keys(SNAP.listed).sort(), ['brotli-2026-10', 'chrome-2026-11', 'gpustack-2026-11', 'macos-2026-11', 'php-2026-10', 'plex-2026-10', 'sshole-2026-11']);
 });
 
 test('K3 the line names CISA\'s vendor and product (Google Brotli, not Node.js), both dates and the catalog link', () => {

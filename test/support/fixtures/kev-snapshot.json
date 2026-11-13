@@ -23,6 +23,15 @@
         "dueDate": "2026-11-24"
       }
     ],
+    "gpustack-2026-11": [
+      {
+        "cve": "CVE-2026-102895",
+        "vendorProject": "GPUStack",
+        "product": "GPUStack",
+        "dateAdded": "2026-11-09",
+        "dueDate": "2026-11-12"
+      }
+    ],
     "macos-2026-11": [
       {
         "cve": "CVE-2024-27834",
@@ -120,6 +129,9 @@
     ],
     "gitlab-2026-10": [
       "CVE-2026-110264"
+    ],
+    "gpustack-2026-11": [
+      "CVE-2026-102894"
     ],
     "react-rsc-2026-11": [
       "CVE-2026-126187"
