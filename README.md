@@ -12,15 +12,32 @@
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/deimos-hq/wardlatch/badge)](https://scorecard.dev/viewer/?uri=github.com/deimos-hq/wardlatch)
 [![npm](https://img.shields.io/npm/v/wardlatch)](https://www.npmjs.com/package/wardlatch)
 
-**Does the wrong key still turn?**
-
-When a certificate authority's keys leak, browsers update within hours. The rest of your machine doesn't. curl, Node,
-Python and every project's own certificate bundle each keep their own list of who to trust, and each has to be fixed
-on its own. Wardlatch tells you which ones still trust the compromised keys, and checks this week's other leaks too.
+**A free security check of your own Mac or Linux machine against named incidents. Runs locally, sends no telemetry,
+changes nothing.**
 
 ```
-npx wardlatch@latest
+cd ~ && npx wardlatch@latest
 ```
+
+What it checks (one line per check; every incident, with its source, is under [Incidents](#incidents)):
+
+<!-- The checks list. Add a line when a check ships; keep it in the order of the Incidents section. -->
+- **Certificate trust:** whether `node`, `curl`, `python3`, the system trust store, Python environments, pip and running
+  containers still trust revoked or leaked certificate-authority keys, tested with real TLS connections and a control.
+- **Vulnerable versions:** installed programs and pinned lockfile versions older than the fix for a named CVE, with
+  CISA's dates printed when the CVE is in its Known Exploited Vulnerabilities catalog.
+- **Swapped or poisoned files:** release binaries, Python packages and WordPress plugins matched by SHA-256, file name,
+  version or install record, never run.
+- **Your repositories:** workflow files added during a known campaign, and keys committed to code.
+- **Your settings:** your name or email in the headers your tools send.
+- **`--reach`:** which guarded data and credential files a program started from this terminal could open.
+
+For CI and scripts: `npx wardlatch@latest --json`. Exit code 0 means all safe, 1 something is exposed, 2 something
+could not be tested; REVIEW lines don't change it. [docs/CI.md](docs/CI.md) has a GitHub Actions workflow.
+
+**Does the wrong key still turn?** When a certificate authority's keys leak or are revoked, browsers update within
+hours. The rest of your machine doesn't. curl, Node, Python and every project's own certificate bundle each keep their
+own list of who to trust, and each has to be fixed on its own. Wardlatch asks each one.
 
 Run it from your home folder (`cd ~` first), not from inside a project: npx also starts Wardlatch with the current
 project's own `node_modules/.bin/node` if it has one, and applies its `.npmrc`; Wardlatch can't undo either. Use `@latest`: a bare `npx wardlatch` runs any copy already installed globally or in the current project, whatever its version (and npm older than 9.6.5 also reuses a copy npx cached earlier). If you installed Wardlatch, update that copy too (`npm install -g wardlatch@latest` for a global copy, `npm install wardlatch@latest` in the project), or remove it. `wardlatch --help` prints the version without running any check.

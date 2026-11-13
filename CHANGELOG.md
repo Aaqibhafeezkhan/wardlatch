@@ -11,7 +11,13 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
 
 ## [Unreleased]
 
-A release candidate for 0.1.18: two new incidents. The version number is not changed here; the release sets it.
+## [0.1.18] - 2026-11-13
+
+New checks, and a new mode, `--reach`. Each check is a bullet in the list below and an entry under "Added".
+
+<!-- 0.1.18 is open until it is tagged: a check added before the tag gets a bullet in the list below, an entry
+     under "Added", its sources in the Sources line and its tests in the sentence after it. The date above is a
+     pre-tag placeholder for the releaser to set. -->
 
 - **React Server Components, CVE-2026-126187** (`react-rsc-2026-11`). React's advisory names three npm packages,
   `react-server-dom-webpack`, `react-server-dom-parcel` and `react-server-dom-turbopack`, in versions 19.0.0 through
@@ -2501,7 +2507,8 @@ Published 05:14 UTC. npm `gitHead`: `4d4f295`. The first release.
 npm also lists `0.0.0-stage` (21 October, 05:13 UTC), a 331-byte, two-file placeholder from npm's staged publishing,
 described on npm as a "Temporary package placeholder". It is not a release and holds none of Wardlatch's code.
 
-[Unreleased]: https://github.com/deimos-hq/wardlatch/compare/v0.1.17...main
+[Unreleased]: https://github.com/deimos-hq/wardlatch/compare/v0.1.18...main
+[0.1.18]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.18
 [0.1.17]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.17
 [0.1.16]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.16
 [0.1.15]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.15
