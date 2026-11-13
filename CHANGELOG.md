@@ -96,6 +96,19 @@ Every check reads files only and runs nothing it finds.
   the tests follow the vendors' published version formats. Opera and Arc have no published fixed version and are not
   read. A version file may now carry its own `product`, `rule`, `fix`, `reviewFix` and `reviewAlways`
   (`lib/installs.mjs`). Tests: `test/chrome-0.1.18.test.mjs`, and `test/chrome-0.1.16.test.mjs` updated.
+- **Corrected: pip's own CA list is trusted by default, not only with a flag.** 0.1.16 and 0.1.17 said, in the README
+  and on the REVIEW line for `pip/_vendor/certifi/cacert.pem`, that pip 24.2 and later on Python 3.10 or later use
+  that list only with `--use-deprecated=legacy-certs`. That was wrong (an independent review, 13 Nov 2026). pip's own
+  code, read on one Mac in pip 26.1.2 and 26.2.1: `index_command.py` loads `certifi.where()` into its truststore
+  context, and truststore adds those certificates as extra roots beside the system's
+  (`SecTrustSetAnchorCertificatesOnly` false on a Mac). So a withdrawn root in that list is trusted by every pip
+  download unless the system blocks the certificate itself. Older pips, and pip on Python 3.9 or older (the built-in
+  Python 3.9 with pip 21.2 among them), use the list alone, as the line already said. The line stays REVIEW.
+  **Open, for the owner:** whether it should be EXPOSED. On macOS 27.2.1, where Apple blocks the 12 certificates
+  itself, pip 26.1.2 and 26.2.1 refused a compromised test host by default (10 Nov 2026); on a macOS without that
+  block, or on Linux, pip's default was not measured, and a measurement there would settle it. Tests:
+  `test/pip-wording-0.1.18.test.mjs` (fails if the old wording comes back), `test/apple-update-0.1.16.test.mjs`
+  updated.
 - **The tampered Claude Code extension builds 2.1.312 and 2.1.313** (`claude-code-extension-2026-10`, a new kind of
   check, `iocs`, in `lib/iocs.mjs`). Cursor's VS Code Extension Marketplace served them on 29 Oct 2026; the loader tried
   to add an attacker's SSH key, open a reverse SSH tunnel and persist through a LaunchAgent

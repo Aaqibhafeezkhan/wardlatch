@@ -492,7 +492,8 @@ for (const inc of chosen) {
       print('UNKNOWN', u.label); note('33', u.reason);
     }
     notRunRow(results, inc, 'trust', notRun);
-    // W4: pip's own list in the machine's Python folders, read by key: REVIEW rows only (it takes a flag to be used)
+    // W4: pip's own list in the machine's Python folders, read by key: REVIEW rows (pip trusts it by default beside the
+    // system's trust; whether such a line should be EXPOSED is the owner's open question, lib/probe.mjs pipListRows)
     {
       const pipDirs = [...new Set(SITE_PATTERNS.flatMap((p) => expand(p, [], [])).map((d) => realPath(d) ?? d))];
       // W3: the Pythons apps carry (Blender, Unity's Emscripten): their bundled certifi, and pip's list beside it

@@ -64,8 +64,8 @@ Two checks keep the answer honest:
   dropped first, so a project can't have Wardlatch run its programs), plus the operating system's own trust: macOS's
   networking stack (Safari and Apple's apps) and, on Linux, the distribution's CA bundle (tested with curl; with no curl, python3 tests it, and with neither it is UNKNOWN)
 - the bundle `REQUESTS_CA_BUNDLE` names, which requests and pip use in place of certifi (tested with curl)
-- pip's own CA list (`pip/_vendor/certifi/cacert.pem`: older pips, or on Python 3.9 or older, use it for every download;
-  pip 24.2 and later on Python 3.10 or later only with `--use-deprecated=legacy-certs`) in the machine's
+- pip's own CA list (`pip/_vendor/certifi/cacert.pem`: older pips, or on Python 3.9 or older, use it alone for every
+  download; pip 24.2 and later on Python 3.10 or later trust it by default, together with the system's trust) in the machine's
   Python folders, and the certifi inside apps' own Pythons (Blender, Unity's Emscripten Python), read as files, by key:
   a REVIEW line for each that still holds a withdrawn root
 - on a Mac with Apple's update (macOS 27.2.1, 26.7.3, 15.8.3 or later), every copy of `cert.pem` left in `/etc/ssl`:
