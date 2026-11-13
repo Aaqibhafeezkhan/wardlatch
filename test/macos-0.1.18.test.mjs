@@ -14,7 +14,7 @@ import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, realpathSy
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { macosUpdateRow, productVersion, productBuild, isBetaBuild, appleVersionLabel, appleFixState, appleSystemRow, SYSTEM_VERSION_PLIST } from '../lib/macos.mjs';
+import { macosUpdateRow, productVersion, productBuild, isBetaBuild, isReleaseBuild, appleVersionLabel, appleFixState, appleSystemRow, SYSTEM_VERSION_PLIST } from '../lib/macos.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const BIN = join(ROOT, 'bin', 'wardlatch.mjs');
@@ -116,6 +116,25 @@ test('M4c the older eMudhra and Brotli judgements (appleFixState): a beta is lab
   assert.equal(appleSystemRow(brotli, '27.3').status, 'SAFE', 'the control: by its number alone the beta read SAFE');
 });
 
+test('M4d a build Apple doesn\'t give a release fails closed to REVIEW (the re-review\'s R1), and a beta at a KEV fix\'s number gets the beta wording (R2)', () => {
+  for (const b of ['26C5035R', '24J', 'A1', '26b131', '26B131x1', '26C 5035']) {
+    assert.ok(!isReleaseBuild(b), b);
+    const r = at('27.3', b);
+    assert.equal(r.status, 'REVIEW', b);
+    assert.doesNotMatch(r.reason, /at or past/, b);
+    assert.match(appleVersionLabel({ version: '27.3', build: b }), /^27\.3 \((beta )?build /, b);
+  }
+  assert.ok(isReleaseBuild('26B131') && isReleaseBuild('25H100'));
+  assert.match(at('27.3', '26C5035R').reason, /not in the form Apple gives a release/);
+  // R2: a beta whose number is a KEV fix's is not told it "has the fixes"
+  for (const [v, b] of [['27.0', '26A5288k'], ['26.7.1', '25H5001c']]) {
+    const r = at(v, b);
+    assert.equal(r.status, 'REVIEW', v); assert.match(r.reason, /: a beta\./, v); assert.doesNotMatch(r.reason, /has the fixes/, v);
+  }
+  // a release build there keeps its wording
+  assert.match(at('26.7.1', '25H100').reason, /has the fixes for the flaws CISA lists as exploited/);
+});
+
 test('M5 the version is read from the plist\'s ProductVersion, as the command reads it', () => {
   assert.equal(productVersion(plist('26.7.1')), '26.7.1');
   assert.equal(productVersion(plist('26.7.1').replace('ProductVersion', 'ProductOther')), '');
@@ -124,14 +143,14 @@ test('M5 the version is read from the plist\'s ProductVersion, as the command re
 });
 
 // The command, on a Mac: SystemVersion.plist is this test's own (a preload maps the path), as in brotli-0.1.16's B4
-const cli = (v, args = [], build) => {
+const cli = (v, args = [], build, incidents = ['macos-2026-11']) => {
   const f = join(fresh('plist'), 'SystemVersion.plist'); writeFileSync(f, v === null ? '<plist/>' : plist(v, build));
   const pre = join(fresh('pre'), 'map.cjs');
   writeFileSync(pre, `const fs = require('node:fs'); const P = ${JSON.stringify(SYSTEM_VERSION_PLIST)}, V = ${JSON.stringify(f)};
 for (const k of ['statSync', 'lstatSync', 'realpathSync', 'openSync', 'existsSync']) { const o = fs[k]; fs[k] = (p, ...a) => o(String(p) === P ? V : p, ...a); }
 require('node:module').syncBuiltinESMExports();\n`);
   const { NODE_OPTIONS, ...rest } = process.env;
-  return spawnSync(process.execPath, ['--require', join(ROOT, 'test', 'support', 'hide-machine-places.cjs'), '--require', pre, BIN, '--incident', 'macos-2026-11', ...args], { encoding: 'utf8', env: { ...rest, HOME: fresh('home'), PATH: fresh('p'), WARDLATCH_TEST_OWN_DIR: dir } });
+  return spawnSync(process.execPath, ['--require', join(ROOT, 'test', 'support', 'hide-machine-places.cjs'), '--require', pre, BIN, ...incidents.flatMap((i) => ['--incident', i]), ...args], { encoding: 'utf8', env: { ...rest, HOME: fresh('home'), PATH: fresh('p'), WARDLATCH_TEST_OWN_DIR: dir } });
 };
 
 test('M6 the command on a Mac: EXPOSED exit 1 with the CISA lines and the fix, REVIEW exit 0, SAFE exit 0, unread exit 2', { skip: process.platform !== 'darwin' && 'macOS only: the version is read on a Mac' }, () => {
@@ -150,6 +169,29 @@ test('M6 the command on a Mac: EXPOSED exit 1 with the CISA lines and the fix, R
   assert.equal(beta.status, 0, beta.stdout); assert.deepEqual(JSON.parse(beta.stdout).results.map((x) => [x.status, x.build]), [['REVIEW', '26C5035r']]);
   const s = cli('27.2.1', ['--json']);
   assert.equal(s.status, 0); assert.deepEqual(JSON.parse(s.stdout).results.map((x) => x.status), ['SAFE']);
+  // a build Apple doesn't give a release, through the command
+  const odd = cli('27.3', ['--json'], '26C5035R');
+  assert.deepEqual(JSON.parse(odd.stdout).results.map((x) => x.status), ['REVIEW']);
   const u = cli(null);
   assert.equal(u.status, 2, u.stdout); assert.match(u.stdout, /^UNKNOWN +macOS +\/System/m);
+});
+
+// The re-review's N17: the command must hand the Brotli check the beta's label, not its bare number. Reverted, macOS's
+// own Brotli row on 27.3 beta 1 reads SAFE "fixed" by its number. One run, both incidents, a beta plist, and its twin
+// with a release build as the control that the test can tell the two apart.
+const VM_VARS = ['VOLTA_HOME', 'MISE_DATA_DIR', 'MISE_INSTALLS_DIR', 'MISE_SYSTEM_DATA_DIR', 'MISE_SYSTEM_INSTALLS_DIR', 'MISE_SHARED_INSTALL_DIRS', 'XDG_DATA_HOME', 'RTX_DATA_DIR', 'PROTO_HOME', 'ASDF_DATA_DIR', 'NODENV_ROOT'];
+test('M7 the command on a beta: macOS\'s own Brotli row is UNKNOWN and the macOS row REVIEW; on a release build both are SAFE', { skip: process.platform !== 'darwin' && 'macOS only: the version is read on a Mac' }, () => {
+  const both = (build) => {
+    const saved = Object.fromEntries(VM_VARS.map((k) => [k, process.env[k]]));
+    for (const k of VM_VARS) process.env[k] = '';
+    try { return cli('27.3', ['--json', '--paths', fresh('root')], build, ['brotli-2026-10', 'macos-2026-11']); } finally { for (const k of VM_VARS) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; } }
+  };
+  const rows = (r) => { const j = JSON.parse(r.stdout); return { brotli: j.results.find((x) => x.incident === 'brotli-2026-10' && x.what === 'macOS'), macos: j.results.find((x) => x.incident === 'macos-2026-11') }; };
+  const beta = rows(both('26C5035r'));
+  assert.equal(beta.brotli?.status, 'UNKNOWN', JSON.stringify(beta.brotli));
+  assert.match(beta.brotli.reason, /27\.3 \(beta build 26C5035r\).*is a beta/);
+  assert.equal(beta.macos.status, 'REVIEW'); assert.match(beta.macos.reason, /: a beta\./);
+  // the control: a release build of the same number is SAFE in both, so the beta's rows are the beta's doing
+  const rel = rows(both('26C70'));
+  assert.deepEqual([rel.brotli?.status, rel.macos.status], ['SAFE', 'SAFE']);
 });

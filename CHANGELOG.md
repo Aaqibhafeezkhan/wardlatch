@@ -137,7 +137,9 @@ Every check reads files only and runs nothing it finds.
   because Apple ships them nothing and does not say they are affected; at or past the latest, SAFE. A version that
   can't be read, or was never a macOS release, is UNKNOWN. The build is read from the same file: a would-be SAFE on a
   beta (a build ending in a lowercase letter, as 27.3 beta 1's `26C5035r` of 3 Nov, before 27.2.1, does), or on a
-  build that can't be read, is REVIEW (an independent review's B2). The same blind spot in the eMudhra and Brotli
+  build that can't be read, is REVIEW (an independent review's B2). A release build is recognised by an allow-list
+  (digits, a capital letter, digits), so a build of any other shape fails closed to REVIEW too, and a beta at a KEV
+  fix's number is not told it has the fixes. The same blind spot in the eMudhra and Brotli
   checks' reading of the version (`appleFixState`) is closed without changing their rules: a beta is passed to them
   as `27.3 (beta build 26C5035r)`, which they can't place, so the Brotli row for macOS's own copy is UNKNOWN on a beta,
   not SAFE, and the built-in tools' `cert.pem` is not read in place of their control. Tests: `test/macos-0.1.18.test.mjs`; the KEV snapshot

@@ -74,6 +74,16 @@ test('X1b a line newer than every fixed one (Early Stable 158.0.8127.18/.19 of 4
   for (const f of V.files.filter((x) => !x.product)) assert.equal(f.reviewAbove?.from, '158', f.path);
 });
 
+test('X1c the newer-line rule holds in ~/Applications too (the re-review\'s N7): Chrome 158, Brave 1.100 and Vivaldi 8.4 there are REVIEW "not known"', () => {
+  // every Chrome, Brave and Vivaldi entry carries it, in both places and in dpkg's
+  for (const f of V.files.filter((x) => x.product !== 'Microsoft Edge')) assert.ok(f.reviewAbove?.from && f.reviewAbove.reason, f.path);
+  const home = fresh('home-newer');
+  app(home, 'chrome', plist('158.0.8127.18')); app(home, 'brave', plist('158.1.100.2')); app(home, 'vivaldi', plist('8.4.4250.3'));
+  const j = JSON.parse(cli(home, ['--json']).stdout);
+  const got = j.results.map((r) => [r.product ?? 'Google Chrome', r.status, r.path.startsWith(home), /is not known/.test(r.reason), /as installed, (has|is)/.test(r.reason)]);
+  assert.deepEqual(got.sort(), [['Brave', 'REVIEW', true, true, false], ['Google Chrome', 'REVIEW', true, true, false], ['Vivaldi', 'REVIEW', true, true, false]]);
+});
+
 test('X2 Linux has no Extended Stable package: dpkg\'s google-chrome-stable keeps 157.0.8103.50 as its one fix', () => {
   const dpkg = V.files.find((f) => f.path === '/var/lib/dpkg/status');
   assert.deepEqual(dpkg.rule, { minVersion: '157.0.8103.50' });

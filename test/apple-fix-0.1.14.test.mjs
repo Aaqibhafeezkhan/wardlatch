@@ -219,10 +219,11 @@ test('appleUnknownNote: why the built-in tools\' control may fail on an updated 
 // `baseline`: the incident is read without its appleFix record, as 0.1.13 had it, so a row or an exit code that the new
 // code adds or removes shows against it.
 const INCIDENT = join(ROOT, 'lib', 'incidents', 'emudhra-2026-10.json');
-function standIn({ version, pem, refuses = false, fails = false, baseline = false }) {
+function standIn({ version, pem, refuses = false, fails = false, baseline = false, build }) {
   const d = mkdtempSync(join(dir, 'mac-'));
   const files = { plist: join(d, 'SystemVersion.plist'), pem: join(d, 'cert.pem'), curl: join(d, 'curl'), log: join(d, 'asked'), inc: join(d, 'emudhra-2026-10.json') };
-  if (version !== undefined) writeFileSync(files.plist, plist(version));
+  // 0.1.18: `build` replaces the plist's ProductBuildVersion (a beta's, for the re-review's N18)
+  if (version !== undefined) writeFileSync(files.plist, build === undefined ? plist(version) : plist(version).replace(/(<key>ProductBuildVersion<\/key>\s*<string>)[^<]*/, `$1${build}`));
   if (pem !== undefined) writeFileSync(files.pem, pem);
   writeFileSync(files.inc, JSON.stringify({ ...inc, appleFix: undefined }));
   writeFileSync(files.curl, `#!/bin/sh\ncase "$1" in --version) echo "curl 8.7.1 (x86_64-apple-darwin27.0)"; exit 0;; esac\n${fails ? 'exit 60\n' : refuses ? 'for a in "$@"; do [ "$a" = --cacert ] && exit 0; done\nexit 60\n' : 'exit 0\n'}`, { mode: 0o755 });
@@ -336,4 +337,14 @@ test('the command on a stand-in Mac whose curl refuses even with the roots force
   for (const n of ['fixed', 'before']) { assert.deepEqual(shape(runs[n].out), shape(runs.baseline.out), n); assert.equal(runs[n].code, runs.baseline.code, n); }
   assert.equal(runs.baseline.code, 2);
   assert.deepEqual(certPemRows(runs.before.out), G1_ROW); assert.deepEqual(certPemRows(runs.fixed.out), []);
+});
+
+// 0.1.18 (the re-review's N18): the command hands the eMudhra check a beta's label, never its bare number, so a beta
+// is not "fixed" by its number and the built-in tools' cert.pem is not read in place of their control. Reverted, the
+// beta's macos field reads appleFix "fixed". The release build of the same number is the control.
+test('0.1.18 on a macOS beta the eMudhra check is told it is a beta: appleFix unknown, never fixed; a release build of the same number is fixed', () => {
+  const beta = JSON.parse(standIn({ version: '27.3', pem: APPLE_272, build: '26C5035r' }).go(true).out);
+  assert.deepEqual([beta.macos.version, beta.macos.appleFix], ['27.3 (beta build 26C5035r)', 'unknown']);
+  const rel = JSON.parse(standIn({ version: '27.3', pem: APPLE_272, build: '26C70' }).go(true).out);
+  assert.deepEqual([rel.macos.version, rel.macos.appleFix], ['27.3', 'fixed']);
 });
