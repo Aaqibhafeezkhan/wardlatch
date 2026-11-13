@@ -25,10 +25,12 @@ import { pathState, readText, listDir, realPath, entriesByMetadata, denialCode, 
 import { ownedByPerson, ownerName } from '../lib/owners.mjs';
 import { safe, saw, withdrawUnreceipted } from '../lib/report.mjs';
 import { escapeHidden, escapeJsonHidden } from '../lib/escape.mjs';
-import { trustFix, readMacosVersion, appleNote, appleFixState, appleUnknownNote, appleFileCheck, appleSystemRow, backupRows, certPemReviewRow } from '../lib/macos.mjs';
+import { trustFix, readMacosRelease, appleVersionLabel, appleNote, appleFixState, appleUnknownNote, appleFileCheck, appleSystemRow, backupRows, certPemReviewRow, macosUpdateRow } from '../lib/macos.mjs';
 import { checkSshole } from '../lib/sshd.mjs';
 import { lockfilesUnder, checkLockfile, LOCK_DEPTH, NOT_WALKED as LOCK_NOT_WALKED } from '../lib/lockfiles.mjs';
 import { measure as measureReach, lines as reachLines, toJson as reachJson } from '../lib/reach.mjs';
+import { checkIocs } from '../lib/iocs.mjs';
+import { checkClaudeCode } from '../lib/claudecode.mjs';
 
 // npx puts the current project's node_modules/.bin, and each parent folder's, first on PATH. Wardlatch finds git,
 // python3, node, curl, php, go and the container engines on PATH and runs some of them, so a project could otherwise
@@ -381,7 +383,7 @@ for (const inc of chosen) {
   // only where the home folder is read: the trust check (the probes' ~/.curlrc, the go env file, the engine's config),
   // installs and headers always; the folder checks only when their usual folders, in the home, are the ones searched;
   // never the version checks, which read PATH
-  const readsHome = ['trust', 'installs', 'bundled', 'headers'].includes(inc.type) || (['workflows', 'secrets', 'wordpress', 'lockfiles'].includes(inc.type) && !explicitPaths);
+  const readsHome = ['trust', 'installs', 'bundled', 'headers', 'iocs', 'claudecode'].includes(inc.type) || (['workflows', 'secrets', 'wordpress', 'lockfiles'].includes(inc.type) && !explicitPaths);
   if (sudoHomeMissing && readsHome) { results.push({ incident: inc.id, kind: 'home', status: 'UNKNOWN', reason: sudoHomeMissing }); print('UNKNOWN', 'home folder'); note('33', sudoHomeMissing); }
   // Windows is not supported yet: the program checks look only for macOS and Linux names (no .exe), so on Windows they
   // would read SAFE without having looked. Say so instead (README). A malware's temp-folder trace still counts: the
@@ -403,7 +405,7 @@ for (const inc of chosen) {
   }
   // installed software and bundled decoders are looked for only in macOS and Linux places (no Windows Python folders,
   // install paths or DLL names)
-  if (platform() === 'win32' && (inc.type === 'installs' || inc.type === 'bundled')) {
+  if (platform() === 'win32' && ['installs', 'bundled', 'iocs', 'claudecode'].includes(inc.type)) {
     results.push({ incident: inc.id, kind: 'install', status: 'UNKNOWN', reason: 'not checked on Windows yet (Windows is not supported)' });
     print('UNKNOWN', 'not checked on Windows yet'); note('33', 'this check looks only in macOS and Linux locations; Windows is not supported yet');
     all.push(...results); if (!json) console.log(c('2', `Source: ${inc.advisory}`)); continue;
@@ -413,7 +415,8 @@ for (const inc of chosen) {
     if (!json) console.log(c('2', `Asks each runtime to connect to ${inc.canaries.length} test hosts signed with the compromised keys.`));
     // On a Mac the macOS version chooses between the fix texts for the built-in curl (lib/macos.mjs): Apple's update to
     // 27.2.1, 26.7.3 or 15.8.3 is the fix for /etc/ssl/cert.pem from 9 Nov 2026. It never changes a status.
-    const macos = platform() === 'darwin' && inc.appleFix ? readMacosVersion() : '';
+    // a beta is labelled with its build, which appleFixState can't place: never "fixed" by its number (review B2)
+    const macos = platform() === 'darwin' && inc.appleFix ? appleVersionLabel(readMacosRelease()) : '';
     const fixFor = (rt) => trustFix(inc, rt, { os: platform(), macos });
     // a test host counts as up only when it presents the compromised chain's issuer: a TLS-inspecting firewall or a DNS
     // filter answering in its place would otherwise make every refusal look like the runtime's own (0.1.4 to 0.1.8)
@@ -490,7 +493,8 @@ for (const inc of chosen) {
       print('UNKNOWN', u.label); note('33', u.reason);
     }
     notRunRow(results, inc, 'trust', notRun);
-    // W4: pip's own list in the machine's Python folders, read by key: REVIEW rows only (it takes a flag to be used)
+    // W4: pip's own list in the machine's Python folders, read by key: REVIEW rows (pip trusts it by default beside the
+    // system's trust; whether such a line should be EXPOSED is the owner's open question, lib/probe.mjs pipListRows)
     {
       const pipDirs = [...new Set(SITE_PATTERNS.flatMap((p) => expand(p, [], [])).map((d) => realPath(d) ?? d))];
       // W3: the Pythons apps carry (Blender, Unity's Emscripten): their bundled certifi, and pip's list beside it
@@ -580,13 +584,62 @@ for (const inc of chosen) {
     note('2', `not covered: ${inc.notCovered}`);
   }
 
+  // 0.1.18: this Mac's macOS against Apple's latest security releases (lib/macos.mjs macosUpdateRow), from the version in
+  // SystemVersion.plist; nothing is run
+  if (inc.type === 'macos') {
+    const rel = platform() === 'darwin' ? readMacosRelease() : { version: '', build: '' };
+    const r = macosUpdateRow(inc, rel.version, platform(), rel.build);
+    results.push({ incident: inc.id, kind: 'macos', ...r });
+    print(r.status, `macOS${r.version ? ` ${r.version}` : ''}${r.status === 'SAFE' && !r.version ? '' : `  ${r.file}`}`);
+    note({ EXPOSED: '31', SAFE: '2' }[r.status] ?? '33', r.reason);
+    if (r.fix) note('2', `${r.status === 'EXPOSED' ? 'fix' : 'check'}: ${r.fix}`);
+    note('2', `not covered: ${inc.notCovered}`);
+  }
+
+  // 0.1.18: Claude Code's installs and their versions, from files only (lib/claudecode.mjs); claude is never run
+  if (inc.type === 'claudecode') {
+    let r;
+    try { r = checkClaudeCode(inc.claudeCode, { home: HOME, os: platform() }); } catch (e) { r = { rows: [{ status: 'UNKNOWN', what: 'Claude Code', version: '', reason: `this check stopped on an error, so Claude Code's installs were not all read: ${String(e?.message ?? e).slice(0, 160)}` }], searched: [] }; }
+    for (const row of r.rows) {
+      const fix = row.status === 'EXPOSED' ? inc.fix : row.status === 'REVIEW' ? inc.reviewFix : undefined;
+      results.push({ incident: inc.id, kind: 'claude-code', ...row, fix });
+      print(row.status, `Claude Code ${row.what}${row.version ? ` ${row.version}` : ''}${row.path ? `  ${short(row.path)}` : ''}`);
+      note({ EXPOSED: '31', SAFE: '2' }[row.status] ?? '33', row.reason);
+    }
+    if (r.rows.some((x) => x.status === 'EXPOSED')) note('2', `fix: ${inc.fix}`);
+    else if (r.rows.some((x) => x.status === 'REVIEW')) note('2', `check: ${inc.reviewFix}`);
+    if (!r.rows.length) allClear(results, inc, 'claude-code', `${inc.safeText} (looked in ${r.searched.length} place${r.searched.length === 1 ? '' : 's'}: the native installer's link and versions folder, npm's global folders, Homebrew's cask folder and the editors' extension folders)`, r.searched.length ? r.searched : [saw(`looked for ${inc.claudeCode.link}`)], undefined, { why: 'this check reads the places Claude Code\'s installers put it, and --paths does not add to them' });
+    note('2', `not covered: ${inc.notCovered}`);
+  }
+
+  // A vendor's indicators of compromise (lib/iocs.mjs), read from files only: nothing found is run, no ssh program is
+  // started, no process list is read
+  if (inc.type === 'iocs') {
+    let r;
+    try { r = checkIocs(inc.iocs, { home: HOME, tmpDirs: tempDirs() }); } catch (e) { r = { rows: [{ status: 'UNKNOWN', what: 'indicators', reason: `this check stopped on an error, so the indicators were not all looked for: ${String(e?.message ?? e).slice(0, 160)}` }], searched: [] }; }
+    for (const row of r.rows) {
+      const fix = row.status === 'EXPOSED' ? inc.iocs.fix : row.status === 'REVIEW' ? inc.iocs.reviewFix : undefined;
+      results.push({ incident: inc.id, kind: 'ioc', ...row, fix });
+      print(row.status, `${row.what}${row.path ? `  ${short(row.path)}` : ''}`);
+      note({ EXPOSED: '31' }[row.status] ?? '33', row.reason);
+    }
+    if (r.rows.some((x) => x.status === 'EXPOSED')) note('2', `fix: ${inc.iocs.fix}`);
+    else if (r.rows.some((x) => x.status === 'REVIEW')) note('2', `check: ${inc.iocs.reviewFix}`);
+    if (!r.rows.length) allClear(results, inc, 'ioc', `${inc.safeText} (looked in ${r.searched.length} place${r.searched.length === 1 ? '' : 's'}: the editors' extension folders, cached extension packages, authorized_keys, the dropped files' paths and the temp folders)`, r.searched, undefined, { why: 'this check reads the home folder\'s editor, ssh and LaunchAgent folders and the temp folders, and --paths does not add to them' });
+    note('2', `not covered: ${inc.notCovered}`);
+  }
+
   if (inc.type === 'installs') {
     // Read-only: versions from the product's own files, dropped files in site-packages by hash, local image digests.
     // Nothing found is run (lib/installs.mjs).
-    const show = (r, what, fix) => {
+    const show = (r0, what, fix0) => {
+      // a row of a product with its own fix and review advice (0.1.18: Brave, Vivaldi and Edge in Chrome's file) carries
+      // them; every other row gets the incident's
+      const { fix: ownFix, reviewFix: ownReview, ...r } = r0;
+      const fix = ownFix ?? fix0;
       // reviewFix is advice about a file on this machine. A row about an image is not one: until 2 Nov 2026 a moved Docker
       // tag told a healthy machine to rotate every secret (seat 8).
-      const review = r.engine ? undefined : inc.reviewFix;
+      const review = r.engine ? undefined : ownReview ?? inc.reviewFix;
       results.push({ incident: inc.id, kind: 'install', ...r, fix: r.status === 'EXPOSED' ? fix : r.status === 'REVIEW' ? review : undefined });
       print(r.status, what);
       if (r.reason) note({ EXPOSED: '31', SAFE: '2' }[r.status] ?? '33', r.reason);
@@ -599,7 +652,7 @@ for (const inc of chosen) {
     if (inc.versionFiles) {
       const v = inc.versionFiles;
       const reached = [];
-      for (const r of checkVersionFiles(v, { reached })) show(r, `${v.product}${r.label ? ` (${r.label})` : ''} ${r.version}  ${short(r.path)}`, v.fix);
+      for (const r of checkVersionFiles(v, { reached })) show(r, `${r.product ?? v.product}${r.label ? ` (${r.label})` : ''} ${r.version}  ${short(r.path)}`, v.fix);
       // The places the walk reached, never the incident file's sentence about them. `lookedIn` is prose — "GitLab's
       // version files under /opt/gitlab and /home/git/gitlab" — and up to 0.1.10 it WAS the whole receipt behind the
       // all-clear: on a machine with no GitLab it named two folders that are not there and nothing had been opened,
@@ -683,7 +736,7 @@ for (const inc of chosen) {
     // macOS's own copy (Apple's notes of 9 Nov 2026): one row from the version and Apple's words, never from its bytes,
     // which are inside the system and not a file read here; the row says so. It is its own row and stands in for no
     // other: the all-clear for copies on disk below still comes, naming where it looked.
-    const apple = platform() === 'darwin' && inc.appleSystem ? appleSystemRow(inc, readMacosVersion()) : null;
+    const apple = platform() === 'darwin' && inc.appleSystem ? appleSystemRow(inc, appleVersionLabel(readMacosRelease())) : null;
     if (apple) rows.unshift(apple);
     for (const r of rows) {
       results.push({ incident: inc.id, kind: 'bundled', ...r });

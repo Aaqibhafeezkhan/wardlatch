@@ -317,16 +317,17 @@ test('W4 pip\'s own list, read by key: a REVIEW row when it holds a withdrawn ro
   const [old39, old38, new312, new39] = pipListRows(inc, [pip('python3.9', '21.2.4'), pip('python3.8', '24.1.2'), pip('python3.12', '26.2.1'), pip('python3.9', '24.2')]);
   assert.match(old39.reason, /pip 21\.2 on Python 3\.9 uses this list for every download/);
   assert.match(old38.reason, /pip 24\.1 on Python 3\.8 uses this list for every download/);
-  assert.match(new312.reason, /pip 26\.2 on Python 3\.12 asks the system's trust by default and uses this list only when run with --use-deprecated=legacy-certs/);
-  assert.match(new312.reason, /connected to a compromised test host of the emSign family/);
+  // 0.1.18: corrected (test/pip-wording-0.1.18.test.mjs): the list is trusted by default, beside the system's trust
+  assert.match(new312.reason, /pip 26\.2 on Python 3\.12 trusts this list by default, together with the system's trust/);
+  assert.match(new312.reason, /refused a compromised test host of the emSign family by default, where macOS blocks those certificates itself, and connected to it with --use-deprecated=legacy-certs/);
   assert.match(new39.reason, /pip 24\.2 on Python 3\.9 uses this list for every download/, 'Python 3.9 cannot use the system trust in pip');
   // the 24.2 cutoff itself, on one Python: 24.1 uses the list for every download, 24.2 asks the system's trust
   const [p241, p242] = pipListRows(inc, [pip('python3.12', '24.1.2'), pip('python3.12', '24.2')]);
   assert.match(p241.reason, /pip 24\.1 on Python 3\.12 uses this list for every download/);
-  assert.match(p242.reason, /pip 24\.2 on Python 3\.12 asks the system's trust by default/);
+  assert.match(p242.reason, /pip 24\.2 on Python 3\.12 trusts this list by default/);
   assert.match(rows[1].reason, /1 of 124 certificates could not be read here/);
   assert.match(rows[2].reason, /cacert\.pem could not be read here, so whether it holds the withdrawn roots was not checked/, 'the unreadable file, said as unreadable');
-  assert.ok(rows.every((r) => r.kind === 'pip-list' && r.status === 'REVIEW'), 'never SAFE or EXPOSED: it takes a flag to be used');
+  assert.ok(rows.every((r) => r.kind === 'pip-list' && r.status === 'REVIEW'), 'never SAFE, and not EXPOSED until the owner decides (0.1.18)');
   chmodSync(join(locked, 'pip', '_vendor', 'certifi', 'cacert.pem'), 0o644);
 });
 

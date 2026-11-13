@@ -1,0 +1,30 @@
+{
+  "id": "gpustack-2026-11",
+  "type": "installs",
+  "title": "GPUStack before 2.3.1: an exploited authentication bypass (CVE-2026-102895, fixed in 2.2.0) and a critical code execution (fixed in 2.3.1)",
+  "date": "2026-11-09",
+  "kev": [{"cve": "CVE-2026-102895", "vendorProject": "GPUStack", "product": "GPUStack", "dateAdded": "2026-11-09", "dueDate": "2026-11-12", "affects": "versions below 2.2.0"}],
+  "summary": "GPUStack's advisory GHSA-gj9m-f8ph-pmhr (CVE-2026-102895, critical) says that in GPUStack before 2.2.0 a request whose source is considered loopback, through a reverse proxy's TCP peer or an X-GPUStack-Real-IP header, is promoted to the built-in administrator account; it is fixed in 2.2.0. CISA added it to its Known Exploited Vulnerabilities catalog on 9 Nov 2026, due 12 Nov. GPUStack has since published more advisories for later versions, none of them in CISA's catalog: CVE-2026-102894 (critical, a SAML authentication bypass) is fixed in 2.2.2, and advisories published on 26 Oct and 11 Nov 2026 are fixed in 2.3.0 and 2.3.1. Among them, GHSA-gjf9-3p3r-9h9c (critical, 11 Nov 2026), in which evaluating a model's configuration runs the repository's Python in the server, names versions from 2.0.0 up to 2.3.1 as affected and 2.3.1 as patched. So below 2.2.0 is EXPOSED for the flaw CISA lists, and 2.2.0 up to 2.3.1 is EXPOSED too, fixed in 2.3.1, a flaw CISA does not list. Wardlatch reads the version from the gpustack-<version>.dist-info folder pip writes in site-packages; it never starts Python or GPUStack.",
+  "advisory": "https://github.com/gpustack/gpustack/security/advisories/GHSA-gj9m-f8ph-pmhr",
+  "sources": [
+    "https://www.cve.org/CVERecord?id=CVE-2026-102895",
+    "https://github.com/gpustack/gpustack/security/advisories/GHSA-62m9-f875-rqw6",
+    "https://github.com/gpustack/gpustack/security/advisories/GHSA-gjf9-3p3r-9h9c"
+  ],
+  "sitePackages": {
+    "distVersions": [
+      {
+        "name": "gpustack",
+        "product": "GPUStack",
+        "minVersion": "2.2.0",
+        "cve": "CVE-2026-102895",
+        "why": "which fixes CVE-2026-102895, an authentication bypass CISA lists as exploited",
+        "exposedBelow": "2.3.1",
+        "exposedWhy": "fixed in 2.3.1, by GPUStack's advisory GHSA-gjf9-3p3r-9h9c of 11 Nov 2026 (critical: evaluating a model's configuration runs the repository's Python in the server; affected from 2.0.0 up to 2.3.1; not in CISA's catalog). GPUStack's other advisories since, none in CISA's catalog either, are fixed in 2.2.2 (CVE-2026-102894, a critical SAML authentication bypass), 2.3.0 and 2.3.1"
+      }
+    ],
+    "fix": "Update GPUStack to 2.3.1 or later (pip install -U gpustack in its environment, or GPUStack's own upgrade steps), and restart its server. A server reachable through a reverse proxy, or by anyone who could send the X-GPUStack-Real-IP header, while below 2.2.0 should be treated as taken over: check its users and API keys, and rotate the credentials it holds."
+  },
+  "safeText": "no GPUStack below 2.3.1 found",
+  "notCovered": "GPUStack run from its Docker images, which are not read; an install in a folder Wardlatch does not search (pass --paths for it); GPUStack's workers on other machines."
+}

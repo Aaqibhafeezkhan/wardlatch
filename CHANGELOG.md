@@ -13,7 +13,9 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
 
 ## [0.1.18] - 2026-11-13
 
-New checks, and a new mode, `--reach`. Each check is a bullet in the list below and an entry under "Added".
+Nine new checks, a fix to the Chrome check, a corrected pip line, and a new mode, `--reach`. Each new check is a bullet
+in the list below and an entry under "Added"; the corrections are under "Fixed". Every check reads files only and runs
+nothing it finds.
 
 <!-- 0.1.18 is open until it is tagged: a check added before the tag gets a bullet in the list below, an entry
      under "Added", its sources in the Sources line and its tests in the sentence after it. The date above is a
@@ -31,17 +33,48 @@ New checks, and a new mode, `--reach`. Each check is a bullet in the list below 
   not affected. Wardlatch reads the installed version from the app's `Info.plist` and never starts FortiClient. A
   FortiClient at or past the fix reads REVIEW, not SAFE, and says why: no real FortiClient bundle has been read by
   this check yet, and whether FortiClient can keep running an old version after an update is not known.
+- **The tampered Claude Code extension builds 2.1.312 and 2.1.313** (`claude-code-extension-2026-10`), served from
+  Cursor's VS Code Extension Marketplace on 29 Oct 2026 with an SSH backdoor: Cursor's indicators, read from files
+  (extension bundles and packages by hash, the attacker's key in `authorized_keys`, the dropped LaunchAgent and scripts,
+  the tunnel key). Uninstalling the extension is not enough, and the fix line says so.
+- **macOS behind Apple's latest security release** (`macos-2026-11`): Tahoe below 26.7.1 and Sequoia below 15.8.1 lack
+  Apple's fix for CVE-2026-86950, which CISA lists as exploited; Sonoma, which Apple no longer updates, is REVIEW. A
+  beta is never SAFE.
+- **Visual Studio Code before 1.145.3** (`vscode-2026-11`): Microsoft's 16 advisories of 10 Nov 2026, three of them code
+  execution through MCP servers.
+- **Claude Code before 2.1.251 on macOS** (`claude-code-2026-11`, CVE-2026-88968), read from its installs without running
+  it; old copies left beside the one that runs are REVIEW.
+- **Git before 2.56.1 and its backports** (`git-2026-11`, CVE-2026-111760 and five more); Apple's git 2.54.0 is REVIEW,
+  since Apple backports.
+- **GPUStack before 2.3.1** (`gpustack-2026-11`): below 2.2.0, CVE-2026-102895, which CISA lists as exploited; up to
+  2.3.1, a critical code execution GPUStack fixed in 2.3.1.
+- **Brave, Vivaldi and Microsoft Edge** are read by `chrome-2026-11` too, and a fixed Extended Stable Chrome no longer
+  reads EXPOSED (under "Fixed").
 
-CISA's catalog (version 2026.11.10, read on 11 Nov 2026) lists neither CVE. Fortinet's page says Known Exploited: No;
-React's advisory says nothing about exploitation. Neither check prints a CISA line.
+CISA's catalog (version 2026.11.10, read on 11 and 13 Nov 2026) lists neither React's nor FortiClient's CVE (Fortinet's
+page says Known Exploited: No; React's advisory says nothing about exploitation), nor the Claude Code, VS Code, git or
+tampered-extension issues; those checks print no CISA line and say "fixed in". It lists macOS's three CVEs and
+GPUStack's CVE-2026-102895, and those checks print CISA's dates under their titles.
 
 Sources: [React's advisory](https://github.com/react/react/security/advisories/GHSA-xqc2-xf4c-x3h3),
 [the CVE record for CVE-2026-126187](https://www.cve.org/CVERecord?id=CVE-2026-126187),
 [Next.js's advisory](https://github.com/vercel/next.js/security/advisories/GHSA-673q-mjm6-r5xr),
 [Fortinet's advisory FG-IR-26-194](https://fortiguard.fortinet.com/psirt/FG-IR-26-194),
 [the CVE record for CVE-2026-121529](https://www.cve.org/CVERecord?id=CVE-2026-121529),
+[Cursor's notice](https://cursor.com/blog/claude-code-extension-security-notice),
+[Apple's security releases](https://support.apple.com/en-us/100100),
+[Microsoft's VS Code advisory GHSA-66hq-jw93-462h](https://github.com/microsoft/vscode/security/advisories/GHSA-66hq-jw93-462h),
+[Anthropic's advisory GHSA-5xjx-9qx6-jcrv](https://github.com/anthropics/claude-code/security/advisories/GHSA-5xjx-9qx6-jcrv),
+[GitHub's post on the git releases](https://github.blog/open-source/git/git-security-vulnerabilities-announced-7/),
+[GPUStack's advisories GHSA-gj9m-f8ph-pmhr](https://github.com/gpustack/gpustack/security/advisories/GHSA-gj9m-f8ph-pmhr)
+and [GHSA-gjf9-3p3r-9h9c](https://github.com/gpustack/gpustack/security/advisories/GHSA-gjf9-3p3r-9h9c),
+[Chrome's Extended Stable update of 9 Nov](https://chromereleases.googleblog.com/2026/11/extended-stable-update-for-desktop_0910980127.html),
 [CISA's catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog). The tests are
-`test/react-rsc-0.1.18.test.mjs` and `test/forticlient-0.1.18.test.mjs`.
+`test/react-rsc-0.1.18.test.mjs`, `test/forticlient-0.1.18.test.mjs`, `test/claude-code-extension-0.1.18.test.mjs`,
+`test/macos-0.1.18.test.mjs`, `test/vscode-0.1.18.test.mjs`, `test/claude-code-0.1.18.test.mjs`, `test/git-0.1.18.test.mjs`,
+`test/gpustack-0.1.18.test.mjs`, `test/chrome-0.1.18.test.mjs` and `test/pip-wording-0.1.18.test.mjs`. An independent
+review of the new checks (13 Nov 2026) found three false-SAFE or false-reassurance paths before release; each is
+fixed, says so in its entry below, and has a test.
 
 ### Added
 
@@ -83,6 +116,110 @@ Sources: [React's advisory](https://github.com/react/react/security/advisories/G
   says the tool keeps it elsewhere; a link that leads outside the home folder is not followed; a FIFO or device is not
   opened. Each place has the vendor page that names it, and each `reachable` line one fix line with the page it comes
   from, in `lib/reach/items.json`. Off unless asked for: a run without `--reach` is unchanged. [docs/REACH.md](docs/REACH.md).
+- **The tampered Claude Code extension builds 2.1.312 and 2.1.313** (`claude-code-extension-2026-10`, a new kind of
+  check, `iocs`, in `lib/iocs.mjs`). Cursor's VS Code Extension Marketplace served them on 29 Oct 2026; the loader tried
+  to add an attacker's SSH key, open a reverse SSH tunnel and persist through a LaunchAgent
+  ([Cursor's notice](https://cursor.com/blog/claude-code-extension-security-notice), updated 30 Oct). Wardlatch checks
+  Cursor's indicators by reading files: every `~/.<editor>/extensions/anthropic.claude-code-*` folder (`extension.js` by
+  its SHA-256, and by the two strings Cursor names, in any version, since the tampered bundle keeps the real number),
+  cached extension packages by the four VSIX SHA-256s, `authorized_keys` and `authorized_keys2` for the attacker's key
+  (by the key and its fingerprint, wherever it sits on a line, not by its `svc-telemetry` comment),
+  `~/Library/LaunchAgents/com.apple.sysmond.plist`, `~/.config/.smt` and `.smtk`, and `.stk_<10 hex>` tunnel keys in the
+  temp folders. EXPOSED for any indicator found, with the clean-up steps; REVIEW for a 2.1.312 or 2.1.313 folder with
+  none, one of the two strings alone, the comment on another key, a `.stk_` file (in any case) holding another key, or
+  a cached package named for 2.1.312 or 2.1.313 that is not one of Cursor's; UNKNOWN for a
+  place it could not open. It starts no ssh program and reads no process list, so running tunnels are named under what
+  it does not cover, with the Linux crontab line and Windows. The cached-package folder names follow VS Code's layout
+  and were not measured on a real Cursor install. Tests: `test/claude-code-extension-0.1.18.test.mjs` (a stand-in for
+  the malicious file; it is not in the repository).
+- **macOS behind Apple's latest security release** (`macos-2026-11`, a new kind of check, `macos`, in
+  `lib/macos.mjs`). Reads `ProductVersion` from `SystemVersion.plist`; runs nothing. Apple's index (read 13 Nov 2026)
+  lists 27.2.1, 26.7.3 and 15.8.3 (9 Nov 2026) as the latest, and Sonoma's last as 14.8.9 (6 Aug 2026). Three Apple
+  flaws are in CISA's catalog: CVE-2026-86950 (fixed in 26.7.1 and 15.8.1, no Sonoma fix named), CVE-2026-65400 (27,
+  26.6.1, 15.7.9, 14.8.9) and CVE-2024-27834 (14.5). Below one of those fixes on its own line is EXPOSED, with CISA's
+  dates under the title; past them but below the latest release, REVIEW; any Sonoma 14, and 13 or older, REVIEW,
+  because Apple ships them nothing and does not say they are affected; at or past the latest, SAFE. A version that
+  can't be read, or was never a macOS release, is UNKNOWN. The build is read from the same file: a would-be SAFE on a
+  beta (a build ending in a lowercase letter, as 27.3 beta 1's `26C5035r` of 3 Nov, before 27.2.1, does), or on a
+  build that can't be read, is REVIEW (an independent review's B2). A release build is recognised by an allow-list
+  (digits, a capital letter, digits), so a build of any other shape fails closed to REVIEW too, and a beta at a KEV
+  fix's number is not told it has the fixes. The same blind spot in the eMudhra and Brotli
+  checks' reading of the version (`appleFixState`) is closed without changing their rules: a beta is passed to them
+  as `27.3 (beta build 26C5035r)`, which they can't place, so the Brotli row for macOS's own copy is UNKNOWN on a beta,
+  not SAFE, and the built-in tools' `cert.pem` is not read in place of their control. Tests: `test/macos-0.1.18.test.mjs`; the KEV snapshot
+  (catalog 2026.11.10, unchanged) now records the three rows.
+- **Visual Studio Code before 1.145.3** (`vscode-2026-11`). Microsoft published 16 advisories on 10 Nov 2026, each
+  naming versions before 1.145.3 as affected and 1.145.3 as patched; three are remote code execution through MCP
+  servers (CVE-2026-120779, CVE-2026-114171, CVE-2026-119983). None is in CISA's catalog, and the check says
+  "fixed in", never "exploited". Reads `CFBundleShortVersionString` from VS Code's `Info.plist` (and Insiders', with
+  its own REVIEW reason, since an Insiders number runs ahead of the stable release) or dpkg's `code` stanza; never
+  starts it. Below 1.145.3 is EXPOSED; at or past it REVIEW, as for Chrome. Editors built on VS Code are not read.
+  Tests: `test/vscode-0.1.18.test.mjs`.
+- **Claude Code before 2.1.251 on macOS** (`claude-code-2026-11`, CVE-2026-88968, GHSA-5xjx-9qx6-jcrv; not in
+  CISA's catalog, so "fixed in"). A new kind of check, `claudecode`, in `lib/claudecode.mjs`, reads the installs
+  without running `claude`: the target of `~/.local/bin/claude` (the native installer's link; the version is the file
+  name in `~/.local/share/claude/versions`), every other file in that folder, npm's global `package.json` (Homebrew,
+  `/usr/local`, `~/.npm-global`, nvm, fnm, Volta, asdf, mise), Homebrew's `Caskroom/claude-code` and editor extension
+  folders. The copy that runs (or an npm or cask install) below 2.1.251 is EXPOSED on a Mac, and the line says when it
+  is also below 2.1.260 (CVE-2026-103012, low); a copy left beside the one that runs, or an editor extension's copy,
+  is REVIEW; a link that can't be read, or that points outside the versions folder, is UNKNOWN. Off a Mac it is SAFE
+  with the reason. `readLink()` in `lib/files.mjs` reads a link without following it. It also reads Claude Code's own
+  legacy local install, `~/.claude/local/node_modules/@anthropic-ai/claude-code` (an independent review's B3: older
+  versions of Claude Code made it, and it runs through a shell alias), and bun's and pnpm's global folders; a Homebrew
+  cask folder that names no version is UNKNOWN. Tests:
+  `test/claude-code-0.1.18.test.mjs`.
+- **Git before 2.56.1 and its backports** (`git-2026-11`). Six CVEs fixed on 10 Nov 2026, among them CVE-2026-111760
+  (code execution on a recursive clone), in 2.56.1, 2.55.1, 2.54.1, 2.53.1, 2.52.1, 2.51.3 and 2.50.2; none is in
+  CISA's catalog. Reads Homebrew's git from the keg its `opt/git` link names (`versionFromRealPath`, new in
+  `lib/installs.mjs`), Apple's git in the Command Line Tools and Xcode from the `x.y.z (Apple Git-n)` string in the
+  program's bytes (never run), and dpkg's `git` (the epoch stripped). Homebrew's below its line's fix is EXPOSED, and a
+  line older than 2.50 is end of life. Apple's and a distribution's below it are REVIEW (`reviewBelow`, new): they
+  backport fixes without changing the number, and Apple has not said its git has these. Apple's `2.54.0 (Apple
+  Git-157)` reads REVIEW. CVE-2026-111760's record is not published yet, so the source is git's release notes for
+  2.56.1. Tests: `test/git-0.1.18.test.mjs`.
+- **GPUStack before 2.2.0** (`gpustack-2026-11`, CVE-2026-102895, GHSA-gj9m-f8ph-pmhr). CISA added it to its catalog on
+  9 Nov 2026 (due 12 Nov), and the line under the title says so. Read from the `gpustack-<version>.dist-info` folder
+  names in the site-packages folders the LiteLLM check already walks (`distVersions`, new in `lib/installs.mjs`; a
+  pre-release of 2.2.0 is older than 2.2.0); Python is never started. Below 2.2.0 is EXPOSED, with the KEV wording.
+  2.2.0 up to 2.3.1 is EXPOSED too (the owner, 13 Nov 2026), worded "fixed in 2.3.1" and never "exploited":
+  GPUStack's advisory GHSA-gjf9-3p3r-9h9c (critical, 11 Nov 2026, no CVE, not in CISA's catalog) names `>= 2.0.0,
+  < 2.3.1` as affected, in which evaluating a model's configuration runs the repository's Python in the server. Its
+  other advisories since, none in the catalog, are fixed in 2.2.2 (CVE-2026-102894), 2.3.0 and 2.3.1. CISA's line
+  under the title says "(versions below 2.2.0)", so a 2.3.0 row under it isn't read as exploited: a KEV row may carry
+  `affects` (`lib/kev.mjs`, an independent review's N8). Tests: `test/gpustack-0.1.18.test.mjs`; the KEV snapshot (same 2026.11.10 feed)
+  records the row.
+- **Brave, Vivaldi and Microsoft Edge in `chrome-2026-11`.** Brave below 1.99.56 (10 Nov, on Chromium
+  157.0.8103.50) and Vivaldi below 8.3.4191.35 ("8.3 minor update 2", 10 Nov, which Vivaldi says includes the fix) are
+  EXPOSED; at or past it, REVIEW, as for Chrome. Brave's version is read with or without Chromium's major in front
+  (`157.1.99.56` or `1.99.56`); any other shape is UNKNOWN. Microsoft names no fixed Edge for Mac (its security
+  notes, read 13 Nov 2026, name the fix only for Edge for Android 157.0.4341.53), so any Edge read is REVIEW, never SAFE
+  and never EXPOSED. No Brave, Vivaldi or Edge bundle was on the Mac this was written on: their `Info.plist` files in
+  the tests follow the vendors' published version formats. Opera and Arc have no published fixed version and are not
+  read. A version file may now carry its own `product`, `rule`, `fix`, `reviewFix` and `reviewAlways`
+  (`lib/installs.mjs`). Tests: `test/chrome-0.1.18.test.mjs`, and `test/chrome-0.1.16.test.mjs` updated.
+
+### Fixed
+
+- **A fixed Extended Stable Chrome read EXPOSED** (`chrome-2026-11`). 0.1.16 judged every Chrome against
+  157.0.8103.50, so Chrome 156.0.8078.96, which Google's Extended Stable update of 9 Nov 2026 lists as fixing
+  CVE-2026-125350, read EXPOSED. On a Mac it now reads REVIEW, like any fixed Chrome; a 156 below .96 is still EXPOSED.
+  dpkg's `google-chrome-stable` has no Extended Stable build and keeps 157.0.8103.50. A Chrome on a newer line than
+  both fixes (158 and later: Early Stable 158.0.8127.18/.19 shipped on 4 Nov, before the exploit was reported on 6 Nov)
+  is REVIEW with its own reason, which says Google's notes don't list the fix for it, never that it has it
+  (`reviewAbove`, an independent review's B1); so are Brave 1.100 and later and Vivaldi 8.4 and later.
+- **Corrected: pip's own CA list is trusted by default, not only with a flag.** 0.1.16 and 0.1.17 said, in the README
+  and on the REVIEW line for `pip/_vendor/certifi/cacert.pem`, that pip 24.2 and later on Python 3.10 or later use
+  that list only with `--use-deprecated=legacy-certs`. That was wrong (an independent review, 13 Nov 2026). pip's own
+  code, read on one Mac in pip 26.1.2 and 26.2.1: `index_command.py` loads `certifi.where()` into its truststore
+  context, and truststore adds those certificates as extra roots beside the system's
+  (`SecTrustSetAnchorCertificatesOnly` false on a Mac). So a withdrawn root in that list is trusted by every pip
+  download unless the system blocks the certificate itself. Older pips, and pip on Python 3.9 or older (the built-in
+  Python 3.9 with pip 21.2 among them), use the list alone, as the line already said. The line stays REVIEW.
+  **Open, for the owner:** whether it should be EXPOSED. On macOS 27.2.1, where Apple blocks the 12 certificates
+  itself, pip 26.1.2 and 26.2.1 refused a compromised test host by default (10 Nov 2026); on a macOS without that
+  block, or on Linux, pip's default was not measured, and a measurement there would settle it. Tests:
+  `test/pip-wording-0.1.18.test.mjs` (fails if the old wording comes back), `test/apple-update-0.1.16.test.mjs`
+  updated.
 
 ## [0.1.17] - 2026-11-11
 

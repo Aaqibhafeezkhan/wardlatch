@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'lib', 'incidents');
 const incidents = readdirSync(DIR).filter((f) => f.endsWith('.json')).map((f) => ({ file: f, ...JSON.parse(readFileSync(join(DIR, f), 'utf8')) }));
-const TYPES = ['sshd', 'trust', 'binaries', 'workflows', 'secrets', 'wordpress', 'installs', 'bundled', 'headers', 'lockfiles'];
+const TYPES = ['sshd', 'trust', 'binaries', 'workflows', 'secrets', 'wordpress', 'installs', 'bundled', 'headers', 'lockfiles', 'iocs', 'macos', 'claudecode'];
 const https = (u) => typeof u === 'string' && new URL(u).protocol === 'https:';
 // the start of a date window: an explicit instant in UTC, to the second (lib/workflows.mjs windowStart reads only this)
 const INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
@@ -32,7 +32,7 @@ test('every incident has the fields its check reads, named after its file', () =
       assert.ok(i.safeText, `${i.id}: safeText`);
       if (i.versionFiles) {
         const v = i.versionFiles; assert.ok(v.product && v.fix && v.lookedIn && (v.fixedIn || v.bad || v.minVersion) && v.files.length, `${i.id}: versionFiles`);
-        for (const f of v.files) { assert.match(f.path, /^(\/|~\/)/); assert.ok(new RegExp(f.re).source.includes('('), `${i.id}: ${f.path} re captures`); if (f.reviewWhenFixed) assert.ok(i.reviewFix, `${i.id}: reviewFix for ${f.path}`); }
+        for (const f of v.files) { assert.match(f.path, /^(\/|~\/)/); assert.ok(new RegExp(f.re ?? f.versionFromRealPath).source.includes('('), `${i.id}: ${f.path} re captures`); assert.ok(!(f.re && f.versionFromRealPath), `${i.id}: ${f.path} reads its version one way`); if (f.reviewWhenFixed) assert.ok(i.reviewFix, `${i.id}: reviewFix for ${f.path}`); }
       }
       if (i.sitePackages) {
         assert.ok(i.sitePackages.fix);
@@ -51,6 +51,34 @@ test('every incident has the fields its check reads, named after its file', () =
       if (i.dockerDigestPrefixes || i.dockerTags) assert.ok(i.dockerFix);
     }
     if (i.type === 'headers') assert.ok(i.fix && i.notCovered);
+    if (i.type === 'macos') {
+      // 0.1.18: one entry per line Apple names, each fix a version, each CVE one the incident's kev rows carry
+      assert.ok(i.fix && i.fixFrozen && i.olderNote && i.olderFix && i.notCovered, `${i.id}: texts`);
+      const kev = new Set((i.kev ?? []).map((k) => k.cve));
+      for (const l of i.macosLines) {
+        assert.ok(Number.isInteger(l.major) && /^\d+(\.\d+){1,2}$/.test(l.latest) && l.name && l.latestDate, `${i.id}: ${l.major}`);
+        assert.ok(l.frozen || l.latestSays, `${i.id}: ${l.major} says what its latest release fixes, or that it is frozen`);
+        for (const k of l.kev) { assert.ok(kev.has(k.cve), `${i.id}: ${k.cve} is a kev row`); assert.equal(Number(k.fixed.split('.')[0]), l.major, `${i.id}: ${k.cve}`); }
+      }
+    }
+    if (i.type === 'claudecode') {
+      const c = i.claudeCode;
+      assert.ok(i.fix && i.reviewFix && i.safeText && i.notCovered, `${i.id}: texts`);
+      assert.match(c.fixed, /^\d+\.\d+\.\d+$/); new RegExp(c.extensionName);
+      for (const p of [c.link, c.versionsDir, ...c.npmPackages.map((x) => (typeof x === 'string' ? x : x.path)), ...c.casks]) assert.match(p, /^(\/|~\/)/, `${i.id}: ${p}`);
+      for (const x of c.npmPackages.filter((y) => typeof y !== 'string')) assert.ok(x.what, `${i.id}: ${x.path} names what it is`);
+    }
+    if (i.type === 'iocs') {
+      // 0.1.18: a vendor's indicators, each in the exact form it is matched in
+      const x = i.iocs;
+      assert.ok(x.fix && x.reviewFix && i.safeText && i.notCovered, `${i.id}: fix, reviewFix, safeText, notCovered`);
+      for (const h of [...(x.extensions?.sha256 ?? []), ...(x.vsixSha256 ?? [])]) assert.match(h, /^[0-9a-f]{64}$/, `${i.id}: ${h}`);
+      if (x.extensions) { new RegExp(x.extensions.nameRe); assert.ok(x.extensions.markers.length && x.extensions.badVersions.length && x.extensions.file); }
+      if (x.sshKey) { assert.match(x.sshKey.blob, /^AAAA[A-Za-z0-9+/]+={0,2}$/); assert.match(x.sshKey.fingerprint, /^SHA256:[A-Za-z0-9+/]{43}$/); }
+      if (x.tmpKey) { new RegExp(x.tmpKey.nameRe); assert.match(x.tmpKey.fingerprint, /^SHA256:[A-Za-z0-9+/]{43}$/); }
+      for (const f of x.files ?? []) { assert.match(f.path, /^~\//); assert.ok(f.why, `${i.id}: ${f.path} says why`); }
+      for (const c of x.vsixCaches ?? []) assert.match(c, /^~\//);
+    }
     if (i.type === 'bundled') {
       // the two strings the decoder check counts: plain words of the decoder's error table, nothing a pattern could misread
       assert.match(i.markers.table, /^_ERROR_[A-Z0-9_]+$/); assert.match(i.markers.fixed, /^_ERROR_[A-Z0-9_]+$/); assert.match(i.markers.nodeConstant, /^[A-Z_]+$/);

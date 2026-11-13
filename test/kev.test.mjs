@@ -47,9 +47,10 @@ test('K2 an incident whose CVE CISA lists carries exactly that row; one CISA doe
     assert.deepEqual(have, want, `${file}: its kev rows must be the catalog's`);
     carried += have.length;
   }
-  // the brief named SSHole and Brotli; the rule found PHP's two and Plex's four too, and CISA listed Chrome's on 10 Nov
-  assert.equal(carried, 9);
-  assert.deepEqual(Object.keys(SNAP.listed).sort(), ['brotli-2026-10', 'chrome-2026-11', 'php-2026-10', 'plex-2026-10', 'sshole-2026-11']);
+  // the brief named SSHole and Brotli; the rule found PHP's two and Plex's four too, and CISA listed Chrome's on 10 Nov;
+  // 0.1.18 added macOS's three and GPUStack's
+  assert.equal(carried, 13);
+  assert.deepEqual(Object.keys(SNAP.listed).sort(), ['brotli-2026-10', 'chrome-2026-11', 'gpustack-2026-11', 'macos-2026-11', 'php-2026-10', 'plex-2026-10', 'sshole-2026-11']);
 });
 
 test('K3 the line names CISA\'s vendor and product (Google Brotli, not Node.js), both dates and the catalog link', () => {
@@ -92,6 +93,9 @@ test('K5 a malformed row is a broken incident file: dates, ids and fields are ch
   assert.throws(() => kevRows({ id: 'x', kev: [{ ...ok, cve: 'CVE-2026-9999', dateAdded: '2026-11-10', dueDate: '2026-11-09' }] }), /due date is before the date it was added/);
   assert.doesNotThrow(() => kevRows({ id: 'x', kev: [{ ...ok, cve: 'CVE-2026-9999', dateAdded: '2026-11-09', dueDate: '2026-11-09' }] }), 'same day is allowed');
   assert.throws(() => kevRows({ id: 'x', kev: {} }), /non-empty/);
+  // 0.1.18: `affects`, when given, is a non-empty string, printed after "exploited"
+  assert.throws(() => kevRows({ id: 'x', kev: [{ ...ok, cve: 'CVE-2026-9999', affects: '' }] }), /affects must be a non-empty string/);
+  assert.match(kevLines({ id: 'x', kev: [{ ...ok, cve: 'CVE-2026-9999', affects: 'versions below 2.2.0' }] })[0], /known to be exploited \(versions below 2\.2\.0\) · added 1 Nov 2026/);
   // end to end, on a copy of the tool whose SSHole file has a bad date
   const copy = fresh('copy');
   for (const d of ['bin', 'lib', 'package.json']) cpSync(join(ROOT, d), join(copy, d), { recursive: true });

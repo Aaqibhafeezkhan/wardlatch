@@ -23,6 +23,38 @@
         "dueDate": "2026-11-24"
       }
     ],
+    "gpustack-2026-11": [
+      {
+        "cve": "CVE-2026-102895",
+        "vendorProject": "GPUStack",
+        "product": "GPUStack",
+        "dateAdded": "2026-11-09",
+        "dueDate": "2026-11-12"
+      }
+    ],
+    "macos-2026-11": [
+      {
+        "cve": "CVE-2024-27834",
+        "vendorProject": "Apple",
+        "product": "Multiple Products",
+        "dateAdded": "2026-11-04",
+        "dueDate": "2026-11-18"
+      },
+      {
+        "cve": "CVE-2026-65400",
+        "vendorProject": "Apple",
+        "product": "macOS",
+        "dateAdded": "2026-08-18",
+        "dueDate": "2026-08-21"
+      },
+      {
+        "cve": "CVE-2026-86950",
+        "vendorProject": "Apple",
+        "product": "Multiple Products",
+        "dateAdded": "2026-09-29",
+        "dueDate": "2026-10-13"
+      }
+    ],
     "php-2026-10": [
       {
         "cve": "CVE-2026-109618",
@@ -80,14 +112,34 @@
     ]
   },
   "notListed": {
+    "claude-code-2026-11": [
+      "CVE-2026-103012",
+      "CVE-2026-88968"
+    ],
     "forticlient-2026-11": [
       "CVE-2026-121529"
+    ],
+    "git-2026-11": [
+      "CVE-2026-105437",
+      "CVE-2026-111760",
+      "CVE-2026-113408",
+      "CVE-2026-114466",
+      "CVE-2026-114467",
+      "CVE-2026-114469"
     ],
     "gitlab-2026-10": [
       "CVE-2026-110264"
     ],
+    "gpustack-2026-11": [
+      "CVE-2026-102894"
+    ],
     "react-rsc-2026-11": [
       "CVE-2026-126187"
+    ],
+    "vscode-2026-11": [
+      "CVE-2026-114171",
+      "CVE-2026-119983",
+      "CVE-2026-120779"
     ]
   }
 }

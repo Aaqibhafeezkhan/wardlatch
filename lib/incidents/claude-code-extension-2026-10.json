@@ -1,0 +1,59 @@
+{
+  "id": "claude-code-extension-2026-10",
+  "type": "iocs",
+  "title": "Claude Code extension 2.1.312 and 2.1.313: tampered builds with an SSH backdoor (Cursor's marketplace, 29 Oct)",
+  "date": "2026-10-29",
+  "summary": "On 29 October 2026, between about 2:27am and 1:35pm PT, Cursor's VS Code Extension Marketplace served tampered builds of Anthropic.claude-code 2.1.312 and 2.1.313 for macOS and Windows; Cursor says Anthropic did not develop them. The loader in extension.js tried to add an attacker's SSH key to authorized_keys, enable SSH, open a reverse SSH tunnel and make it persist (a LaunchAgent named com.apple.sysmond on a Mac), and sent host details to the attacker. Cursor removed the builds, shut the marketplace down, rotated its keys, found no other extension tampered with, and published the indicators read here (notice of 29 Oct, updated 30 Oct 11:30am PT). Cursor says uninstalling the extension may not be enough, because the payload drops persistence scripts that keep running. Wardlatch reads files only: the extension folders of every editor in the home folder (each extension.js by the published SHA-256 and the two strings Cursor names), cached extension packages by Cursor's four VSIX SHA-256s, authorized_keys for the attacker's key by its key and fingerprint (not its comment), the dropped files by path, and the tunnel key in the temp folders. It runs nothing, starts no ssh program and reads no process list. No CVE number was assigned, and CISA's catalog (2026.11.10) does not list it.",
+  "advisory": "https://cursor.com/blog/claude-code-extension-security-notice",
+  "sources": [
+    "https://cursor.com/static/security/claude-code-extension/remediate-macos.sh",
+    "https://www.stepsecurity.io/blog/claude-code-extension-trojanized"
+  ],
+  "iocs": {
+    "extensions": {
+      "nameRe": "^anthropic\\.claude-code-(\\d+\\.\\d+\\.\\d+)(?:-[a-z0-9_-]+)?$",
+      "editors": [".vscode", ".vscode-insiders", ".cursor", ".windsurf", ".vscode-oss", ".vscode-server", ".cursor-server"],
+      "badVersions": ["2.1.312", "2.1.313"],
+      "file": "extension.js",
+      "sha256": ["ecb58cb29078d9646ad1dcdbe51526f2d9cfea06be5fb2ab183e8ecc3ab6bf15"],
+      "markers": ["134.209.82.225", "svc-telemetry"]
+    },
+    "vsixName": "^anthropic\\.claude-code",
+    "vsixCaches": [
+      "~/Library/Application Support/Cursor/CachedExtensionVSIXs",
+      "~/Library/Application Support/Code/CachedExtensionVSIXs",
+      "~/Library/Application Support/Code - Insiders/CachedExtensionVSIXs",
+      "~/Library/Application Support/Windsurf/CachedExtensionVSIXs",
+      "~/Library/Application Support/VSCodium/CachedExtensionVSIXs",
+      "~/.config/Cursor/CachedExtensionVSIXs",
+      "~/.config/Code/CachedExtensionVSIXs",
+      "~/.config/Windsurf/CachedExtensionVSIXs",
+      "~/.config/VSCodium/CachedExtensionVSIXs"
+    ],
+    "vsixSha256": [
+      "fcbb327e38e61c4fec795e0d0591f52cd1014b813d20a5912104953c3a17c364",
+      "3de1722901165769893bef57c72594e9a54459faa23f3091b136b79966edd081",
+      "80402fdcad8799285fd93044976973ca000da7995fb93363f819bb8e4f84ee6c",
+      "6786ec90cbd45949695bd7805c9fbb26cfc91bc5fc897de0183d9bcb9cb21731"
+    ],
+    "sshKey": {
+      "blob": "AAAAC3NzaC1lZDI1NTE5AAAAIDdvylCEJ/k2TpezcTfedrkHyFSK9IZ3vmP6vhY4Ss0P",
+      "fingerprint": "SHA256:0Z6R+DF64Do2nwQic8a7kkfDLNNk4IiK+2U2Rci4htk",
+      "comment": "svc-telemetry",
+      "files": ["authorized_keys", "authorized_keys2"]
+    },
+    "files": [
+      { "path": "~/Library/LaunchAgents/com.apple.sysmond.plist", "readLabel": true, "why": "the LaunchAgent the payload installs to keep its tunnel running; Apple puts no LaunchAgent in a user's own folder" },
+      { "path": "~/.config/.smt", "why": "the script the payload's persistence runs to reopen its tunnel" },
+      { "path": "~/.config/.smtk", "why": "the copy of the tunnel key the payload keeps beside its script" }
+    ],
+    "tmpKey": {
+      "nameRe": "^\\.stk_[0-9a-f]{10}$",
+      "fingerprint": "SHA256:KOAU57+ZG6u3MG4WwzPzPX2O5YEe9qdOC1Bl+6MVyDQ"
+    },
+    "fix": "The payload ran on this machine. Uninstalling the extension is not enough: what it dropped keeps running. As this user (not root): unload and delete the LaunchAgent (launchctl bootout gui/$(id -u)/com.apple.sysmond, then delete ~/Library/LaunchAgents/com.apple.sysmond.plist); delete ~/.config/.smt, ~/.config/.smtk and any .stk_ file in the temp folders; end the ssh and autossh tunnel processes; delete the line with the attacker's key from ~/.ssh/authorized_keys; remove the extension folder. Cursor publishes a script that does all of this (remediate-macos.sh, linked from its notice). Then, from another, trusted machine, rotate the credentials and sessions this machine could reach, and consider rebuilding it.",
+    "reviewFix": "Update the Claude Code extension to a version after 2.1.313 from your editor's Extensions view. If it came from Cursor's marketplace on 29 Oct 2026, check this machine against the rest of Cursor's indicators as well."
+  },
+  "safeText": "none of the tampered extension's indicators found",
+  "notCovered": "The Linux @reboot crontab line (reading another user's crontab needs root, and running crontab -l would run a program); running ssh or autossh tunnels, which only a process list shows; whether the payload turned on Remote Login (Cursor says that step needs admin rights and mostly failed); an authorized_keys file sshd is set to read from anywhere but ~/.ssh; Windows; and Cursor's cached package folder, whose name was taken from VS Code's layout and not measured on a real Cursor install."
+}
