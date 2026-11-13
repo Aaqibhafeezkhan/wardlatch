@@ -137,6 +137,14 @@ Every check reads files only and runs nothing it finds.
   is REVIEW; a link that can't be read, or that points outside the versions folder, is UNKNOWN. Off a Mac it is SAFE
   with the reason. `readLink()` in `lib/files.mjs` reads a link without following it. Tests:
   `test/claude-code-0.1.18.test.mjs`.
+- **Git before 2.56.1 and its backports** (`git-2026-11`). Six CVEs fixed on 10 Nov 2026, among them CVE-2026-111760
+  (code execution on a recursive clone), in 2.56.1, 2.55.1, 2.54.1, 2.53.1, 2.52.1, 2.51.3 and 2.50.2; none is in
+  CISA's catalog. Reads Homebrew's git from the keg its `opt/git` link names (`versionFromRealPath`, new in
+  `lib/installs.mjs`), Apple's git in the Command Line Tools and Xcode from the `x.y.z (Apple Git-n)` string in the
+  program's bytes (never run), and dpkg's `git` (the epoch stripped). Homebrew's below its line's fix is EXPOSED, and a
+  line older than 2.50 is end of life. Apple's and a distribution's below it are REVIEW (`reviewBelow`, new): they
+  backport fixes without changing the number, and Apple has not said its git has these. Apple's `2.54.0 (Apple
+  Git-157)` reads REVIEW. Tests: `test/git-0.1.18.test.mjs`.
 
 ## [0.1.17] - 2026-11-11
 
