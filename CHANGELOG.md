@@ -161,9 +161,11 @@ Every check reads files only and runs nothing it finds.
 - **GPUStack before 2.2.0** (`gpustack-2026-11`, CVE-2026-102895, GHSA-gj9m-f8ph-pmhr). CISA added it to its catalog on
   9 Nov 2026 (due 12 Nov), and the line under the title says so. Read from the `gpustack-<version>.dist-info` folder
   names in the site-packages folders the LiteLLM check already walks (`distVersions`, new in `lib/installs.mjs`; a
-  pre-release of 2.2.0 is older than 2.2.0); Python is never started. Below 2.2.0 is EXPOSED. 2.2.0 up to 2.3.1 is
-  REVIEW: GPUStack's later advisories, none in CISA's catalog, are fixed in 2.2.2 (CVE-2026-102894), 2.3.0 and 2.3.1
-  (GHSA-gjf9-3p3r-9h9c, critical). Tests: `test/gpustack-0.1.18.test.mjs`; the KEV snapshot (same 2026.11.10 feed)
+  pre-release of 2.2.0 is older than 2.2.0); Python is never started. Below 2.2.0 is EXPOSED, with the KEV wording.
+  2.2.0 up to 2.3.1 is EXPOSED too (the owner, 13 Nov 2026), worded "fixed in 2.3.1" and never "exploited":
+  GPUStack's advisory GHSA-gjf9-3p3r-9h9c (critical, 11 Nov 2026, no CVE, not in CISA's catalog) names `>= 2.0.0,
+  < 2.3.1` as affected, in which evaluating a model's configuration runs the repository's Python in the server. Its
+  other advisories since, none in the catalog, are fixed in 2.2.2 (CVE-2026-102894), 2.3.0 and 2.3.1. Tests: `test/gpustack-0.1.18.test.mjs`; the KEV snapshot (same 2026.11.10 feed)
   records the row.
 
 ## [0.1.17] - 2026-11-11
