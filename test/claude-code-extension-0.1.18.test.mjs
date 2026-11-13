@@ -88,6 +88,9 @@ test('I2 extension folders: the published file by hash, the two strings, a named
   const h7 = fresh('h'); mkdirSync(join(h7, '.cursor', 'extensions'), { recursive: true }); chmodSync(join(h7, '.cursor', 'extensions'), 0);
   mkdirSync(join(h7, '.Trash'), { recursive: true }); chmodSync(join(h7, '.Trash'), 0);
   try { assert.deepEqual(run(h7).rows.map((x) => [x.status, x.what]), [['UNKNOWN', 'extensions folder']]); } finally { chmodSync(join(h7, '.cursor', 'extensions'), 0o755); chmodSync(join(h7, '.Trash'), 0o755); }
+  // an editor's own dot-folder that can't be entered at all (the stat branch, not the listing one): UNKNOWN (review I8)
+  const h9 = fresh('h'); ext(h9, '.cursor', 'anthropic.claude-code-2.1.313-darwin-arm64', STANDIN); chmodSync(join(h9, '.cursor'), 0);
+  try { assert.deepEqual(statuses(run(h9)), [['UNKNOWN', 'extensions folder']]); } finally { chmodSync(join(h9, '.cursor'), 0o755); }
   // other extensions are not read
   const h8 = fresh('h'); ext(h8, '.vscode', 'ms-python.python-2026.4.0-darwin-arm64', '"svc-telemetry" "134.209.82.225"');
   assert.deepEqual(run(h8).rows, []);
@@ -143,16 +146,21 @@ test('I5 the tunnel key in the temp folders: by fingerprint EXPOSED, by name alo
   assert.match(r.rows[0].reason, new RegExp(keyFingerprint(blob).replace(/[+/]/g, '\\$&')));
   const j = fresh('t'); put(join(j, '.stk_abcdef0123'), 'not a key');
   assert.deepEqual(statuses(run(fresh('h'), R, [j])), [['REVIEW', '.stk_abcdef0123']]);
+  // in any case (review N5)
+  const up = fresh('t'); put(join(up, '.STK_0123ABCDEF'), 'not a key');
+  assert.deepEqual(statuses(run(fresh('h'), R, [up])), [['REVIEW', '.STK_0123ABCDEF']]);
   const n = fresh('t'); put(join(n, '.stk_xyz'), 'x'); put(join(n, '.stk_01234567890'), 'x');
   assert.deepEqual(run(fresh('h'), R, [n]).rows, []);
   const shut = fresh('t'); chmodSync(shut, 0);
   try { assert.deepEqual(statuses(run(fresh('h'), R, [shut])), [['UNKNOWN', 'temp folder']]); } finally { chmodSync(shut, 0o755); }
 });
 
-test('I6 a cached package is matched by the vendor\'s VSIX hashes', () => {
+test('I6 a cached package is matched by the vendor\'s VSIX hashes; one named for a bad version that isn\'t one of them is REVIEW', () => {
   const h = fresh('vsix');
   const p = put(join(h, 'Library', 'Application Support', 'Cursor', 'CachedExtensionVSIXs', 'anthropic.claude-code-2.1.312-darwin-arm64'), STANDIN);
-  assert.deepEqual(run(h).rows, [], 'the control: not one of the published packages');
+  assert.deepEqual(statuses(run(h)), [['REVIEW', 'cached package']], 'named for 2.1.312 and not a published package (review N6)');
+  const later = fresh('vsix'); put(join(later, 'Library', 'Application Support', 'Cursor', 'CachedExtensionVSIXs', 'anthropic.claude-code-2.1.3120-darwin-arm64'), STANDIN); put(join(later, 'Library', 'Application Support', 'Cursor', 'CachedExtensionVSIXs', 'anthropic.claude-code-2.1.320'), STANDIN);
+  assert.deepEqual(run(later).rows, [], 'another version, whose number only starts alike, says nothing');
   assert.deepEqual(statuses(run(h, { ...R, vsixSha256: [sha(STANDIN)] })), [['EXPOSED', 'cached package']]);
   assert.ok(run(h).searched.includes(p), 'a package read is in the receipt');
 });

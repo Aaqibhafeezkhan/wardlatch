@@ -122,7 +122,8 @@ Every check reads files only and runs nothing it finds.
   (by the key and its fingerprint, wherever it sits on a line, not by its `svc-telemetry` comment),
   `~/Library/LaunchAgents/com.apple.sysmond.plist`, `~/.config/.smt` and `.smtk`, and `.stk_<10 hex>` tunnel keys in the
   temp folders. EXPOSED for any indicator found, with the clean-up steps; REVIEW for a 2.1.312 or 2.1.313 folder with
-  none, one of the two strings alone, the comment on another key, or a `.stk_` file holding another key; UNKNOWN for a
+  none, one of the two strings alone, the comment on another key, a `.stk_` file (in any case) holding another key, or
+  a cached package named for 2.1.312 or 2.1.313 that is not one of Cursor's; UNKNOWN for a
   place it could not open. It starts no ssh program and reads no process list, so running tunnels are named under what
   it does not cover, with the Linux crontab line and Windows. The cached-package folder names follow VS Code's layout
   and were not measured on a real Cursor install. Tests: `test/claude-code-extension-0.1.18.test.mjs` (a stand-in for
