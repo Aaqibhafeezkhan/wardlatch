@@ -156,7 +156,10 @@ Every check reads files only and runs nothing it finds.
   folders. The copy that runs (or an npm or cask install) below 2.1.251 is EXPOSED on a Mac, and the line says when it
   is also below 2.1.260 (CVE-2026-103012, low); a copy left beside the one that runs, or an editor extension's copy,
   is REVIEW; a link that can't be read, or that points outside the versions folder, is UNKNOWN. Off a Mac it is SAFE
-  with the reason. `readLink()` in `lib/files.mjs` reads a link without following it. Tests:
+  with the reason. `readLink()` in `lib/files.mjs` reads a link without following it. It also reads Claude Code's own
+  legacy local install, `~/.claude/local/node_modules/@anthropic-ai/claude-code` (an independent review's B3: older
+  versions of Claude Code made it, and it runs through a shell alias), and bun's and pnpm's global folders; a Homebrew
+  cask folder that names no version is UNKNOWN. Tests:
   `test/claude-code-0.1.18.test.mjs`.
 - **Git before 2.56.1 and its backports** (`git-2026-11`). Six CVEs fixed on 10 Nov 2026, among them CVE-2026-111760
   (code execution on a recursive clone), in 2.56.1, 2.55.1, 2.54.1, 2.53.1, 2.52.1, 2.51.3 and 2.50.2; none is in

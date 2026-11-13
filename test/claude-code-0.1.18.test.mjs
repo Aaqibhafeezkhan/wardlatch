@@ -20,7 +20,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const BIN = join(ROOT, 'bin', 'wardlatch.mjs');
 const INC = JSON.parse(readFileSync(join(ROOT, 'lib', 'incidents', 'claude-code-2026-11.json'), 'utf8'));
 // the home-folder places only: the machine-wide npm and cask folders are read in the command, under the preload
-const RULE = { ...INC.claudeCode, npmPackages: INC.claudeCode.npmPackages.filter((p) => p.startsWith('~')), casks: [] };
+const RULE = { ...INC.claudeCode, npmPackages: INC.claudeCode.npmPackages.filter((p) => (typeof p === 'string' ? p : p.path).startsWith('~')), casks: [] };
 let dir;
 before(() => { dir = realpathSync(mkdtempSync(join(tmpdir(), 'wardlatch-cc-'))); });
 after(() => rmSync(dir, { recursive: true, force: true }));
@@ -85,6 +85,53 @@ test('C3 npm installs by their package.json, and editor extensions, which are RE
   const r = run(e);
   assert.deepEqual(st(r), [['REVIEW', '2.1.240']]);
   assert.match(r.rows[0].reason, /the advisory names only the npm package, so this is not judged EXPOSED/);
+});
+
+const pkgAt = (home, rel, v) => { const f = join(home, rel, '@anthropic-ai', 'claude-code', 'package.json'); mkdirSync(dirname(f), { recursive: true }); writeFileSync(f, JSON.stringify({ name: '@anthropic-ai/claude-code', version: v })); return f; };
+
+test('C3b Claude Code\'s own legacy local install, and bun\'s and pnpm\'s global folders, are read (an independent review\'s B3 and N3)', () => {
+  // B3: the legacy local install at 2.1.200 is EXPOSED, never the all-clear
+  const l = fresh('legacy'); const f = pkgAt(l, join('.claude', 'local', 'node_modules'), '2.1.200');
+  assert.deepEqual(run(l).rows.map((x) => [x.status, x.what, x.version, x.path]), [['EXPOSED', 'local install (~/.claude/local)', '2.1.200', f]]);
+  const lf = fresh('legacy'); pkgAt(lf, join('.claude', 'local', 'node_modules'), '2.1.251');
+  assert.deepEqual(run(lf).rows.map((x) => x.status), ['SAFE']);
+  const b = fresh('bun'); pkgAt(b, join('.bun', 'install', 'global', 'node_modules'), '2.1.200');
+  assert.deepEqual(run(b).rows.map((x) => [x.status, x.what]), [['EXPOSED', 'bun install']]);
+  const p = fresh('pnpm'); pkgAt(p, join('Library', 'pnpm', 'global', '5', 'node_modules'), '2.1.200');
+  assert.deepEqual(run(p).rows.map((x) => [x.status, x.what]), [['EXPOSED', 'pnpm install']]);
+  const p2 = fresh('pnpm'); pkgAt(p2, join('.local', 'share', 'pnpm', 'global', '5', 'node_modules'), '2.1.300');
+  assert.deepEqual(run(p2).rows.map((x) => [x.status, x.what]), [['SAFE', 'pnpm install']]);
+  // the control: without the legacy entry the review's home read as nothing found
+  const without = { ...RULE, npmPackages: RULE.npmPackages.filter((x) => !String(x.path ?? x).includes('.claude/local')) };
+  assert.deepEqual(run(l, 'darwin', without).rows, []);
+});
+
+test('C3c every place that can\'t be read stays UNKNOWN, never a quiet all-clear (the review\'s surviving mutants CC3, CC4, CC5, CC8, CC9)', () => {
+  // CC3: a ~/.local/bin that can't be entered: the link can't be read
+  const a = fresh('cc3'); native(a, ['2.1.200'], '2.1.200'); chmodSync(join(a, '.local', 'bin'), 0);
+  try { assert.deepEqual(run(a).rows.map((x) => [x.status, x.what]).filter((x) => x[1] === 'native install' && x[0] === 'UNKNOWN').length, 1, JSON.stringify(run(a).rows)); } finally { chmodSync(join(a, '.local', 'bin'), 0o755); }
+  // CC4: a link to a file named like a version, outside the versions folder
+  const b = fresh('cc4'); native(b, []); mkdirSync(join(b, 'elsewhere'), { recursive: true }); writeFileSync(join(b, 'elsewhere', '2.1.200'), ''); mkdirSync(join(b, '.local', 'bin'), { recursive: true }); symlinkSync(join(b, 'elsewhere', '2.1.200'), join(b, '.local', 'bin', 'claude'));
+  assert.deepEqual(run(b).rows.map((x) => [x.status, x.version]), [['UNKNOWN', '']]);
+  assert.match(run(b).rows[0].reason, /which is not a version in/);
+  // CC9: a link to a version file that is not there, named below the fix
+  const c = fresh('cc9'); const vd = native(c, ['2.1.284']); mkdirSync(join(c, '.local', 'bin'), { recursive: true }); symlinkSync(join(vd, '2.1.200'), join(c, '.local', 'bin', 'claude'));
+  assert.deepEqual(run(c).rows.map((x) => [x.status, x.version]), [['UNKNOWN', '2.1.200']]);
+  assert.match(run(c).rows[0].reason, /which is not there/);
+  // CC5: an npm prefix folder on the way that can't be opened
+  const d = fresh('cc5'); mkdirSync(join(d, '.nvm', 'versions', 'node'), { recursive: true }); chmodSync(join(d, '.nvm', 'versions', 'node'), 0);
+  try { assert.deepEqual(run(d).rows.map((x) => [x.status, x.what]), [['UNKNOWN', 'npm install']]); } finally { chmodSync(join(d, '.nvm', 'versions', 'node'), 0o755); }
+  // CC8 and N4: a Homebrew cask folder that can't be opened, and one that names no version
+  const e = fresh('cc8'); mkdirSync(join(e, 'cask', 'claude-code'), { recursive: true }); chmodSync(join(e, 'cask', 'claude-code'), 0);
+  const caskRule = { ...RULE, casks: ['~/cask/claude-code'] };
+  try { assert.deepEqual(run(e, 'darwin', caskRule).rows.map((x) => [x.status, x.what]), [['UNKNOWN', 'Homebrew cask']]); } finally { chmodSync(join(e, 'cask', 'claude-code'), 0o755); }
+  const g = fresh('n4'); mkdirSync(join(g, 'cask', 'claude-code', '.metadata'), { recursive: true });
+  assert.deepEqual(run(g, 'darwin', caskRule).rows.map((x) => [x.status, x.what]), [['UNKNOWN', 'Homebrew cask']]);
+  const k = fresh('cask'); mkdirSync(join(k, 'cask', 'claude-code', '2.1.200'), { recursive: true });
+  assert.deepEqual(run(k, 'darwin', caskRule).rows.map((x) => [x.status, x.version]), [['EXPOSED', '2.1.200']]);
+  // I8 for this check: an editor's dot-folder that can't be entered
+  const h = fresh('i8'); mkdirSync(join(h, '.cursor', 'extensions'), { recursive: true }); chmodSync(join(h, '.cursor'), 0);
+  try { assert.deepEqual(run(h).rows.map((x) => [x.status, x.what]), [['UNKNOWN', 'extensions folder']]); } finally { chmodSync(join(h, '.cursor'), 0o755); }
 });
 
 test('C4 off a Mac the flaw does not apply: below the fix is SAFE, and says why', () => {

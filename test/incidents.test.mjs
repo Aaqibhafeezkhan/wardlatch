@@ -65,7 +65,8 @@ test('every incident has the fields its check reads, named after its file', () =
       const c = i.claudeCode;
       assert.ok(i.fix && i.reviewFix && i.safeText && i.notCovered, `${i.id}: texts`);
       assert.match(c.fixed, /^\d+\.\d+\.\d+$/); new RegExp(c.extensionName);
-      for (const p of [c.link, c.versionsDir, ...c.npmPackages, ...c.casks]) assert.match(p, /^(\/|~\/)/, `${i.id}: ${p}`);
+      for (const p of [c.link, c.versionsDir, ...c.npmPackages.map((x) => (typeof x === 'string' ? x : x.path)), ...c.casks]) assert.match(p, /^(\/|~\/)/, `${i.id}: ${p}`);
+      for (const x of c.npmPackages.filter((y) => typeof y !== 'string')) assert.ok(x.what, `${i.id}: ${x.path} names what it is`);
     }
     if (i.type === 'iocs') {
       // 0.1.18: a vendor's indicators, each in the exact form it is matched in

@@ -3,7 +3,7 @@
   "type": "claudecode",
   "title": "Claude Code before 2.1.251 on macOS: an edit outside the workspace through a symlink race (CVE-2026-88968)",
   "date": "2026-10-26",
-  "summary": "Anthropic's advisory GHSA-5xjx-9qx6-jcrv (published 26 Oct 2026; CVE-2026-88968, published 3 Nov) says that on macOS, code running inside Claude Code's Bash sandbox could swap a directory for a symbolic link after the Edit tool's check, so the Edit tool, which runs outside the sandbox, wrote outside the workspace. It needs code the attacker controls inside the sandbox, such as a malicious repository or a dependency's script. It names the npm package @anthropic-ai/claude-code before 2.1.251, fixed in 2.1.251, with a CVSS 4.0 score of 7.7, and says users on auto-update already have the fix. CISA's catalog (version 2026.11.10) does not list it, so Wardlatch says \"fixed in\", not \"exploited\". A second advisory, GHSA-gfvf-j8jh-jxxw (CVE-2026-103012, low, CVSS 4.0 score 2.0), says managed settings were not applied in 2.0.68 up to 2.1.260, fixed in 2.1.260. Wardlatch reads which Claude Code installs are on this machine from files only: the native installer's link and its versions folder, npm's package.json, Homebrew's cask folder and editor extension folders. It never runs claude.",
+  "summary": "Anthropic's advisory GHSA-5xjx-9qx6-jcrv (published 26 Oct 2026; CVE-2026-88968, published 3 Nov) says that on macOS, code running inside Claude Code's Bash sandbox could swap a directory for a symbolic link after the Edit tool's check, so the Edit tool, which runs outside the sandbox, wrote outside the workspace. It needs code the attacker controls inside the sandbox, such as a malicious repository or a dependency's script. It names the npm package @anthropic-ai/claude-code before 2.1.251, fixed in 2.1.251, with a CVSS 4.0 score of 7.7, and says users on auto-update already have the fix. CISA's catalog (version 2026.11.10) does not list it, so Wardlatch says \"fixed in\", not \"exploited\". A second advisory, GHSA-gfvf-j8jh-jxxw (CVE-2026-103012, low, CVSS 4.0 score 2.0), says managed settings were not applied in 2.0.68 up to 2.1.260, fixed in 2.1.260. Wardlatch reads which Claude Code installs are on this machine from files only: the native installer's link and its versions folder, the package.json of npm's global folders, of Claude Code's own legacy local install (~/.claude/local) and of bun's and pnpm's global folders, Homebrew's cask folder and editor extension folders. It never runs claude.",
   "advisory": "https://github.com/anthropics/claude-code/security/advisories/GHSA-5xjx-9qx6-jcrv",
   "sources": [
     "https://www.cve.org/CVERecord?id=CVE-2026-88968",
@@ -12,7 +12,10 @@
   ],
   "claudeCode": {
     "fixed": "2.1.251",
-    "alsoBelow": { "version": "2.1.260", "note": "which fixes CVE-2026-103012 (low: managed settings not applied, for organisations that set them)" },
+    "alsoBelow": {
+      "version": "2.1.260",
+      "note": "which fixes CVE-2026-103012 (low: managed settings not applied, for organisations that set them)"
+    },
     "link": "~/.local/bin/claude",
     "versionsDir": "~/.local/share/claude/versions",
     "npmPackages": [
@@ -26,14 +29,39 @@
       "~/Library/Application Support/fnm/node-versions/*/installation/lib/node_modules/@anthropic-ai/claude-code/package.json",
       "~/.volta/tools/image/packages/@anthropic-ai/claude-code/lib/node_modules/@anthropic-ai/claude-code/package.json",
       "~/.asdf/installs/nodejs/*/lib/node_modules/@anthropic-ai/claude-code/package.json",
-      "~/.local/share/mise/installs/node/*/lib/node_modules/@anthropic-ai/claude-code/package.json"
+      "~/.local/share/mise/installs/node/*/lib/node_modules/@anthropic-ai/claude-code/package.json",
+      {
+        "path": "~/.claude/local/node_modules/@anthropic-ai/claude-code/package.json",
+        "what": "local install (~/.claude/local)"
+      },
+      {
+        "path": "~/.bun/install/global/node_modules/@anthropic-ai/claude-code/package.json",
+        "what": "bun install"
+      },
+      {
+        "path": "~/Library/pnpm/global/*/node_modules/@anthropic-ai/claude-code/package.json",
+        "what": "pnpm install"
+      },
+      {
+        "path": "~/.local/share/pnpm/global/*/node_modules/@anthropic-ai/claude-code/package.json",
+        "what": "pnpm install"
+      }
     ],
-    "casks": ["/opt/homebrew/Caskroom/claude-code", "/usr/local/Caskroom/claude-code"],
+    "casks": [
+      "/opt/homebrew/Caskroom/claude-code",
+      "/usr/local/Caskroom/claude-code"
+    ],
     "extensionName": "^anthropic\\.claude-code-(\\d+\\.\\d+\\.\\d+)(?:-[a-z0-9_-]+)?$",
-    "editors": [".vscode", ".vscode-insiders", ".cursor", ".windsurf", ".vscode-oss"]
+    "editors": [
+      ".vscode",
+      ".vscode-insiders",
+      ".cursor",
+      ".windsurf",
+      ".vscode-oss"
+    ]
   },
   "fix": "Update Claude Code to 2.1.251 or later (2.1.260 or later also fixes CVE-2026-103012): run claude update for the native installer, npm install -g @anthropic-ai/claude-code@latest for npm, or brew upgrade --cask claude-code for Homebrew. Then end any Claude Code session started before the update.",
   "reviewFix": "Delete the copies left behind that nothing uses (an old file in ~/.local/share/claude/versions is not the one claude runs), and update editor extensions from the editor's Extensions view.",
   "safeText": "no Claude Code install found in the places this check reads",
-  "notCovered": "Claude Code installed anywhere else (another npm prefix, a project's own node_modules, a copy on PATH under another name); which version a session already running uses; the desktop app; Windows. The Homebrew cask's name was not measured on a real install."
+  "notCovered": "Claude Code installed anywhere else (an npm prefix not listed, a project's own node_modules, a copy on PATH under another name); which version a session already running uses; the desktop app; Windows. The Homebrew cask's name was not measured on a real install."
 }
