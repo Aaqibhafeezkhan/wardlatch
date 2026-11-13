@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'lib', 'incidents');
 const incidents = readdirSync(DIR).filter((f) => f.endsWith('.json')).map((f) => ({ file: f, ...JSON.parse(readFileSync(join(DIR, f), 'utf8')) }));
-const TYPES = ['sshd', 'trust', 'binaries', 'workflows', 'secrets', 'wordpress', 'installs', 'bundled', 'headers', 'lockfiles', 'iocs'];
+const TYPES = ['sshd', 'trust', 'binaries', 'workflows', 'secrets', 'wordpress', 'installs', 'bundled', 'headers', 'lockfiles', 'iocs', 'macos'];
 const https = (u) => typeof u === 'string' && new URL(u).protocol === 'https:';
 // the start of a date window: an explicit instant in UTC, to the second (lib/workflows.mjs windowStart reads only this)
 const INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
@@ -51,6 +51,16 @@ test('every incident has the fields its check reads, named after its file', () =
       if (i.dockerDigestPrefixes || i.dockerTags) assert.ok(i.dockerFix);
     }
     if (i.type === 'headers') assert.ok(i.fix && i.notCovered);
+    if (i.type === 'macos') {
+      // 0.1.18: one entry per line Apple names, each fix a version, each CVE one the incident's kev rows carry
+      assert.ok(i.fix && i.fixFrozen && i.olderNote && i.olderFix && i.notCovered, `${i.id}: texts`);
+      const kev = new Set((i.kev ?? []).map((k) => k.cve));
+      for (const l of i.macosLines) {
+        assert.ok(Number.isInteger(l.major) && /^\d+(\.\d+){1,2}$/.test(l.latest) && l.name && l.latestDate, `${i.id}: ${l.major}`);
+        assert.ok(l.frozen || l.latestSays, `${i.id}: ${l.major} says what its latest release fixes, or that it is frozen`);
+        for (const k of l.kev) { assert.ok(kev.has(k.cve), `${i.id}: ${k.cve} is a kev row`); assert.equal(Number(k.fixed.split('.')[0]), l.major, `${i.id}: ${k.cve}`); }
+      }
+    }
     if (i.type === 'iocs') {
       // 0.1.18: a vendor's indicators, each in the exact form it is matched in
       const x = i.iocs;

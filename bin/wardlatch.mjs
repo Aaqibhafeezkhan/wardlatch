@@ -25,7 +25,7 @@ import { pathState, readText, listDir, realPath, entriesByMetadata, denialCode, 
 import { ownedByPerson, ownerName } from '../lib/owners.mjs';
 import { safe, saw, withdrawUnreceipted } from '../lib/report.mjs';
 import { escapeHidden, escapeJsonHidden } from '../lib/escape.mjs';
-import { trustFix, readMacosVersion, appleNote, appleFixState, appleUnknownNote, appleFileCheck, appleSystemRow, backupRows, certPemReviewRow } from '../lib/macos.mjs';
+import { trustFix, readMacosVersion, appleNote, appleFixState, appleUnknownNote, appleFileCheck, appleSystemRow, backupRows, certPemReviewRow, macosUpdateRow } from '../lib/macos.mjs';
 import { checkSshole } from '../lib/sshd.mjs';
 import { lockfilesUnder, checkLockfile, LOCK_DEPTH, NOT_WALKED as LOCK_NOT_WALKED } from '../lib/lockfiles.mjs';
 import { measure as measureReach, lines as reachLines, toJson as reachJson } from '../lib/reach.mjs';
@@ -578,6 +578,17 @@ for (const inc of chosen) {
     results.push(row);
     print(r.status, r.reason);
     if (r.status === 'EXPOSED' || r.status === 'REVIEW') note('2', `${r.status === 'EXPOSED' ? 'fix' : 'check'}: ${inc.fix}`);
+    note('2', `not covered: ${inc.notCovered}`);
+  }
+
+  // 0.1.18: this Mac's macOS against Apple's latest security releases (lib/macos.mjs macosUpdateRow), from the version in
+  // SystemVersion.plist; nothing is run
+  if (inc.type === 'macos') {
+    const r = macosUpdateRow(inc, platform() === 'darwin' ? readMacosVersion() : '', platform());
+    results.push({ incident: inc.id, kind: 'macos', ...r });
+    print(r.status, `macOS${r.version ? ` ${r.version}` : ''}${r.status === 'SAFE' && !r.version ? '' : `  ${r.file}`}`);
+    note({ EXPOSED: '31', SAFE: '2' }[r.status] ?? '33', r.reason);
+    if (r.fix) note('2', `${r.status === 'EXPOSED' ? 'fix' : 'check'}: ${r.fix}`);
     note('2', `not covered: ${inc.notCovered}`);
   }
 

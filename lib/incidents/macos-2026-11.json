@@ -1,0 +1,37 @@
+{
+  "id": "macos-2026-11",
+  "type": "macos",
+  "title": "macOS older than Apple's latest security update, and fixes for exploited flaws (CVE-2026-86950 and others)",
+  "date": "2026-11-09",
+  "kev": [
+    {"cve": "CVE-2024-27834", "vendorProject": "Apple", "product": "Multiple Products", "dateAdded": "2026-11-04", "dueDate": "2026-11-18"},
+    {"cve": "CVE-2026-65400", "vendorProject": "Apple", "product": "macOS", "dateAdded": "2026-08-18", "dueDate": "2026-08-21"},
+    {"cve": "CVE-2026-86950", "vendorProject": "Apple", "product": "Multiple Products", "dateAdded": "2026-09-29", "dueDate": "2026-10-13"}
+  ],
+  "summary": "Apple's latest security releases for the Mac, as its index listed them on 13 Nov 2026, are macOS Golden Gate 27.2.1, Tahoe 26.7.3 and Sequoia 15.8.3 (all 9 Nov 2026); macOS Sonoma 14's last is 14.8.9 (6 Aug 2026). Three flaws Apple fixed are in CISA's catalog of exploited vulnerabilities: CVE-2026-86950, an out-of-bounds write in CoreGraphics, which the CVE record lists as fixed in macOS 26.7.1 and 15.8.1 and for which it names no Sonoma fix; CVE-2026-65400, a Screen Sharing authentication bypass, fixed in 27, 26.6.1, 15.7.9 and 14.8.9; and CVE-2024-27834, fixed in macOS 14.5 (and Safari 17.5). A Mac below the fix for one of these on its own line is EXPOSED. One past them but below its line's latest release is REVIEW. Every Sonoma 14 is REVIEW: Apple ships it no more updates and does not say it is affected. Wardlatch reads the version from /System/Library/CoreServices/SystemVersion.plist; it runs no program.",
+  "advisory": "https://support.apple.com/en-us/100100",
+  "sources": [
+    "https://www.cve.org/CVERecord?id=CVE-2026-86950",
+    "https://www.cve.org/CVERecord?id=CVE-2026-65400",
+    "https://www.cve.org/CVERecord?id=CVE-2024-27834",
+    "https://support.apple.com/en-us/149228",
+    "https://support.apple.com/en-us/149229",
+    "https://support.apple.com/en-us/149718"
+  ],
+  "macosLines": [
+    {"major": 27, "name": "macOS Golden Gate 27", "latest": "27.2.1", "latestDate": "9 Nov 2026", "latestSays": "its fixes include one for macOS's own Brotli decoder, which the brotli-2026-10 check reports on its own line and flaws in AirPlay, Bluetooth and Messages",
+     "kev": [{"cve": "CVE-2026-65400", "fixed": "27.0"}]},
+    {"major": 26, "name": "macOS Tahoe 26", "latest": "26.7.3", "latestDate": "9 Nov 2026", "latestSays": "its fixes include one for macOS's own Brotli decoder, which the brotli-2026-10 check reports on its own line",
+     "kev": [{"cve": "CVE-2026-86950", "fixed": "26.7.1"}, {"cve": "CVE-2026-65400", "fixed": "26.6.1"}]},
+    {"major": 15, "name": "macOS Sequoia 15", "latest": "15.8.3", "latestDate": "9 Nov 2026", "latestSays": "its fixes include one for macOS's own Brotli decoder, which the brotli-2026-10 check reports on its own line",
+     "kev": [{"cve": "CVE-2026-86950", "fixed": "15.8.1"}, {"cve": "CVE-2026-65400", "fixed": "15.7.9"}]},
+    {"major": 14, "name": "macOS Sonoma 14", "latest": "14.8.9", "latestDate": "6 Aug 2026",
+     "frozen": "Apple has published no security update for macOS Sonoma 14 since 14.8.9 on 6 Aug 2026; its releases of 9 Nov 2026 are for macOS 27, 26 and 15. The CVE record of CVE-2026-86950, which CISA lists as exploited, names fixes for macOS 26 and 15 and none for Sonoma. It does not say Sonoma is affected, so this is not judged EXPOSED; but this Mac no longer gets Apple's fixes",
+     "kev": [{"cve": "CVE-2024-27834", "fixed": "14.5"}, {"cve": "CVE-2026-65400", "fixed": "14.8.9"}]}
+  ],
+  "olderNote": "Apple's security releases of 9 Nov 2026 are for macOS 27, 26 and 15 only, and the CVE records of the exploited CVE-2026-86950 and CVE-2026-65400 name no fix for macOS 13 or older. They do not say this release is affected, so it is not judged EXPOSED; but this Mac no longer gets Apple's fixes",
+  "olderFix": "Move this Mac to a macOS Apple still updates (27, 26 or 15) if it can run one: System Settings, General, Software Update. If it can't, keep it off untrusted networks and away from untrusted files and web pages.",
+  "fix": "Update macOS to {release} or later: System Settings, General, Software Update.",
+  "fixFrozen": "Apple ships no more updates for macOS Sonoma: update to {release}, its last, if this Mac is below it, and move to a macOS Apple still updates (27, 26 or 15) if this Mac can run one (System Settings, General, Software Update).",
+  "notCovered": "Rapid Security Responses and Safari, which Apple can update apart from macOS (CVE-2024-27834 is also fixed in Safari 17.5); other Apple devices; and any Apple fix not yet in its security releases index."
+}

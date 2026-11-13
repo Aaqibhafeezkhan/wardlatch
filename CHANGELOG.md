@@ -111,6 +111,15 @@ Every check reads files only and runs nothing it finds.
   it does not cover, with the Linux crontab line and Windows. The cached-package folder names follow VS Code's layout
   and were not measured on a real Cursor install. Tests: `test/claude-code-extension-0.1.18.test.mjs` (a stand-in for
   the malicious file; it is not in the repository).
+- **macOS behind Apple's latest security release** (`macos-2026-11`, a new kind of check, `macos`, in
+  `lib/macos.mjs`). Reads `ProductVersion` from `SystemVersion.plist`; runs nothing. Apple's index (read 13 Nov 2026)
+  lists 27.2.1, 26.7.3 and 15.8.3 (9 Nov 2026) as the latest, and Sonoma's last as 14.8.9 (6 Aug 2026). Three Apple
+  flaws are in CISA's catalog: CVE-2026-86950 (fixed in 26.7.1 and 15.8.1, no Sonoma fix named), CVE-2026-65400 (27,
+  26.6.1, 15.7.9, 14.8.9) and CVE-2024-27834 (14.5). Below one of those fixes on its own line is EXPOSED, with CISA's
+  dates under the title; past them but below the latest release, REVIEW; any Sonoma 14, and 13 or older, REVIEW,
+  because Apple ships them nothing and does not say they are affected; at or past the latest, SAFE. A version that
+  can't be read, or was never a macOS release, is UNKNOWN. Tests: `test/macos-0.1.18.test.mjs`; the KEV snapshot
+  (catalog 2026.11.10, unchanged) now records the three rows.
 
 ## [0.1.17] - 2026-11-11
 

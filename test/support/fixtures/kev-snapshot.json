@@ -23,6 +23,29 @@
         "dueDate": "2026-11-24"
       }
     ],
+    "macos-2026-11": [
+      {
+        "cve": "CVE-2024-27834",
+        "vendorProject": "Apple",
+        "product": "Multiple Products",
+        "dateAdded": "2026-11-04",
+        "dueDate": "2026-11-18"
+      },
+      {
+        "cve": "CVE-2026-65400",
+        "vendorProject": "Apple",
+        "product": "macOS",
+        "dateAdded": "2026-08-18",
+        "dueDate": "2026-08-21"
+      },
+      {
+        "cve": "CVE-2026-86950",
+        "vendorProject": "Apple",
+        "product": "Multiple Products",
+        "dateAdded": "2026-09-29",
+        "dueDate": "2026-10-13"
+      }
+    ],
     "php-2026-10": [
       {
         "cve": "CVE-2026-109618",
