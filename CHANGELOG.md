@@ -86,7 +86,10 @@ Every check reads files only and runs nothing it finds.
 - **Fixed: a fixed Extended Stable Chrome read EXPOSED** (`chrome-2026-11`). 0.1.16 judged every Chrome against
   157.0.8103.50, so Chrome 156.0.8078.96, which Google's Extended Stable update of 9 Nov 2026 lists as fixing
   CVE-2026-125350, read EXPOSED. On a Mac it now reads REVIEW, like any fixed Chrome; a 156 below .96 is still EXPOSED.
-  dpkg's `google-chrome-stable` has no Extended Stable build and keeps 157.0.8103.50.
+  dpkg's `google-chrome-stable` has no Extended Stable build and keeps 157.0.8103.50. A Chrome on a newer line than
+  both fixes (158 and later: Early Stable 158.0.8127.18/.19 shipped on 4 Nov, before the exploit was reported on 6 Nov)
+  is REVIEW with its own reason, which says Google's notes don't list the fix for it, never that it has it
+  (`reviewAbove`, an independent review's B1); so are Brave 1.100 and later and Vivaldi 8.4 and later.
 - **Brave, Vivaldi and Microsoft Edge in `chrome-2026-11`.** Brave below 1.99.56 (10 Nov, on Chromium
   157.0.8103.50) and Vivaldi below 8.3.4191.35 ("8.3 minor update 2", 10 Nov, which Vivaldi says includes the fix) are
   EXPOSED; at or past it, REVIEW, as for Chrome. Brave's version is read with or without Chromium's major in front

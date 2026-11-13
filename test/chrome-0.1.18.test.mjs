@@ -42,17 +42,36 @@ const cli = (home, args = []) => {
 
 test('X1 the bug: a fixed Extended Stable Chrome (156.0.8078.96, 9 Nov) is no longer EXPOSED; below it, and 157 below .50, still are', () => {
   for (const [v, want, why] of [['156.0.8078.96', 'REVIEW'], ['156.0.8078.100', 'REVIEW'], ['156.0.8078.95', 'EXPOSED', 'fixed in 156.0.8078.96'], ['156.0.8075.120', 'EXPOSED', 'fixed in 156.0.8078.96'],
-    ['157.0.8103.49', 'EXPOSED', 'fixed in 157.0.8103.50'], ['157.0.8103.50', 'REVIEW'], ['157.0.8103.51', 'REVIEW'], ['157.0.8103.79', 'REVIEW'], ['158.0.8127.36', 'REVIEW'],
+    ['157.0.8103.49', 'EXPOSED', 'fixed in 157.0.8103.50'], ['157.0.8103.50', 'REVIEW'], ['157.0.8103.51', 'REVIEW'], ['157.0.8103.79', 'REVIEW'],
     ['155.0.7950.1', 'EXPOSED', /no fix for the 155\.0 line/]]) {
     const r = one('chrome', 'Google Chrome', v);
     assert.equal(r.status, want, `${v}: ${JSON.stringify(r)}`);
     if (why) assert.match(r.reason, why instanceof RegExp ? why : new RegExp(`^${why.replace(/\./g, '\\.')}$`), v);
-    if (want === 'REVIEW') assert.match(r.reason, /Wardlatch can't see which version is running/);
+    if (want === 'REVIEW') assert.match(r.reason, /this Chrome, as installed, has the fix/);
   }
   // the regression's control: the 0.1.16 rule (157.0.8103.50 for every Chrome) reads the fixed Extended Stable as EXPOSED
   const old = { ...ruleOf('Google Chrome'), fixedIn: undefined, minVersion: '157.0.8103.50' };
   assert.equal(one('chrome', 'Google Chrome', '156.0.8078.96', old).status, 'EXPOSED', 'the control: the old rule reproduces the bug');
   assert.equal(judgeVersion('156.0.8078.96', V).status, 'SAFE', 'the shared rule takes the Extended Stable fix (the file makes it REVIEW)');
+});
+
+test('X1b a line newer than every fixed one (Early Stable 158.0.8127.18/.19 of 4 Nov, before the 6 Nov report) is REVIEW and never told it has the fix', () => {
+  for (const v of ['158.0.8127.18', '158.0.8127.19', '158.0.8127.36', '159.0.8144.0']) {
+    const r = one('chrome', 'Google Chrome', v);
+    assert.equal(r.status, 'REVIEW', v);
+    assert.doesNotMatch(r.reason, /has the fix(?! is not known)|as installed, has/, `${v}: ${r.reason}`);
+    assert.match(r.reason, /Google's notes for its builds don't list the fix for CVE-2026-125350/);
+    assert.match(r.reason, /whether this build has the fix is not known/);
+  }
+  // Brave's and Vivaldi's newer lines too
+  assert.match(one('brave', 'Brave', '158.1.100.2').reason, /whether it has the fix is not known/);
+  assert.match(one('vivaldi', 'Vivaldi', '8.4.4250.3').reason, /whether it has the fix is not known/);
+  assert.match(one('vivaldi', 'Vivaldi', '8.3.4191.44').reason, /Vivaldi says includes a fix/);
+  // the control: without reviewAbove, 158.0.8127.18 is told "has the fix", the wording the review found unsourced
+  const strip = { ...ruleOf('Google Chrome'), files: ruleOf('Google Chrome').files.map(({ reviewAbove, ...f }) => f) };
+  assert.match(one('chrome', 'Google Chrome', '158.0.8127.18', strip).reason, /this Chrome, as installed, has the fix/);
+  // every Chrome file carries it (the Mac apps and dpkg's record)
+  for (const f of V.files.filter((x) => !x.product)) assert.equal(f.reviewAbove?.from, '158', f.path);
 });
 
 test('X2 Linux has no Extended Stable package: dpkg\'s google-chrome-stable keeps 157.0.8103.50 as its one fix', () => {
@@ -65,7 +84,7 @@ test('X2 Linux has no Extended Stable package: dpkg\'s google-chrome-stable keep
 });
 
 test('X3 Brave: judged as Brave numbers it, with Chromium\'s major in front or not; 1.99.56 is the fix', () => {
-  for (const [v, want, ver] of [['157.1.99.56', 'REVIEW', '1.99.56'], ['1.99.56', 'REVIEW', '1.99.56'], ['158.1.100.2', 'REVIEW', '1.100.2'],
+  for (const [v, want, ver] of [['157.1.99.56', 'REVIEW', '1.99.56'], ['1.99.56', 'REVIEW', '1.99.56'],
     ['157.1.99.55', 'EXPOSED', '1.99.55'], ['156.1.98.120', 'EXPOSED', '1.98.120'], ['1.98.120', 'EXPOSED', '1.98.120']]) {
     const r = one('brave', 'Brave', v);
     assert.deepEqual([r.status, r.version, r.product], [want, ver, 'Brave'], v);

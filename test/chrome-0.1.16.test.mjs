@@ -43,7 +43,7 @@ test('C1 the facts are Google\'s and the CVE record\'s: the fixed version, the s
 
 test('C2 the Mac app: below the fix is EXPOSED, at or past it is REVIEW (it may still be running the old one), and an unread version is UNKNOWN', () => {
   for (const [v, want] of [['157.0.8103.40', 'EXPOSED'], ['157.0.8103.49', 'EXPOSED'], ['156.0.8075.120', 'EXPOSED'], ['120.0.6099.71', 'EXPOSED'], ['156.0.8078.96', 'REVIEW'],
-    ['157.0.8103.50', 'REVIEW'], ['157.0.8103.51', 'REVIEW'], ['157.0.8104.1', 'REVIEW'], ['158.0.8200.0', 'REVIEW']]) {
+    ['157.0.8103.50', 'REVIEW'], ['157.0.8103.51', 'REVIEW'], ['157.0.8104.1', 'REVIEW']]) {
     const root = fresh(`mac-${v}`); mac(root, plist(v));
     const rows = judge(root);
     assert.equal(rows.length, 1, `${v}: ${JSON.stringify(rows)}`);
