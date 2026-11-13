@@ -4,15 +4,19 @@
   "title": "Google Chrome: use after free in XML, exploited (CVE-2026-125350)",
   "date": "2026-11-09",
   "kev": [{"cve": "CVE-2026-125350", "vendorProject": "Google", "product": "Chromium", "dateAdded": "2026-11-10", "dueDate": "2026-11-24"}],
-  "summary": "Google updated Chrome's stable channel on 9 November 2026 to 157.0.8103.50/.51 for Windows and Mac and 157.0.8103.50 for Linux. The update fixes CVE-2026-125350, a use after free in XML, which the CVE record (published 10 November) says allowed a remote attacker to execute arbitrary code inside the sandbox via a crafted HTML page, in Chrome before 157.0.8103.50. Google's post says: \"Google is aware that an exploit for CVE-2026-125350 exists in the wild.\" CISA added it to its Known Exploited Vulnerabilities catalog on 10 Nov 2026, due 24 Nov. Wardlatch reads the version of the Chrome that is installed (the app's Info.plist on a Mac, dpkg's record on Debian and Ubuntu); it never starts Chrome.",
+  "summary": "Google updated Chrome's stable channel on 9 November 2026 to 157.0.8103.50/.51 for Windows and Mac and 157.0.8103.50 for Linux, and Chrome's Extended Stable channel the same day to 156.0.8078.96 for Windows and Mac. Both updates fix CVE-2026-125350, a use after free in XML, which the CVE record (published 10 November) says allowed a remote attacker to execute arbitrary code inside the sandbox via a crafted HTML page, in Chrome before 157.0.8103.50. Google's post says: \"Google is aware that an exploit for CVE-2026-125350 exists in the wild.\" CISA added it to its Known Exploited Vulnerabilities catalog on 10 Nov 2026, due 24 Nov. Other browsers built on Chromium ship the fix on their own schedule: Brave in 1.99.56 (Chromium 157.0.8103.50, 10 November) and Vivaldi in 8.3.4191.35 (\"8.3 minor update 2\", 10 November, which Vivaldi says includes a fix for CVE-2026-125350). As read on 13 November 2026, Microsoft's Edge security notes name the fix only for Edge for Android (157.0.4341.53) and no fixed Edge for Mac. Wardlatch reads the version of each browser that is installed (the app's Info.plist on a Mac, dpkg's record of Chrome on Debian and Ubuntu); it never starts a browser.",
   "advisory": "https://chromereleases.googleblog.com/2026/11/stable-channel-update-for-desktop_018223192.html",
   "sources": [
     "https://www.cve.org/CVERecord?id=CVE-2026-125350",
-    "https://issues.chromium.org/issues/582442907"
+    "https://issues.chromium.org/issues/582442907",
+    "https://chromereleases.googleblog.com/2026/11/extended-stable-update-for-desktop_0910980127.html",
+    "https://github.com/brave/brave-browser/releases/tag/v1.99.56",
+    "https://vivaldi.com/blog/desktop/minor-update-two-8-3/",
+    "https://learn.microsoft.com/en-us/deployedge/microsoft-edge-relnotes-security"
   ],
   "versionFiles": {
     "product": "Google Chrome",
-    "minVersion": "157.0.8103.50",
+    "fixedIn": ["156.0.8078.96", "157.0.8103.50"],
     "files": [
       {
         "path": "/Applications/Google Chrome.app/Contents/Info.plist",
@@ -32,13 +36,70 @@
         "re": "^Package: google-chrome-stable\\nStatus: install ok installed\\n(?:[^\\n]+\\n)*?Version: (\\d+(?:\\.\\d+)+)",
         "label": "Debian or Ubuntu package",
         "maxBytes": 33554432,
+        "rule": { "minVersion": "157.0.8103.50" },
         "reviewWhenFixed": "this Chrome, as installed, has the fix; a Chrome that was open when it updated runs the old version until it restarts, and Wardlatch can't see which version is running"
+      },
+      {
+        "path": "/Applications/Brave Browser.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>(?:1\\d\\d\\.)?(1\\.\\d+\\.\\d+)</string>",
+        "label": "Mac app",
+        "product": "Brave",
+        "rule": { "minVersion": "1.99.56" },
+        "fix": "Update Brave to 1.99.56 or later (Brave's release of 10 Nov 2026, on Chromium 157.0.8103.50): open Brave, go to Settings, About Brave, let it update, then press Relaunch.",
+        "reviewFix": "Restart Brave (it shows Relaunch when an update is waiting), so the version that runs is the one installed.",
+        "reviewWhenFixed": "this Brave, as installed, is 1.99.56 or later, which Brave built on Chromium 157.0.8103.50, the version Google says has the fix; if Brave was open when it updated, it runs the old version until it restarts, and Wardlatch can't see which version is running"
+      },
+      {
+        "path": "~/Applications/Brave Browser.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>(?:1\\d\\d\\.)?(1\\.\\d+\\.\\d+)</string>",
+        "label": "Mac app",
+        "product": "Brave",
+        "rule": { "minVersion": "1.99.56" },
+        "fix": "Update Brave to 1.99.56 or later (Brave's release of 10 Nov 2026, on Chromium 157.0.8103.50): open Brave, go to Settings, About Brave, let it update, then press Relaunch.",
+        "reviewFix": "Restart Brave (it shows Relaunch when an update is waiting), so the version that runs is the one installed.",
+        "reviewWhenFixed": "this Brave, as installed, is 1.99.56 or later, which Brave built on Chromium 157.0.8103.50, the version Google says has the fix; if Brave was open when it updated, it runs the old version until it restarts, and Wardlatch can't see which version is running"
+      },
+      {
+        "path": "/Applications/Vivaldi.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>(\\d+(?:\\.\\d+)+)</string>",
+        "label": "Mac app",
+        "product": "Vivaldi",
+        "rule": { "minVersion": "8.3.4191.35" },
+        "fix": "Update Vivaldi to 8.3.4191.35 (\"8.3 minor update 2\", 10 Nov 2026) or later: Vivaldi menu, Check for Updates, then restart Vivaldi.",
+        "reviewFix": "Restart Vivaldi, so the version that runs is the one installed.",
+        "reviewWhenFixed": "this Vivaldi, as installed, is 8.3.4191.35 or later, the update Vivaldi says includes a fix for CVE-2026-125350; if Vivaldi was open when it updated, it runs the old version until it restarts, and Wardlatch can't see which version is running"
+      },
+      {
+        "path": "~/Applications/Vivaldi.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>(\\d+(?:\\.\\d+)+)</string>",
+        "label": "Mac app",
+        "product": "Vivaldi",
+        "rule": { "minVersion": "8.3.4191.35" },
+        "fix": "Update Vivaldi to 8.3.4191.35 (\"8.3 minor update 2\", 10 Nov 2026) or later: Vivaldi menu, Check for Updates, then restart Vivaldi.",
+        "reviewFix": "Restart Vivaldi, so the version that runs is the one installed.",
+        "reviewWhenFixed": "this Vivaldi, as installed, is 8.3.4191.35 or later, the update Vivaldi says includes a fix for CVE-2026-125350; if Vivaldi was open when it updated, it runs the old version until it restarts, and Wardlatch can't see which version is running"
+      },
+      {
+        "path": "/Applications/Microsoft Edge.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>(\\d+(?:\\.\\d+)+)</string>",
+        "label": "Mac app",
+        "product": "Microsoft Edge",
+        "reviewAlways": "Microsoft has not named a fixed Edge for Mac: as read on 13 Nov 2026, its security notes name the fix for CVE-2026-125350 only in Edge for Android 157.0.4341.53, and on 9 Nov said Microsoft was \"actively working on releasing a security fix\". So this version can't be judged either way",
+        "reviewFix": "Keep Edge updated (Edge menu, Settings, About Microsoft Edge) and watch Microsoft's Edge security notes for the desktop version that fixes CVE-2026-125350: https://learn.microsoft.com/en-us/deployedge/microsoft-edge-relnotes-security"
+      },
+      {
+        "path": "~/Applications/Microsoft Edge.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>(\\d+(?:\\.\\d+)+)</string>",
+        "label": "Mac app",
+        "product": "Microsoft Edge",
+        "reviewAlways": "Microsoft has not named a fixed Edge for Mac: as read on 13 Nov 2026, its security notes name the fix for CVE-2026-125350 only in Edge for Android 157.0.4341.53, and on 9 Nov said Microsoft was \"actively working on releasing a security fix\". So this version can't be judged either way",
+        "reviewFix": "Keep Edge updated (Edge menu, Settings, About Microsoft Edge) and watch Microsoft's Edge security notes for the desktop version that fixes CVE-2026-125350: https://learn.microsoft.com/en-us/deployedge/microsoft-edge-relnotes-security"
       }
     ],
-    "fix": "Update Chrome to 157.0.8103.50 or later (on a Mac 157.0.8103.50 or .51): open Chrome, go to Settings, About Chrome, let it update, then press Relaunch. On Debian or Ubuntu: sudo apt update && sudo apt install --only-upgrade google-chrome-stable, then restart Chrome.",
-    "lookedIn": "Chrome's Info.plist in /Applications and ~/Applications, and dpkg's record of google-chrome-stable"
+    "fix": "Update Chrome to 157.0.8103.50 or later (on a Mac 157.0.8103.50 or .51), or, on Chrome's Extended Stable channel, to 156.0.8078.96 or later: open Chrome, go to Settings, About Chrome, let it update, then press Relaunch. On Debian or Ubuntu: sudo apt update && sudo apt install --only-upgrade google-chrome-stable, then restart Chrome.",
+    "lookedIn": "the Info.plist of Chrome, Brave, Vivaldi and Microsoft Edge in /Applications and ~/Applications, and dpkg's record of google-chrome-stable"
   },
   "reviewFix": "Restart Chrome (Chrome's menu shows Relaunch when an update is waiting), so the version that runs is the one installed.",
-  "safeText": "no Google Chrome found in the places this check reads",
-  "notCovered": "Other browsers built on Chromium (Edge, Brave, Opera, Vivaldi, Arc), which number their releases their own way and ship the fix on their own schedule; Chromium itself; Chrome's beta, dev and canary channels; Chrome installed by snap, Flatpak or an RPM; ChromeOS, Android and iOS; Electron apps; Windows. Check each one's own release notes."
+  "safeText": "no Google Chrome, Brave, Vivaldi or Microsoft Edge found in the places this check reads",
+  "notCovered": "Opera and Arc, for which no fixed version was found as of 13 Nov 2026; Brave, Vivaldi and Edge anywhere but /Applications and ~/Applications, and on Linux; Chromium itself; Chrome's beta, dev and canary channels; Chrome installed by snap, Flatpak or an RPM; ChromeOS, Android and iOS; Electron apps; Windows. Brave's and Vivaldi's Info.plist were read from their published version formats, not from a real bundle on the Mac this was written on. Check each one's own release notes."
 }

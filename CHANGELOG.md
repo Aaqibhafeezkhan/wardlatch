@@ -78,6 +78,25 @@ Sources: [React's advisory](https://github.com/react/react/security/advisories/G
   opened. Each place has the vendor page that names it, and each `reachable` line one fix line with the page it comes
   from, in `lib/reach/items.json`. Off unless asked for: a run without `--reach` is unchanged. [docs/REACH.md](docs/REACH.md).
 
+### 0.1.18 (checks)
+
+The new checks and the Chrome fix built on `feat/0.1.18-checks`, kept in one block so the release can fold them in.
+Every check reads files only and runs nothing it finds.
+
+- **Fixed: a fixed Extended Stable Chrome read EXPOSED** (`chrome-2026-11`). 0.1.16 judged every Chrome against
+  157.0.8103.50, so Chrome 156.0.8078.96, which Google's Extended Stable update of 9 Nov 2026 lists as fixing
+  CVE-2026-125350, read EXPOSED. On a Mac it now reads REVIEW, like any fixed Chrome; a 156 below .96 is still EXPOSED.
+  dpkg's `google-chrome-stable` has no Extended Stable build and keeps 157.0.8103.50.
+- **Brave, Vivaldi and Microsoft Edge in `chrome-2026-11`.** Brave below 1.99.56 (10 Nov, on Chromium
+  157.0.8103.50) and Vivaldi below 8.3.4191.35 ("8.3 minor update 2", 10 Nov, which Vivaldi says includes the fix) are
+  EXPOSED; at or past it, REVIEW, as for Chrome. Brave's version is read with or without Chromium's major in front
+  (`157.1.99.56` or `1.99.56`); any other shape is UNKNOWN. Microsoft names no fixed Edge for Mac (its security
+  notes, read 13 Nov 2026, name the fix only for Edge for Android 157.0.4341.53), so any Edge read is REVIEW, never SAFE
+  and never EXPOSED. No Brave, Vivaldi or Edge bundle was on the Mac this was written on: their `Info.plist` files in
+  the tests follow the vendors' published version formats. Opera and Arc have no published fixed version and are not
+  read. A version file may now carry its own `product`, `rule`, `fix`, `reviewFix` and `reviewAlways`
+  (`lib/installs.mjs`). Tests: `test/chrome-0.1.18.test.mjs`, and `test/chrome-0.1.16.test.mjs` updated.
+
 ## [0.1.17] - 2026-11-11
 
 eMudhra revoked eight more CAs on 7 November, for a different reason, and they are now REVIEW lines on a Mac. The

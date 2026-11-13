@@ -583,10 +583,14 @@ for (const inc of chosen) {
   if (inc.type === 'installs') {
     // Read-only: versions from the product's own files, dropped files in site-packages by hash, local image digests.
     // Nothing found is run (lib/installs.mjs).
-    const show = (r, what, fix) => {
+    const show = (r0, what, fix0) => {
+      // a row of a product with its own fix and review advice (0.1.18: Brave, Vivaldi and Edge in Chrome's file) carries
+      // them; every other row gets the incident's
+      const { fix: ownFix, reviewFix: ownReview, ...r } = r0;
+      const fix = ownFix ?? fix0;
       // reviewFix is advice about a file on this machine. A row about an image is not one: until 2 Nov 2026 a moved Docker
       // tag told a healthy machine to rotate every secret (seat 8).
-      const review = r.engine ? undefined : inc.reviewFix;
+      const review = r.engine ? undefined : ownReview ?? inc.reviewFix;
       results.push({ incident: inc.id, kind: 'install', ...r, fix: r.status === 'EXPOSED' ? fix : r.status === 'REVIEW' ? review : undefined });
       print(r.status, what);
       if (r.reason) note({ EXPOSED: '31', SAFE: '2' }[r.status] ?? '33', r.reason);
@@ -599,7 +603,7 @@ for (const inc of chosen) {
     if (inc.versionFiles) {
       const v = inc.versionFiles;
       const reached = [];
-      for (const r of checkVersionFiles(v, { reached })) show(r, `${v.product}${r.label ? ` (${r.label})` : ''} ${r.version}  ${short(r.path)}`, v.fix);
+      for (const r of checkVersionFiles(v, { reached })) show(r, `${r.product ?? v.product}${r.label ? ` (${r.label})` : ''} ${r.version}  ${short(r.path)}`, v.fix);
       // The places the walk reached, never the incident file's sentence about them. `lookedIn` is prose — "GitLab's
       // version files under /opt/gitlab and /home/git/gitlab" — and up to 0.1.10 it WAS the whole receipt behind the
       // all-clear: on a machine with no GitLab it named two folders that are not there and nothing had been opened,
