@@ -18,6 +18,10 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
   98.82% of functions at 1dfd218. A test fails if a floor is lowered or an exclude is added.
 - Per-file licence and copyright: the header check is now `test/license-headers.test.mjs`, run by CI's reuse job as
   well as the suite, and it covers `.cjs` files, which it skipped before (all nine already carried the header).
+- Reproducible build: `scripts/reproduce-release.sh vX.Y.Z` rebuilds a release's npm package and source archive from
+  its tag and compares them with the release's `SHA256SUMS` ([docs/RELEASING.md](docs/RELEASING.md#reproducing-a-release)).
+  v0.1.17 and v0.1.18 reproduce byte for byte. A new CI job, `reproducible`, runs it on the newest release and checks
+  that the current commit packs to the same bytes from two trees.
 
 ## [0.1.18] - 2026-11-13
 
