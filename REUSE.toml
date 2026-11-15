@@ -6,8 +6,11 @@ SPDX-PackageDownloadLocation = "https://github.com/deimos-hq/wardlatch"
 # Bulk licensing declarations, for files that cannot carry a comment header or
 # where one would be noise.
 #
-# Source files carry their own header: every file under bin/, lib/, test/ and
-# .github/workflows/, except fix/fix-macos.sh (below). This covers the rest:
+# Source files carry their own header: every .mjs, .cjs, .js, .sh and .yml file,
+# under bin/, lib/, scripts/, test/ and .github/workflows/, except
+# fix/fix-macos.sh (below). test/license-headers.test.mjs enforces it, because
+# the annotations below would otherwise satisfy `reuse lint` for a source file
+# that had lost its header. This covers the rest:
 # prose and config, where a two-line legal preamble above the first heading is
 # clutter, and JSON, which has no comment syntax to put one in. The incident
 # files in lib/incidents/ are Deimos AI LLC's own write-ups of public

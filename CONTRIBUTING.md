@@ -86,6 +86,7 @@ can stop.
 | `test/workflows.test.mjs` | The workflow review's window: workflows just inside it and a second before it, in two time zones; the date a review line shows, in UTC; back-dated commits on top, in between and on a merged side branch; a workflow added and removed on a side branch; replace refs and grafts; shallow repositories, UNKNOWN wherever cut, and partial clones; committer times that aren't whole numbers; a start that isn't an explicit UTC instant; a git that must get no date; the CHANGELOG's hand check, found wherever a release puts it and run as written, against the review |
 | `test/incidents.test.mjs` | The incident data: shape, https sources, the bundled roots' fingerprints, the copyable fix commands, every window's start an explicit UTC instant |
 | `test/conventions.test.mjs` | The coding standard below, where a machine can check it |
+| `test/license-headers.test.mjs` | The licence and copyright header in every source file itself (CI's reuse job runs it too) |
 | `test/no-real-home.test.mjs` | The tests' safety net, `test/support/no-real-home.cjs`, against every way past it a review found, on a made-up home |
 | `test/reach.test.mjs` | `--reach`: the list and its sources; every state (reachable, blocked by `EACCES` and by `EPERM`, not there, could not tell, not applicable) and the errno that decides it; links, FIFOs, other systems, no home; that it reads nothing, under a stand-in for the disk and a spy (`test/support/reach-spy.cjs`), each shown to be able to fail; what is printed; exit 0, REVIEW as the only status word, and that it runs only on its own and only when asked |
 | `test/fix-macos.check.sh` | `fix/fix-macos.sh` on copies of a Mac's `/etc/ssl/cert.pem` (CI, macOS) |
@@ -111,7 +112,9 @@ or adding an exclude, fails CI. On 15 Nov 2026 (main at 1dfd218, Node 22.23.4 in
 - Certificate verification is never switched off, except the one reachability handshake in `lib/probe.mjs`, which
   sends nothing. No `--insecure`, `-k`, `NODE_TLS_REJECT_UNAUTHORIZED`, `CERT_NONE` or the like.
 - Every source file opens with `SPDX-License-Identifier: Apache-2.0` and `Copyright 2026 Deimos AI LLC` (after the
-  shebang, if any). `fix/fix-macos.sh` is the exception, covered by [REUSE.toml](REUSE.toml).
+  shebang, if any): every `.mjs`, `.cjs`, `.js`, `.sh` and `.yml` file. `fix/fix-macos.sh` is the exception, covered by
+  [REUSE.toml](REUSE.toml), because its published SHA-256 would change. `test/license-headers.test.mjs` checks it, in
+  the suite and in CI's reuse job, since `reuse lint` alone also accepts a file whose licence only REUSE.toml declares.
 - UTF-8, LF line ends, no tabs, no trailing spaces, a final newline.
 
 Every module is also syntax-checked with `node --check` on Node 18, 20 and 22, the tests run with

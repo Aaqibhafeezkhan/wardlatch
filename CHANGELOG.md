@@ -16,6 +16,8 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
 - Coverage floors: `npm run coverage` now fails below 90% of lines, 80% of branches or 80% of functions of `bin/` and
   `lib/` (it was 80% of lines and functions, with no branch floor). CI measured 99.70% of lines, 93.31% of branches and
   98.82% of functions at 1dfd218. A test fails if a floor is lowered or an exclude is added.
+- Per-file licence and copyright: the header check is now `test/license-headers.test.mjs`, run by CI's reuse job as
+  well as the suite, and it covers `.cjs` files, which it skipped before (all nine already carried the header).
 
 ## [0.1.18] - 2026-11-13
 
