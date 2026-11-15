@@ -15,6 +15,7 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkIocs, keyFingerprint, opensshPublicBlob } from '../lib/iocs.mjs';
+import { escapeRegExp } from '../lib/escape.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const BIN = join(ROOT, 'bin', 'wardlatch.mjs');
@@ -143,7 +144,7 @@ test('I5 the tunnel key in the temp folders: by fingerprint EXPOSED, by name alo
   // the published tunnel fingerprint is not this key's: REVIEW, with the key it holds
   const r = run(fresh('h'), R, [t]);
   assert.deepEqual(statuses(r), [['REVIEW', '.stk_0123456789']]);
-  assert.match(r.rows[0].reason, new RegExp(keyFingerprint(blob).replace(/[+/]/g, '\\$&')));
+  assert.match(r.rows[0].reason, new RegExp(escapeRegExp(keyFingerprint(blob))));
   const j = fresh('t'); put(join(j, '.stk_abcdef0123'), 'not a key');
   assert.deepEqual(statuses(run(fresh('h'), R, [j])), [['REVIEW', '.stk_abcdef0123']]);
   // in any case (review N5)

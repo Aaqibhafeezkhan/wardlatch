@@ -20,6 +20,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkVersionFiles } from '../lib/installs.mjs';
 import { judgeVersion } from '../lib/binaries.mjs';
+import { escapeRegExp } from '../lib/escape.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const BIN = join(ROOT, 'bin', 'wardlatch.mjs');
@@ -46,7 +47,7 @@ test('X1 the bug: a fixed Extended Stable Chrome (156.0.8078.96, 9 Nov) is no lo
     ['155.0.7950.1', 'EXPOSED', /no fix for the 155\.0 line/]]) {
     const r = one('chrome', 'Google Chrome', v);
     assert.equal(r.status, want, `${v}: ${JSON.stringify(r)}`);
-    if (why) assert.match(r.reason, why instanceof RegExp ? why : new RegExp(`^${why.replace(/\./g, '\\.')}$`), v);
+    if (why) assert.match(r.reason, why instanceof RegExp ? why : new RegExp(`^${escapeRegExp(why)}$`), v);
     if (want === 'REVIEW') assert.match(r.reason, /this Chrome, as installed, has the fix/);
   }
   // the regression's control: the 0.1.16 rule (157.0.8103.50 for every Chrome) reads the fixed Extended Stable as EXPOSED
