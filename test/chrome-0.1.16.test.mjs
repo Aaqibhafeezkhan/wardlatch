@@ -19,7 +19,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const BIN = join(ROOT, 'bin', 'wardlatch.mjs');
 const INC = JSON.parse(readFileSync(join(ROOT, 'lib', 'incidents', 'chrome-2026-11.json'), 'utf8'));
 // the two system-wide places only: the ~/Applications one is read through HOME, in the command's test below
-const RULE = { ...INC.versionFiles, files: INC.versionFiles.files.filter((f) => !f.path.startsWith('~')) };
+const RULE = { ...INC.versionFiles, files: INC.versionFiles.files.filter((f) => !f.path.startsWith('~') && !f.product) };
 let dir;
 before(() => { dir = realpathSync(mkdtempSync(join(tmpdir(), 'wardlatch-chrome-'))); });
 after(() => rmSync(dir, { recursive: true, force: true }));
@@ -32,7 +32,8 @@ const dpkg = (root, text) => { const f = join(root, 'var', 'lib', 'dpkg', 'statu
 const judge = (root) => checkVersionFiles(RULE, { root });
 
 test('C1 the facts are Google\'s and the CVE record\'s: the fixed version, the source and Google\'s own sentence', () => {
-  assert.equal(INC.versionFiles.minVersion, '157.0.8103.50');
+  // 0.1.18: Extended Stable 156.0.8078.96 (9 Nov) carries the fix too (test/chrome-0.1.18.test.mjs)
+  assert.deepEqual(INC.versionFiles.fixedIn, ['156.0.8078.96', '157.0.8103.50']);
   assert.equal(INC.advisory, 'https://chromereleases.googleblog.com/2026/11/stable-channel-update-for-desktop_018223192.html');
   assert.match(INC.summary, /Google's post says: "Google is aware that an exploit for CVE-2026-125350 exists in the wild\."/);
   // CISA listed it on 10 Nov 2026 (catalog 2026.11.10); test/kev.test.mjs holds the row to the snapshot
@@ -41,14 +42,14 @@ test('C1 the facts are Google\'s and the CVE record\'s: the fixed version, the s
 });
 
 test('C2 the Mac app: below the fix is EXPOSED, at or past it is REVIEW (it may still be running the old one), and an unread version is UNKNOWN', () => {
-  for (const [v, want] of [['157.0.8103.40', 'EXPOSED'], ['157.0.8103.49', 'EXPOSED'], ['156.0.8075.120', 'EXPOSED'], ['120.0.6099.71', 'EXPOSED'],
-    ['157.0.8103.50', 'REVIEW'], ['157.0.8103.51', 'REVIEW'], ['157.0.8104.1', 'REVIEW'], ['158.0.8200.0', 'REVIEW']]) {
+  for (const [v, want] of [['157.0.8103.40', 'EXPOSED'], ['157.0.8103.49', 'EXPOSED'], ['156.0.8075.120', 'EXPOSED'], ['120.0.6099.71', 'EXPOSED'], ['156.0.8078.96', 'REVIEW'],
+    ['157.0.8103.50', 'REVIEW'], ['157.0.8103.51', 'REVIEW'], ['157.0.8104.1', 'REVIEW']]) {
     const root = fresh(`mac-${v}`); mac(root, plist(v));
     const rows = judge(root);
     assert.equal(rows.length, 1, `${v}: ${JSON.stringify(rows)}`);
     assert.equal(rows[0].status, want, v); assert.equal(rows[0].version, v);
     if (want === 'REVIEW') assert.match(rows[0].reason, /Wardlatch can't see which version is running/);
-    if (want === 'EXPOSED') assert.equal(rows[0].reason, 'fixed in 157.0.8103.50');
+    if (want === 'EXPOSED' && v.startsWith('157.')) assert.equal(rows[0].reason, 'fixed in 157.0.8103.50');
   }
   // CFBundleShortVersionString is read, not the first version-looking string (KSVersion here holds a newer one)
   const r = fresh('mac-ks'); mac(r, plist('157.0.8103.40').replace('<key>KSVersion</key>\n\t<string>157.0.8103.40', '<key>KSVersion</key>\n\t<string>157.0.8103.51'));
@@ -83,7 +84,7 @@ test('C4 the command: a Chrome in ~/Applications is read, EXPOSED is exit 1 with
   assert.equal(t.status, 1, t.stdout + t.stderr);
   assert.match(t.stdout, /^EXPOSED +Google Chrome \(Mac app\) 157\.0\.8103\.40 +~\/Applications\/Google Chrome\.app\/Contents\/Info\.plist$/m);
   assert.match(t.stdout, /fix: Update Chrome to 157\.0\.8103\.50 or later/);
-  assert.match(t.stdout, /not covered: Other browsers built on Chromium \(Edge, Brave, Opera, Vivaldi, Arc\)/);
+  assert.match(t.stdout, /not covered: Opera and Arc, for which no fixed version was found/);
   // the machine's own /Applications is hidden by the preload, so only the test's Chrome is seen
   const j = JSON.parse(go(['--json']).stdout);
   assert.deepEqual(j.results.map((x) => [x.status, x.version]), [['EXPOSED', '157.0.8103.40']]);
