@@ -91,7 +91,11 @@ can stop.
 | `test/fix-macos.check.sh` | `fix/fix-macos.sh` on copies of a Mac's `/etc/ssl/cert.pem` (CI, macOS) |
 
 `npm run coverage` (Node 22.8 or later) reports line, branch and function coverage of `bin/` and `lib/` with Node's
-built-in coverage, and fails below 80% of lines or functions.
+built-in coverage, and fails below 90% of lines, 80% of branches or 80% of functions. CI runs it on Node 22 on every
+push and pull request. Node's tool does not count statements, so the line floor stands in for the 90% statement
+coverage OpenSSF's Gold level asks for. The floors are a test of their own in `test/conventions.test.mjs`: lowering one,
+or adding an exclude, fails CI. On 15 Nov 2026 (main at 1dfd218, Node 22.23.4 in CI) the suite covered 99.70% of lines,
+93.31% of branches and 98.82% of functions; when a change drops coverage, add tests, never lower the floor.
 
 ## Coding standards
 

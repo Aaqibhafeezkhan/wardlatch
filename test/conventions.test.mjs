@@ -151,3 +151,21 @@ test('SHA256SUMS is a checkable receipt: every line names a file in the reposito
     assert.ok(listed.has(f), `${f} is committed but not listed in SHA256SUMS`);
   }
 });
+
+test('the coverage gate holds the floors: 90% of lines, 80% of branches and of functions, over all of bin/ and lib/', () => {
+  // OpenSSF Gold asks for 90% statement and 80% branch coverage. Node's built-in coverage reports lines, branches and
+  // functions, not statements, so the line floor is the statement floor's stand-in (CONTRIBUTING.md says so). A floor
+  // only holds if nothing quietly narrows what it measures: no exclude, no include beyond bin/ and lib/, and CI runs
+  // this script rather than a copy of it.
+  const script = JSON.parse(read('package.json')).scripts.coverage;
+  const flag = (name) => [...script.matchAll(new RegExp(`--test-coverage-${name}=(\\d+(?:\\.\\d+)?)(?=\\s|$)`, 'g'))].map((m) => Number(m[1]));
+  assert.deepEqual(flag('lines'), [90], script);
+  assert.deepEqual(flag('branches'), [80], script);
+  assert.deepEqual(flag('functions'), [80], script);
+  assert.doesNotMatch(script, /--test-coverage-exclude/, script);
+  assert.deepEqual([...script.matchAll(/--test-coverage-include=(\S+)/g)].map((m) => m[1]), ['bin/**', 'lib/**'], script);
+  assert.match(script, /^node --test --experimental-test-coverage /, script);
+  assert.match(script, / test\/\*\.test\.mjs$/, script);
+  const ci = read('.github/workflows/ci.yml');
+  assert.match(ci, /\n {2}coverage:\n(?: {4}.*\n)*? {8}run: npm run coverage\n/, 'the CI coverage job runs npm run coverage');
+});

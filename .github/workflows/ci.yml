@@ -37,7 +37,7 @@ jobs:
         with: { persist-credentials: false }
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with: { node-version: '22' }
-      - name: Line, branch and function coverage of bin/ and lib/ (fails below 80% of lines or functions)
+      - name: Line, branch and function coverage of bin/ and lib/ (fails below 90% of lines, 80% of branches or 80% of functions)
         run: npm run coverage
 
   mac-fix:
