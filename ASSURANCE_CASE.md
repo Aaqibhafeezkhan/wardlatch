@@ -6,7 +6,8 @@ An assurance case is an argument, not a checklist. This states what Wardlatch mu
 against, where the trust boundaries are, and the evidence for each claim, naming the test or mechanism that enforces
 it. **Where something is not defended, it says so.** A case that claims more than it can support is worse than none.
 
-Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Reporting a flaw: [SECURITY.md](SECURITY.md).
+Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Reporting a flaw: [SECURITY.md](SECURITY.md). The latest
+security review across all of this, by the project and not independent: [docs/SECURITY-REVIEW.md](docs/SECURITY-REVIEW.md).
 
 ---
 
