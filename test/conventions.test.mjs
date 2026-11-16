@@ -20,7 +20,6 @@ const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => {
 const FILES = walk(ROOT);
 const read = (f) => readFileSync(join(ROOT, f), 'utf8');
 const SHIPPED = FILES.filter((f) => /^(bin|lib)\/[^/]+\.mjs$/.test(f));        // the code users run
-const SOURCE = FILES.filter((f) => /\.(mjs|sh|ya?ml)$/.test(f) && f !== 'fix/fix-macos.sh');
 const VERBATIM = [
   // Apple's shipped /etc/ssl/cert.pem, vendored so the fix's tests do not require the machine running them to be
   // vulnerable. It is byte-identical to OpenBSD rev 1.22.2.1 and carries 223 lines with trailing spaces. Those
@@ -34,17 +33,8 @@ const TEXT = FILES.filter((f) => (/\.(mjs|sh|ya?ml|md|json|toml|txt|pem)$/.test(
 const imports = (src) => [...src.matchAll(/^\s*import\b[^'"]*?from\s*['"]([^'"]+)['"]|\bimport\(\s*['"]([^'"]+)['"]\s*\)/gm)].map((m) => m[1] ?? m[2]);
 const named = (src, mod) => [...src.matchAll(new RegExp(`import\\s*\\{([^}]*)\\}\\s*from\\s*'${mod}'`, 'g'))].flatMap((m) => m[1].split(',').map((s) => s.trim().split(/\s+as\s+/)[0]).filter(Boolean));
 
-test('every source file opens with its licence and copyright (fix/fix-macos.sh is covered by REUSE.toml instead)', () => {
-  assert.ok(SOURCE.length >= 12);
-  for (const f of SOURCE) {
-    const head = read(f).split('\n').slice(0, 4).join('\n');
-    // REUSE-IgnoreStart (a pattern, not this file's licence)
-    assert.match(head, /SPDX-License-Identifier: Apache-2\.0/, f);
-    // REUSE-IgnoreEnd
-    assert.match(head, /Copyright 2026 Deimos AI LLC/, f);
-  }
-  assert.match(read('REUSE.toml'), /path = "fix\/fix-macos\.sh"/);
-});
+// The licence and copyright header of every source file is checked in test/license-headers.test.mjs, which CI's reuse
+// job runs too.
 
 test('zero dependencies: package.json declares none, and code imports only Node built-ins and its own files', () => {
   const pkg = JSON.parse(read('package.json'));
@@ -150,4 +140,22 @@ test('SHA256SUMS is a checkable receipt: every line names a file in the reposito
   for (const f of FILES.filter((f) => /^wardlatch-[0-9.]+\.tgz$/.test(f))) {
     assert.ok(listed.has(f), `${f} is committed but not listed in SHA256SUMS`);
   }
+});
+
+test('the coverage gate holds the floors: 90% of lines, 80% of branches and of functions, over all of bin/ and lib/', () => {
+  // OpenSSF Gold asks for 90% statement and 80% branch coverage. Node's built-in coverage reports lines, branches and
+  // functions, not statements, so the line floor is the statement floor's stand-in (CONTRIBUTING.md says so). A floor
+  // only holds if nothing quietly narrows what it measures: no exclude, no include beyond bin/ and lib/, and CI runs
+  // this script rather than a copy of it.
+  const script = JSON.parse(read('package.json')).scripts.coverage;
+  const flag = (name) => [...script.matchAll(new RegExp(`--test-coverage-${name}=(\\d+(?:\\.\\d+)?)(?=\\s|$)`, 'g'))].map((m) => Number(m[1]));
+  assert.deepEqual(flag('lines'), [90], script);
+  assert.deepEqual(flag('branches'), [80], script);
+  assert.deepEqual(flag('functions'), [80], script);
+  assert.doesNotMatch(script, /--test-coverage-exclude/, script);
+  assert.deepEqual([...script.matchAll(/--test-coverage-include=(\S+)/g)].map((m) => m[1]), ['bin/**', 'lib/**'], script);
+  assert.match(script, /^node --test --experimental-test-coverage /, script);
+  assert.match(script, / test\/\*\.test\.mjs$/, script);
+  const ci = read('.github/workflows/ci.yml');
+  assert.match(ci, /\n {2}coverage:\n(?: {4}.*\n)*? {8}run: npm run coverage\n/, 'the CI coverage job runs npm run coverage');
 });

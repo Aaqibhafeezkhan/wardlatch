@@ -11,6 +11,23 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
 
 ## [Unreleased]
 
+### Development (no code in the package changes)
+
+- Coverage floors: `npm run coverage` now fails below 90% of lines, 80% of branches or 80% of functions of `bin/` and
+  `lib/` (it was 80% of lines and functions, with no branch floor). CI measured 99.70% of lines, 93.31% of branches and
+  98.82% of functions at 1dfd218. A test fails if a floor is lowered or an exclude is added.
+- Per-file licence and copyright: the header check is now `test/license-headers.test.mjs`, run by CI's reuse job as
+  well as the suite, and it covers `.cjs` files, which it skipped before (all nine already carried the header).
+- Reproducible build: `scripts/reproduce-release.sh vX.Y.Z` rebuilds a release's npm package and source archive from
+  its tag and compares them with the release's `SHA256SUMS` ([docs/RELEASING.md](docs/RELEASING.md#reproducing-a-release)).
+  v0.1.17 and v0.1.18 reproduce byte for byte. A new CI job, `reproducible`, runs it on the newest release and checks
+  that the current commit packs to the same bytes from two trees.
+- `test/hardening.test.mjs` runs every offline incident under Node's permission model with reading and child processes
+  allowed and nothing else, and requires the same answers as without it; a control shows a write is refused under the
+  same flags. [docs/SECURITY-REVIEW.md](docs/SECURITY-REVIEW.md) is a threat model and security review by the project
+  (not independent): trust boundaries, attack surface, hardening, and residual risks, one of them measured for the
+  first time (a tracked file replaced by a symbolic link in the working tree is followed by the committed-keys scan).
+
 ## [0.1.18] - 2026-11-13
 
 Nine new checks, a fix to the Chrome check, a corrected pip line, and a new mode, `--reach`. Each new check is a bullet

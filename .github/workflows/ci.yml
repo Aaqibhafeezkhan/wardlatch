@@ -37,7 +37,7 @@ jobs:
         with: { persist-credentials: false }
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with: { node-version: '22' }
-      - name: Line, branch and function coverage of bin/ and lib/ (fails below 80% of lines or functions)
+      - name: Line, branch and function coverage of bin/ and lib/ (fails below 90% of lines, 80% of branches or 80% of functions)
         run: npm run coverage
 
   mac-fix:
@@ -86,6 +86,40 @@ jobs:
         if: runner.os == 'macOS'
         run: bash test/support/mojave-shapes.sh
 
+  reproducible:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with: { fetch-depth: 0, persist-credentials: false }   # the tags, for the release rebuild below
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with: { node-version: '22' }
+      - name: This commit's npm package is the same bytes from two trees, and a changed tree is told apart
+        # The checkout, and the commit's git archive unpacked elsewhere with every file's time moved: npm pack must give
+        # the same SHA-256. Then the control: the same tree with group and other bits removed (umask 077) must give a
+        # different one, or this comparison could not see a difference at all.
+        run: |
+          set -euo pipefail
+          umask 022
+          out="$RUNNER_TEMP/pack"; mkdir -p "$out/a" "$out/b" "$out/c" "$RUNNER_TEMP/tree" "$RUNNER_TEMP/tree077"
+          npm pack --silent --ignore-scripts --pack-destination "$out/a" >/dev/null
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/tree"
+          find "$RUNNER_TEMP/tree" -exec touch -d '2030-01-01 01:01:01' {} +
+          (cd "$RUNNER_TEMP/tree" && npm pack --silent --ignore-scripts --pack-destination "$out/b" >/dev/null)
+          (umask 077 && git archive HEAD | tar -x -C "$RUNNER_TEMP/tree077" && cd "$RUNNER_TEMP/tree077" && npm pack --silent --ignore-scripts --pack-destination "$out/c" >/dev/null)
+          a=$(sha256sum "$out"/a/*.tgz | cut -d' ' -f1); b=$(sha256sum "$out"/b/*.tgz | cut -d' ' -f1); c=$(sha256sum "$out"/c/*.tgz | cut -d' ' -f1)
+          echo "checkout $a"; echo "archive  $b"; echo "umask077 $c"
+          test -n "$a" && test "$a" = "$b" || { echo "::error::npm pack is not reproducible: $a != $b"; exit 1; }
+          test "$a" != "$c" || { echo "::error::the control did not change the package: this comparison cannot see a difference"; exit 1; }
+      - name: The newest release rebuilds from its tag, byte for byte (scripts/reproduce-release.sh)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          tag=$(gh release list -R "$REPO" --exclude-drafts --exclude-pre-releases -L 1 --json tagName --jq '.[0].tagName')
+          test -n "$tag" || { echo "::error::no published release found"; exit 1; }
+          WARDLATCH_REPO="$REPO" bash scripts/reproduce-release.sh "$tag"
+
   shellcheck:
     runs-on: ubuntu-latest
     steps:
@@ -94,7 +128,7 @@ jobs:
       - name: ShellCheck, default checks
         run: |
           shellcheck --version
-          shellcheck fix/fix-macos.sh test/fix-macos.check.sh
+          shellcheck fix/fix-macos.sh test/fix-macos.check.sh scripts/reproduce-release.sh
 
   reuse:
     runs-on: ubuntu-latest
@@ -103,6 +137,11 @@ jobs:
         with: { persist-credentials: false }
       - name: Every file declares its licence
         uses: fsfe/reuse-action@676e2d560c9a403aa252096d99fcab3e1132b0f5  # v6.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with: { node-version: '22' }
+      - name: Every source file carries its licence and copyright in the file itself, not only in REUSE.toml
+        # reuse lint accepts REUSE.toml's bulk annotations for any file, a source file that lost its header included.
+        run: node --test test/license-headers.test.mjs
 
   dco:
     runs-on: ubuntu-latest

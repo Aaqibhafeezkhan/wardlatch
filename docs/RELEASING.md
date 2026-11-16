@@ -107,3 +107,36 @@ git -c gpg.ssh.allowedSignersFile=allowed_signers verify-tag vX.Y.Z
 
 An attestation answers "which workflow, at which commit, built this file". It does not answer whether that commit was
 any good; the tests, CodeQL and review are what address that.
+
+## Reproducing a release
+
+The attestation says which workflow built a file. A rebuild says the file is what its tag's source makes, without
+trusting that workflow: anyone with git and npm can rebuild both release files from the signed tag and get the same
+bytes.
+
+```bash
+git clone https://github.com/deimos-hq/wardlatch.git && cd wardlatch
+scripts/reproduce-release.sh vX.Y.Z                    # rebuilds, fetches the release's SHA256SUMS with gh, compares
+scripts/reproduce-release.sh vX.Y.Z ~/SHA256SUMS       # or compares with a SHA256SUMS you downloaded yourself
+```
+
+It does what `release.yml` does, from the tag: `git archive --format=tar.gz --prefix=wardlatch-vX.Y.Z/` for the source
+archive and `npm pack` (with `--ignore-scripts`; the package has no scripts) for the npm package, then
+`sha256sum -c` against the release's `SHA256SUMS`, which must name exactly those two files. It exits 0 only when both
+match.
+
+What the bytes depend on, measured on 15 Nov 2026:
+
+- **File permission bits: yes.** `npm pack` records each file's mode. A tree unpacked under `umask 077` packs to a
+  different file. Build from files that are 644 and 755, as git checks them out under `umask 022`; the script sets that
+  umask.
+- **Modification times: no.** `npm pack` writes a fixed time for every entry; touching every file changes nothing.
+- **The machine and the npm version: not for the releases so far.** v0.1.17 and v0.1.18, rebuilt on macOS with npm
+  11.20.0 and git 2.54.0, match the release workflow's files (Ubuntu, Node 22's npm) byte for byte: SHA-256
+  `7f5237a5…18f3` and `6e00a19a…2efc` for the npm packages, `ebda47f6…f654` and `975717e1…7049` for the source
+  archives. The 0.1.17 package also matches npm's recorded `integrity` and `shasum`. A different npm or git could in
+  principle pack differently; the script would then say "NOT reproduced", and that is a finding, not a pass.
+
+CI checks both halves on every push and pull request (the `reproducible` job in `.github/workflows/ci.yml`): that
+the current commit packs to the same bytes from two different trees, with a control that a changed tree packs
+differently, and that the newest published release rebuilds from its tag with this script.
