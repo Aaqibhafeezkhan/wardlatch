@@ -16,8 +16,8 @@ const decode = (s) => String(s).replace(/&(?:nbsp|#160|amp|quot|#39|rsquo|#8217|
 const stripAll = (s, re) => { let prev; do { prev = s; s = s.replace(re, ''); } while (s !== prev); return s; };
 /** The visible text of an HTML fragment: scripts and styles dropped, block ends as line breaks, spaces collapsed. */
 export function htmlText(html) {
-  let s = stripAll(String(html ?? ''), /<script\b[\s\S]*?<\/script\s*>/gi);
-  s = stripAll(s, /<style\b[\s\S]*?<\/style\s*>/gi);
+  let s = stripAll(String(html ?? ''), /<script\b[\s\S]*?<\/script\b[^>]*>/gi);
+  s = stripAll(s, /<style\b[\s\S]*?<\/style\b[^>]*>/gi);
   s = s.replace(/<(br|\/p|\/h\d|\/li|\/tr|\/td|\/div)\b[^>]*>/gi, '\n');
   s = stripAll(s, /<[^<>]*>/g).replace(/[<>]/g, ' ');
   return decode(s).split('\n').map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');

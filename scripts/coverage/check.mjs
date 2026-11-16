@@ -154,5 +154,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const r = check({ snapshot, named: namedCves(), declined, today });
   if (a.includes('--json')) console.log(JSON.stringify({ ...r, named: r.named.map((i) => i.key), declined: r.declined.map((i) => i.key) }, null, 1));
   else console.log(report(r));
-  process.exit(r.ok ? 0 : 1);
+  // exitCode, not process.exit(): on macOS a pipe is written asynchronously, and exit() cut a long report short on
+  // Node 18 and 20 (CI saw 51 of 428 GAP lines). Setting the code lets Node flush stdout before it exits.
+  process.exitCode = r.ok ? 0 : 1;
 }
