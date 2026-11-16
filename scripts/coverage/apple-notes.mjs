@@ -7,15 +7,20 @@
 // Every reader here is held to a completeness gate, not only to a positive control: a page whose CVE numbers are not
 // all placed in an entry is an error, never a shorter list (a parser that read one entry of 30 would otherwise pass).
 
-const decode = (s) => String(s)
-  .replace(/&nbsp;|&#160;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;|&rsquo;|&#8217;/g, "'")
-  .replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+// One pass, one table: each entity is decoded exactly once, so "&amp;lt;" becomes the text "&lt;", never "<" (CodeQL
+// js/double-escaping). The output is plain text for matching CVE ids; it is never rendered as HTML.
+const ENTITIES = { '&nbsp;': ' ', '&#160;': ' ', '&amp;': '&', '&quot;': '"', '&#39;': "'", '&rsquo;': "'", '&#8217;': "'", '&lt;': '<', '&gt;': '>' };
+const decode = (s) => String(s).replace(/&(?:nbsp|#160|amp|quot|#39|rsquo|#8217|lt|gt);/g, (e) => ENTITIES[e]);
+// Remove until nothing changes, so a fragment rebuilt by one removal ("<scr<script>ipt>") is removed too, and match
+// end tags with optional spaces ("</script >") (CodeQL js/incomplete-multi-character-sanitization, js/bad-tag-filter).
+const stripAll = (s, re) => { let prev; do { prev = s; s = s.replace(re, ''); } while (s !== prev); return s; };
 /** The visible text of an HTML fragment: scripts and styles dropped, block ends as line breaks, spaces collapsed. */
 export function htmlText(html) {
-  return decode(String(html ?? '')
-    .replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<(br|\/p|\/h\d|\/li|\/tr|\/td|\/div)\b[^>]*>/gi, '\n').replace(/<[^>]+>/g, ''))
-    .split('\n').map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
+  let s = stripAll(String(html ?? ''), /<script\b[\s\S]*?<\/script\s*>/gi);
+  s = stripAll(s, /<style\b[\s\S]*?<\/style\s*>/gi);
+  s = s.replace(/<(br|\/p|\/h\d|\/li|\/tr|\/td|\/div)\b[^>]*>/gi, '\n');
+  s = stripAll(s, /<[^<>]*>/g).replace(/[<>]/g, ' ');
+  return decode(s).split('\n').map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
 }
 
 export const CVE_RE = /CVE-\d{4}-\d{4,}/g;
