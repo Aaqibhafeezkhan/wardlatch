@@ -10,6 +10,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, dirname, relative } from 'node:path';
+import { escapeRegExp } from '../lib/escape.mjs';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -41,6 +42,6 @@ test('every source file opens with its licence and copyright, in the file itself
 
 test('the one exempt file is declared in REUSE.toml, and is the only one', () => {
   const toml = read('REUSE.toml');
-  for (const f of EXEMPT) assert.match(toml, new RegExp(`path = "${f.replace(/[./]/g, '\\$&')}"`), f);
+  for (const f of EXEMPT) assert.match(toml, new RegExp(`path = "${escapeRegExp(f)}"`), f);
   assert.deepEqual(EXEMPT, ['fix/fix-macos.sh']);
 });
