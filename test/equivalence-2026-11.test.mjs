@@ -22,8 +22,9 @@ import { lint, lintText, CLASSIFIED } from './support/equivalence-lint.mjs';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const inc = (id) => JSON.parse(readFileSync(join(ROOT, 'lib', 'incidents', `${id}.json`), 'utf8'));
 const DENO = inc('deno-2026-06'), TF = inc('terraform-2026-08'), ST = inc('setuptools-2026-07');
-let dir;
-before(() => { dir = realpathSync(mkdtempSync(join(tmpdir(), 'wardlatch-equiv-'))); });
+// made when the file loads, not in before(): the skip conditions below measure the disk as the tests are declared, and
+// Node 18 runs before() only after that (it threw ERR_INVALID_ARG_TYPE there; Node 20 and later did not)
+const dir = realpathSync(mkdtempSync(join(tmpdir(), 'wardlatch-equiv-')));
 after(() => rmSync(dir, { recursive: true, force: true }));
 const fresh = (name) => { const d = join(dir, `${name}-${Math.random().toString(36).slice(2, 8)}`); mkdirSync(d, { recursive: true }); return d; };
 const id = (p) => { try { const s = statSync(p, { bigint: true }); return `${s.dev}:${s.ino}`; } catch { return null; } };
