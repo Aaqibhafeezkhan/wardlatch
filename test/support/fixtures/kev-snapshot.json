@@ -1,9 +1,9 @@
 {
   "source": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
-  "catalogVersion": "2026.11.10",
-  "dateReleased": "2026-11-10T19:03:29.8375Z",
-  "count": 1779,
-  "read": 1779,
+  "catalogVersion": "2026.11.13",
+  "dateReleased": "2026-11-13T20:24:18.3008Z",
+  "count": 1781,
+  "read": 1781,
   "listed": {
     "brotli-2026-10": [
       {
@@ -112,6 +112,9 @@
     ]
   },
   "notListed": {
+    "apple-audio-2026-08": [
+      "CVE-2026-65339"
+    ],
     "claude-code-2026-11": [
       "CVE-2026-103012",
       "CVE-2026-88968"

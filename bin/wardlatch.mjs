@@ -25,7 +25,7 @@ import { pathState, readText, listDir, realPath, entriesByMetadata, denialCode, 
 import { ownedByPerson, ownerName } from '../lib/owners.mjs';
 import { safe, saw, withdrawUnreceipted } from '../lib/report.mjs';
 import { escapeHidden, escapeJsonHidden } from '../lib/escape.mjs';
-import { trustFix, readMacosRelease, appleVersionLabel, appleNote, appleFixState, appleUnknownNote, appleFileCheck, appleSystemRow, backupRows, certPemReviewRow, macosUpdateRow } from '../lib/macos.mjs';
+import { trustFix, readMacosRelease, appleVersionLabel, appleNote, appleFixState, appleUnknownNote, appleFileCheck, appleSystemRow, appleCveRow, backupRows, certPemReviewRow, macosUpdateRow } from '../lib/macos.mjs';
 import { checkSshole } from '../lib/sshd.mjs';
 import { lockfilesUnder, checkLockfile, LOCK_DEPTH, NOT_WALKED as LOCK_NOT_WALKED } from '../lib/lockfiles.mjs';
 import { measure as measureReach, lines as reachLines, toJson as reachJson } from '../lib/reach.mjs';
@@ -593,6 +593,18 @@ for (const inc of chosen) {
     print(r.status, `macOS${r.version ? ` ${r.version}` : ''}${r.status === 'SAFE' && !r.version ? '' : `  ${r.file}`}`);
     note({ EXPOSED: '31', SAFE: '2' }[r.status] ?? '33', r.reason);
     if (r.fix) note('2', `${r.status === 'EXPOSED' ? 'fix' : 'check'}: ${r.fix}`);
+    note('2', `not covered: ${inc.notCovered}`);
+  }
+
+  // an Apple flaw in macOS itself, named by its CVE (lib/macos.mjs appleCveRow): the version and build read from
+  // SystemVersion.plist against the releases Apple's notes list its fix in; nothing is run
+  if (inc.type === 'apple-cve') {
+    const rel = platform() === 'darwin' ? readMacosRelease() : { version: '', build: '' };
+    const r = appleCveRow(inc, rel, platform());
+    results.push({ incident: inc.id, kind: 'macos', ...r });
+    print(r.status, `${r.label}${r.version ? `  macOS ${r.version}` : ''}${platform() === 'darwin' ? `  ${r.file}` : ''}`);
+    note({ EXPOSED: '31', SAFE: '2' }[r.status] ?? '33', r.reason);
+    if (r.fix) note('2', `fix: ${r.fix}`);
     note('2', `not covered: ${inc.notCovered}`);
   }
 
