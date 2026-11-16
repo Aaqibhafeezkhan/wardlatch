@@ -31,10 +31,13 @@ Each source is read whole for the window, or the check says INCOMPLETE and fails
 |---|---|---|
 | `apple-macos` | Apple's security releases index, [support.apple.com/en-us/100100](https://support.apple.com/en-us/100100), and the notes page of every macOS release it lists in the window | the index reaches back past the window's start; every macOS row in the window has its page read (or Apple's own "no published CVE entries"); every CVE number on each page is placed in an entry (`parseNotes` throws otherwise); every entry has its Impact line |
 | `cisa-kev` | CISA's [Known Exploited Vulnerabilities feed](https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json), every row added in the window | the feed's own `count` equals the rows read; the rows kept equal the rows in the window |
+| `cert-vu` | CERT/CC's vulnerability notes, through the VINCE API's monthly listings ([kb.cert.org/vuls/api/YYYY/MM/](https://kb.cert.org/vuls/api/2026/11/)), every month in the window; for each note in the `equivalence` class, its vulnerability rows and its vendors (added 16 Nov 2026) | every month in the window was listed; the notes kept equal the notes in the class; each kept note's rows and vendors were read, so a CVE printed only in a vendor's addendum or a reference is an item |
 
 Read and not covered, by name: Apple's iOS, iPadOS, watchOS, tvOS, visionOS, Safari, Xcode and other non-macOS rows in
 the same index (Wardlatch runs on the Mac and reads no other Apple device; incidents that also affect them say so in
-their output, as `apple-audio-2026-08` does). Not read at all: Linux distributions' security trackers, GitHub's
+their output, as `apple-audio-2026-08` does); and CERT/CC's notes outside the `equivalence` class, which are listed
+and counted but not in scope (77 of the 85 notes from May to 16 Nov 2026; the owner's other classes are not applied to
+them). Not read at all: Linux distributions' security trackers, GitHub's
 advisory database, and the vendors behind the other incidents (Google, Microsoft, Git, GitLab, and the rest). Adding
 one is adding a source here and to `scripts/coverage/refresh.mjs`, with its own "whole means" rule.
 
@@ -50,6 +53,11 @@ owner's list of 16 Nov 2026, plus privilege escalation and anything Apple says m
 - `trust`: certificates, trust, TLS, impersonation and spoofing;
 - `privilege`: root, kernel or elevated privileges, and writing protected parts of the file system;
 - `exploited`: Apple's "Apple is aware of a report that this issue may have been exploited".
+- `equivalence` (16 Nov 2026, [docs/PATTERN-IDENTITY-EQUIVALENCE.md](PATTERN-IDENTITY-EQUIVALENCE.md)): a check that
+  compares one notion of a name, a path or an identity while the system resolves another: case and Unicode forms of a
+  file name (APFS, HFS+), path handling and links, name constraints. Matched on Apple's Impact **or Description** line
+  (`EQUIVALENCE` in `scripts/coverage/check.mjs`), and on a CERT/CC note's title and text. Every CVE number an in-class
+  CERT/CC note prints is an item; a note with none is one item keyed by its VU number.
 
 Every row CISA adds to its catalog in the window is in scope as `exploited`, whatever the product.
 
@@ -107,3 +115,15 @@ were each caught by this test on 16 Nov 2026.
   Kestra, Gitea, TeamCity, Tomcat). Which become incidents?
 - **D4.** The 31-day age gate and the `reviewBy` dates make CI fail on their own after a missed refresh or triage.
   Keep that, or move the gate to the release workflow only?
+- **D5** (16 Nov 2026). Two Apple fixes are in scope only by the new `equivalence` class (CVE-2026-112511, Screen
+  Sharing links; CVE-2026-84534, archive path handling). Declined until 30 Nov 2026 as D1 declines them. Same answer as
+  D1, or name them?
+- **D6** (16 Nov 2026). Six candidates from the `equivalence` class: libarchive CVE-2026-45110 (no fix released yet),
+  yarn CVE-2026-11313 (no public record yet), node-tar CVE-2026-23950, app-builder CVE-2026-13723, pyca/cryptography
+  CVE-2026-34073, GnuTLS CVE-2026-3833. Which become incidents, and when?
+- **D7** (16 Nov 2026). `setuptools-2026-07` reads EXPOSED for the copies inside Apple's Command Line Tools and Xcode
+  Pythons (setuptools 58.0.4 on the Mac this was written on), which a person cannot update in place. Keep EXPOSED, or
+  make Apple's copies REVIEW, as `git-2026-11` does for Apple's git?
+- **D8** (16 Nov 2026). `deno-2026-06` reads the official installer's `~/.deno/bin/deno` by a constant found in Deno's
+  source (`Deno/<version>+<commit>`), not yet measured on a release build (that needs a download, which needs a yes). A
+  build without it reads UNKNOWN, never SAFE. Measure it on a downloaded release before shipping?
