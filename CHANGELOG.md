@@ -11,6 +11,18 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
 
 ## [Unreleased]
 
+### Fixed
+
+- **No SAFE from a stale list of Apple releases** (`macos-2026-11`, `lib/clock.mjs`). A SAFE there means "at the newest
+  release Wardlatch knows", read from Apple's index on 13 Nov 2026. Once that list is more than 21 days old, a Mac at
+  its newest release reads REVIEW and says how old the list is and to check Software Update. Today's date is the
+  later of the clock and the newest change to macOS's own update files, so a clock set back can't keep it SAFE.
+- **ConnectWise ScreenConnect client, CVE-2026-84869** (`screenconnect-2026-09`, CISA KEV 11 Sep 2026). Wrongly
+  declined as a "self-hosted server" in the coverage list: the flaw is in the client, and ConnectWise says servers
+  are not affected. Reads the host client's and the access agent's `Info.plist` on a Mac: below 26.6.5 is EXPOSED;
+  at or past it REVIEW (no real bundle read yet); a Linux agent folder UNKNOWN; an agent named for the attacker
+  instance in Huntress's report EXPOSED. Every declined coverage item now says where its flawed code runs.
+
 ### Added
 
 - **macOS Audio flaw CVE-2026-65339** (`apple-audio-2026-08`, a new kind of check, `apple-cve`, `lib/macos.mjs`
