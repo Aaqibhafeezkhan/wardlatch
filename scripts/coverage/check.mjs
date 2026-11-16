@@ -23,6 +23,9 @@ export const DECLINED = join(ROOT, 'scripts', 'coverage', 'declined.json');
 export const INCIDENTS = join(ROOT, 'lib', 'incidents');
 export const SOURCES = ['apple-macos', 'cisa-kev'];
 export const MAX_AGE_DAYS = 31;
+/** Where a declined item's flawed code runs: a server or appliance, the machine a person uses (an app, agent, desktop or
+ *  the OS itself), both, or not yet known. */
+export const RUNS_ON = ['server', 'client', 'both', 'unknown'];
 
 /**
  * The classes Wardlatch covers, matched on Apple's own "Impact:" line. An Apple entry in any of them is in scope. The
@@ -37,7 +40,28 @@ export const CLASSES = {
   privilege: /root privileges|elevated privileges|kernel privileges|modify protected parts of the file system|escalate/i,
   exploited: /Apple is aware of a report/i,
 };
-export const classesOf = (impact) => Object.keys(CLASSES).filter((k) => CLASSES[k].test(String(impact ?? '')));
+
+/**
+ * `identity`: identity or authority confusion (fix/no-stale-safe, 16 Nov 2026), matched on the Impact AND the
+ * Description lines, since Apple often names the shape only in the Description ("a case-insensitive comparison", "a
+ * logic issue was addressed with improved checks"). In scope when either line says one party is taken for another
+ * (impersonate, spoof, forged, case-insensitive, normalization), or the Description is Apple's "logic issue / improved
+ * checks" and either line is about permission, TCC or privacy. A future CVE of this shape must be named or declined.
+ */
+export const IDENTITY = {
+  words: /impersonat|spoof|forged|forger|case[- ]insensitiv|normali[sz]/i,
+  logic: /logic issue|improved checks/i,
+  authority: /permission|\bTCC\b|privacy|sensitive user|protected user data|user data|authori[sz]|entitlement/i,
+};
+const identityOf = (impact, description) => {
+  const both = `${impact}\n${description}`;
+  return IDENTITY.words.test(both) || (IDENTITY.logic.test(description) && IDENTITY.authority.test(both));
+};
+/** The classes an Apple entry is in, from its Impact line, and for `identity` its Description line too. */
+export const classesOf = (impact, description = '') => {
+  const i = String(impact ?? ''), d = String(description ?? '');
+  return [...Object.keys(CLASSES).filter((k) => CLASSES[k].test(i)), ...(identityOf(i, d) ? ['identity'] : [])].sort();
+};
 
 /**
  * The items each source holds, one per CVE (or, for an Apple entry printed without a CVE number, one per release,
@@ -51,7 +75,7 @@ export function items(snapshot) {
       const keys = e.cves.length ? e.cves : [`apple:${r.name}:${e.component}:${n}`];
       for (const key of keys) {
         const it = out.get(key) ?? { key, source: 'apple-macos', component: e.component, impact: e.impact, classes: new Set(), releases: [] };
-        for (const c of classesOf(e.impact)) it.classes.add(c);
+        for (const c of classesOf(e.impact, e.description)) it.classes.add(c);
         it.releases.push(r.name);
         out.set(key, it);
       }
@@ -75,6 +99,10 @@ export function incomplete(snapshot, today) {
     if ((snapshot.apple ?? []).length !== a.macosReleasesInWindow) why.push(`apple-macos: ${(snapshot.apple ?? []).length} releases read, the index listed ${a.macosReleasesInWindow} in the window`);
     if (!a.indexOldest || a.indexOldest > snapshot.since) why.push(`apple-macos: the index read reaches back to ${a.indexOldest}, not to the window's start ${snapshot.since}`);
     for (const r of snapshot.apple ?? []) if (!r.noCves && !(r.entries ?? []).length) why.push(`apple-macos: ${r.name} has a page and no entries read`);
+    // the identity class reads the Description line: a snapshot without it (written before 16 Nov 2026) would match
+    // nothing there and look clean, so it is not a complete read
+    const bare = (snapshot.apple ?? []).flatMap((r) => (r.entries ?? []).filter((e) => typeof e.description !== 'string' || !e.description.trim()).map(() => r.name));
+    if (bare.length) why.push(`apple-macos: ${bare.length} entries carry no Description line (first in ${bare[0]}), which the identity class reads: run scripts/coverage/refresh.mjs`);
   }
   const k = src.get('cisa-kev');
   if (k) {
@@ -97,7 +125,7 @@ export function namedCves(dir = INCIDENTS) {
 }
 
 /**
- * The check. `declined`: { entries: [{ key, reason, reviewBy, candidate? }] }. → { complete, why, inScope, named,
+ * The check. `declined`: { entries: [{ key, reason, runsOn, reviewBy, candidate? }] }. → { complete, why, inScope, named,
  * declined, gaps, expired, badDeclines, unusedDeclines, ok }. ok only when complete, with no gap, no expired or
  * malformed decline.
  */
@@ -111,6 +139,9 @@ export function check({ snapshot, named, declined, today }) {
     if (!d || typeof d.key !== 'string' || !d.key) { badDeclines.push({ entry: d, why: 'no key' }); continue; }
     if (typeof d.reason !== 'string' || d.reason.trim().length < 12 || d.reason.length > 240 || /\n/.test(d.reason)) badDeclines.push({ entry: d, why: 'the reason must be one line of 12 to 240 characters' });
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d.reviewBy ?? ''))) badDeclines.push({ entry: d, why: 'no reviewBy date (YYYY-MM-DD)' });
+    // where the flawed code runs (fix/no-stale-safe, 16 Nov 2026): PR #37 declined ScreenConnect's client flaw as a
+    // "self-hosted server", and nothing asked. Every skip now says it, so a client-side flaw can't hide behind a server word
+    if (!RUNS_ON.includes(d.runsOn)) badDeclines.push({ entry: d, why: `no runsOn (one of ${RUNS_ON.join(', ')}): where the flawed code runs` });
     if (dec.has(d.key)) badDeclines.push({ entry: d, why: 'declined twice' });
     dec.set(d.key, d);
   }

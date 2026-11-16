@@ -49,7 +49,17 @@ owner's list of 16 Nov 2026, plus privilege escalation and anything Apple says m
 - `code-signing`: Gatekeeper and code-signing bypass;
 - `trust`: certificates, trust, TLS, impersonation and spoofing;
 - `privilege`: root, kernel or elevated privileges, and writing protected parts of the file system;
-- `exploited`: Apple's "Apple is aware of a report that this issue may have been exploited".
+- `exploited`: Apple's "Apple is aware of a report that this issue may have been exploited";
+- `identity`: identity or authority confusion (added 16 Nov 2026), matched on the Impact **and** the Description line:
+  "impersonate", "spoof", "forged", "case-insensitive", "normalization", or Apple's "logic issue ... improved checks"
+  together with permission, TCC or privacy. The snapshot keeps every entry's Description line; one without it is
+  INCOMPLETE, since this class would then match nothing there.
+
+Every declined entry says where the flawed code runs, `runsOn`: `server` (a server, an appliance, a hosted service),
+`client` (the machine a person uses: an app, an agent, a desktop, the OS), `both`, or `unknown`. A decline without
+it fails the check. PR #37 declined ScreenConnect's client flaw (CVE-2026-84869) as a "self-hosted server"; the
+re-read of 16 Nov 2026 named it (`screenconnect-2026-09`) and marked the client-side declines Wardlatch could see as
+candidates.
 
 Every row CISA adds to its catalog in the window is in scope as `exploited`, whatever the product.
 

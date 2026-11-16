@@ -38,20 +38,34 @@ async function get(url) {
   return r.text();
 }
 
-const index = parseIndex(await get(INDEX));
+// MEASURED 16 Nov 2026: Apple's notes pages answer HTTP 404 to Node now and then for a page that exists (curl had 200;
+// 3 and then 2 retries were needed). A bounded retry with backoff (2, 4, 8, 16 s); a page that still fails after the
+// last try stops the refresh loudly and nothing is written, so a short read never becomes a snapshot.
+const TRIES = 5;
+async function getRetry(url) {
+  for (let i = 1; ; i++) {
+    try { return await get(url); } catch (e) {
+      if (i >= TRIES) throw new Error(`${e.message}, ${TRIES} tries: the source was not read whole, nothing written`);
+      console.error(`${url}: ${e.message}; try ${i + 1} of ${TRIES} in ${2 ** i} s`);
+      await new Promise((r) => setTimeout(r, 1000 * 2 ** i));
+    }
+  }
+}
+
+const index = parseIndex(await getRetry(INDEX));
 // the index must reach back past the window, or the window was not read whole
 if (index.at(-1).date > since) throw new Error(`the index's oldest row is ${index.at(-1).date}, after the window's start ${since}: not read whole`);
 const inWindow = index.filter((r) => r.date >= since && macosRelease(r.name));
 const releases = [];
 for (const r of inWindow) {
   if (!r.url) { releases.push({ name: r.name, date: r.date, url: '', noCves: true, entries: [] }); continue; }
-  const n = parseNotes(await get(r.url));
+  const n = parseNotes(await getRetry(r.url));
   if (n.title !== r.name) throw new Error(`${r.url}: the page is titled "${n.title}", the index says "${r.name}"`);
-  releases.push({ name: r.name, date: r.date, url: r.url, entries: n.entries.map((e) => ({ component: e.component, impact: e.impact, cves: e.cves })) });
+  releases.push({ name: r.name, date: r.date, url: r.url, entries: n.entries.map((e) => ({ component: e.component, impact: e.impact, description: e.description, cves: e.cves })) });
   console.error(`${r.name} (${r.date}): ${n.entries.length} entries, ${n.cves.length} CVEs`);
 }
 
-const feed = JSON.parse(await get(KEV));
+const feed = JSON.parse(await getRetry(KEV));
 const rows = feed.vulnerabilities;
 if (!Array.isArray(rows) || !rows.length || feed.count !== rows.length) throw new Error(`KEV feed says count ${feed.count} and holds ${Array.isArray(rows) ? rows.length : 'no'} rows: not a whole catalog`);
 const kev = rows.filter((v) => v.dateAdded >= since)

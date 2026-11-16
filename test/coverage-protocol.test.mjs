@@ -13,7 +13,7 @@ import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { check, report, items, classesOf, namedCves, incomplete, SNAPSHOT, DECLINED, MAX_AGE_DAYS, SOURCES } from '../scripts/coverage/check.mjs';
+import { check, report, items, classesOf, namedCves, incomplete, SNAPSHOT, DECLINED, MAX_AGE_DAYS, SOURCES, RUNS_ON, IDENTITY } from '../scripts/coverage/check.mjs';
 import { parseIndex, parseNotes, macosRelease, isoDate, htmlText } from '../scripts/coverage/apple-notes.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -47,7 +47,7 @@ test('C2 the 16 Nov 2026 miss, replayed: without apple-audio-2026-08, CVE-2026-6
   const r = run({ named });
   assert.equal(r.ok, false);
   assert.deepEqual(r.gaps.map((g) => g.key), ['CVE-2026-65339']);
-  assert.match(report(r), /^GAP CVE-2026-65339 \[privacy\] Audio: An app may be able to leak sensitive user information \(macOS Sequoia 15\.8; macOS Tahoe 26\.6\.2\)$/m);
+  assert.match(report(r), /^GAP CVE-2026-65339 \[identity,privacy\] Audio: An app may be able to leak sensitive user information \(macOS Sequoia 15\.8; macOS Tahoe 26\.6\.2\)$/m);
   assert.match(report(r), /FAIL$/);
 });
 
@@ -143,13 +143,55 @@ test('C8 the classes: each of the owner\'s classes matches Apple\'s own impact l
     'A malicious application may be able to bypass Privacy preferences': ['privacy'],
     'An app may be able to break out of its sandbox': ['sandbox'],
     'An app may bypass Gatekeeper checks': ['code-signing'],
-    'An attacker in a privileged network position may be able to impersonate a Kerberos KDC': ['trust'],
+    'An attacker in a privileged network position may be able to impersonate a Kerberos KDC': ['identity', 'trust'],
     'An app may be able to gain root privileges': ['privilege'],
     'Processing a maliciously crafted file may lead to arbitrary code execution. Apple is aware of a report that this issue may have been exploited': ['exploited'],
     'An app may be able to cause unexpected system termination': [],
     'Processing maliciously crafted web content may lead to an unexpected Safari crash': [],
   };
   for (const [impact, classes] of Object.entries(want)) assert.deepEqual(classesOf(impact), classes, impact);
+});
+
+test('C10 every skip says where the flawed code runs: a decline without runsOn, or with another word, fails the check', () => {
+  for (const e of DEC.entries) assert.ok(RUNS_ON.includes(e.runsOn), `${e.key}: runsOn ${e.runsOn}`);
+  const pick = DEC.entries.find((e) => e.runsOn === 'server');
+  for (const bad of [(({ runsOn, ...e }) => e)(pick), { ...pick, runsOn: 'appliance' }, { ...pick, runsOn: '' }]) {
+    const r = run({ declined: { entries: DEC.entries.map((e) => (e === pick ? bad : e)) } });
+    assert.equal(r.ok, false, JSON.stringify(bad.runsOn)); assert.match(report(r), new RegExp(`^BAD DECLINE ${pick.key}: no runsOn`, 'm'));
+  }
+  // the PR #37 miss: ScreenConnect's client flaw was declined as a "self-hosted server". It is named now, and every
+  // decline worded as a server or an appliance says server; the re-read of 16 Nov 2026 moved the rest
+  assert.equal(DEC.entries.find((e) => e.key === 'CVE-2026-84869'), undefined);
+  for (const e of DEC.entries.filter((x) => /^(self-hosted server|network appliance)/.test(x.reason))) assert.equal(e.runsOn, 'server', e.key);
+  // the re-read's client-side candidates: listed, not added (no incident names them)
+  const reread = ['CVE-2026-124194', 'CVE-2026-41091', 'CVE-2026-45498', 'CVE-2026-8398', 'CVE-2026-87886', 'CVE-2026-34926', 'CVE-2026-123039', 'CVE-2026-85102', 'CVE-2025-61624', 'CVE-2025-25249'];
+  for (const k of reread) { const e = DEC.entries.find((x) => x.key === k); assert.ok(e?.candidate && e.runsOn !== 'server' && /16 Nov/.test(e.reason), k); assert.equal(NAMED.has(k), false, k); }
+});
+
+test('C11 the identity/authority class reads Apple\'s Description line too, and a snapshot without that line is not a complete read', () => {
+  const want = [
+    ['An app may be able to access protected user data', 'A logic issue was addressed with improved checks.', ['identity', 'privacy']],
+    ['An app may be able to cause unexpected app behavior', 'A case-insensitive comparison was replaced with an exact one.', ['identity']],
+    ['A remote attacker may be able to cause unexpected app behavior', 'This issue was addressed with improved Unicode normalization.', ['identity']],
+    ['A malicious app may be able to forge a request', 'An authentication issue was addressed: requests could be forged.', ['identity']],
+    ['An attacker may be able to spoof the sender of a message', 'The issue was addressed with improved validation.', ['identity', 'trust']],
+    // the controls: a logic issue with no permission in it, and a type confusion, are not this class
+    ['An app may be able to cause unexpected system termination', 'A logic issue was addressed with improved checks.', []],
+    ['Processing maliciously crafted web content may lead to memory corruption', 'A type confusion issue was addressed with improved checks.', []],
+  ];
+  for (const [impact, description, classes] of want) assert.deepEqual(classesOf(impact, description), classes, `${impact} / ${description}`);
+  // without the Description, the description-only cases fall out of scope: the instrument can tell the two apart
+  assert.deepEqual(classesOf('An app may be able to cause unexpected app behavior'), []);
+  // the snapshot carries the line on every entry; strip it from one and the read is INCOMPLETE
+  assert.ok(SNAP.apple.every((r) => r.entries.every((e) => typeof e.description === 'string' && e.description)), 'every entry has its Description');
+  const s = clone(SNAP); delete s.apple.find((r) => r.entries.length).entries[0].description;
+  const r = check({ snapshot: s, named: NAMED, declined: DEC, today: TODAY });
+  assert.equal(r.ok, false); assert.match(r.why.join(' '), /1 entries carry no Description line/);
+  // a new CVE of the shape, planted in the snapshot, is a gap until it is named or declined
+  const p = clone(SNAP); p.apple[0].entries.push({ component: 'Planted', impact: 'An app may be able to cause unexpected app behavior', description: 'A path normalization issue was addressed.', cves: ['CVE-2026-999999'] });
+  const g = check({ snapshot: p, named: NAMED, declined: DEC, today: TODAY });
+  assert.deepEqual(g.gaps.map((x) => [x.key, x.classes]), [['CVE-2026-999999', ['identity']]]);
+  assert.ok(IDENTITY.words && IDENTITY.logic && IDENTITY.authority);
 });
 
 test('C9 the command: exit 0 with the sources named on the committed files; exit 1 with GAP lines when the declines are taken away', () => {
