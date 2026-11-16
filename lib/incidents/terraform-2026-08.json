@@ -1,0 +1,38 @@
+{
+  "id": "terraform-2026-08",
+  "type": "installs",
+  "title": "Terraform built with go-slug before 0.18.3 on a Mac: a .terraformignore rule misses a file whose name is in another Unicode form, and it is uploaded (CVE-2026-14978)",
+  "date": "2026-08-19",
+  "summary": "IBM's bulletin for HashiCorp go-slug (CVE-2026-14978, CVSS 5.5, CWE-176; platform: Mac OS) says go-slug 0.4.0 through 0.18.2 handles Unicode normalization wrongly when it matches .terraformignore patterns, so on a Mac's disk a file whose name is in another Unicode form than the pattern (NFD against NFC) is not excluded and goes into the slug Terraform uploads to HCP Terraform or Terraform Enterprise for a remote run. go-slug 0.18.3 (17 Aug 2026) fixes it. HashiCorp names no Terraform version; Terraform's own go.mod first requires go-slug v0.18.3 in 1.15.9 (19 Aug 2026) and 1.16.0, and 1.15.0 to 1.15.8 require v0.18.1. CERT/CC lists it in VU#604762 (16 Nov 2026). CISA's catalog (2026.11.13) does not list it. Wardlatch reads the go-slug version from the module list Go writes into every program it builds (the line dep github.com/hashicorp/go-slug v<version>, which go version -m prints), so any Terraform it finds is judged by the library it was built with, not by its own number; it never runs terraform. Below 0.18.3 on a Mac is EXPOSED; it matters only where Terraform uploads a working folder (the cloud block or the remote backend), which a version can't tell. Older than go-slug 0.4.0 is outside the range the CVE names. On Linux it is SAFE for this flaw, as the bulletin names Mac OS. A Terraform whose module list can't be read is UNKNOWN.",
+  "advisory": "https://www.ibm.com/support/pages/node/7284170",
+  "sources": [
+    "https://www.cve.org/CVERecord?id=CVE-2026-14978",
+    "https://nvd.nist.gov/vuln/detail/CVE-2026-14978",
+    "https://kb.cert.org/vuls/id/604762",
+    "https://github.com/hashicorp/go-slug/releases/tag/v0.18.3",
+    "https://github.com/hashicorp/terraform/blob/v1.15.9/go.mod",
+    "https://github.com/hashicorp/terraform/blob/v1.15.8/go.mod"
+  ],
+  "versionFiles": {
+    "product": "Terraform (its go-slug)",
+    "minVersion": "0.18.3",
+    "affectedFrom": "0.4.0",
+    "onlyOn": ["darwin"],
+    "notAffectedOn": "IBM's bulletin names Mac OS as the platform: the flaw is in how a Mac's disk matches names",
+    "files": [
+      { "path": "/opt/homebrew/bin/terraform", "re": "\\bdep\\tgithub\\.com/hashicorp/go-slug\\tv(\\d+\\.\\d+\\.\\d+)(?=[\\t\\n])", "scan": true, "maxBytes": 536870912, "label": "Homebrew" },
+      { "path": "/usr/local/bin/terraform", "re": "\\bdep\\tgithub\\.com/hashicorp/go-slug\\tv(\\d+\\.\\d+\\.\\d+)(?=[\\t\\n])", "scan": true, "maxBytes": 536870912, "label": "/usr/local/bin" },
+      { "path": "~/bin/terraform", "re": "\\bdep\\tgithub\\.com/hashicorp/go-slug\\tv(\\d+\\.\\d+\\.\\d+)(?=[\\t\\n])", "scan": true, "maxBytes": 536870912, "label": "~/bin" },
+      { "path": "~/.tfenv/versions/*/terraform", "re": "\\bdep\\tgithub\\.com/hashicorp/go-slug\\tv(\\d+\\.\\d+\\.\\d+)(?=[\\t\\n])", "scan": true, "maxBytes": 536870912, "label": "tfenv" },
+      { "path": "/opt/homebrew/Cellar/tfenv/*/versions/*/terraform", "re": "\\bdep\\tgithub\\.com/hashicorp/go-slug\\tv(\\d+\\.\\d+\\.\\d+)(?=[\\t\\n])", "scan": true, "maxBytes": 536870912, "label": "tfenv (Homebrew)" },
+      { "path": "~/.terraform.versions/terraform_*", "re": "\\bdep\\tgithub\\.com/hashicorp/go-slug\\tv(\\d+\\.\\d+\\.\\d+)(?=[\\t\\n])", "scan": true, "maxBytes": 536870912, "label": "tfswitch" },
+      { "path": "~/.tenv/Terraform/*/terraform", "re": "\\bdep\\tgithub\\.com/hashicorp/go-slug\\tv(\\d+\\.\\d+\\.\\d+)(?=[\\t\\n])", "scan": true, "maxBytes": 536870912, "label": "tenv" },
+      { "path": "~/.local/share/mise/installs/terraform/*/terraform", "re": "\\bdep\\tgithub\\.com/hashicorp/go-slug\\tv(\\d+\\.\\d+\\.\\d+)(?=[\\t\\n])", "scan": true, "maxBytes": 536870912, "label": "mise" },
+      { "path": "~/.asdf/installs/terraform/*/bin/terraform", "re": "\\bdep\\tgithub\\.com/hashicorp/go-slug\\tv(\\d+\\.\\d+\\.\\d+)(?=[\\t\\n])", "scan": true, "maxBytes": 536870912, "label": "asdf" }
+    ],
+    "fix": "Update Terraform to 1.15.9, 1.16.0 or later (brew upgrade hashicorp/tap/terraform, or your version manager's install). Until then, keep secrets out of the working folder Terraform uploads instead of relying on .terraformignore, and on a Mac write .terraformignore patterns in the same Unicode form as the names on disk.",
+    "lookedIn": "/opt/homebrew/bin, /usr/local/bin and ~/bin, and the Terraform installs of tfenv, tfswitch, tenv, mise and asdf"
+  },
+  "safeText": "no Terraform built with go-slug before 0.18.3 found in the places this check reads",
+  "notCovered": "Terraform in other folders on PATH or elsewhere (this check reads the fixed places it names, and --paths does not add to them), OpenTofu and other programs built with go-slug (not named by the bulletin), HCP Terraform agents and Terraform Enterprise servers. Whether a working folder held a file whose exclusion was missed is not something a version can tell."
+}
