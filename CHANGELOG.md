@@ -21,6 +21,13 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
 
 ### Development (no code in the package changes)
 
+- Coverage protocol ([docs/COVERAGE-PROTOCOL.md](docs/COVERAGE-PROTOCOL.md)): every Apple macOS fix in the owner's
+  classes (privacy and TCC, sandbox, code signing, trust, privilege, exploited) and every row CISA added to its catalog
+  in the last six months must be named in an incident or declined with a one-line reason and a review date, or
+  `test/coverage-protocol.test.mjs` fails. It reads a committed snapshot (`scripts/coverage/refresh.mjs` is the one
+  network step) and says "no gaps" only from a complete read that names each source. First run, 16 Nov 2026: 442 items
+  in scope, 14 named, 428 declined (32 of them candidates for an incident); before `apple-audio-2026-08` it reported
+  CVE-2026-65339 as a gap.
 - Coverage floors: `npm run coverage` now fails below 90% of lines, 80% of branches or 80% of functions of `bin/` and
   `lib/` (it was 80% of lines and functions, with no branch floor). CI measured 99.70% of lines, 93.31% of branches and
   98.82% of functions at 1dfd218. A test fails if a floor is lowered or an exclude is added.
