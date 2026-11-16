@@ -1580,11 +1580,6 @@
    "reviewBy": "2026-11-30"
   },
   {
-   "key": "CVE-2026-84869",
-   "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
-   "reviewBy": "2026-11-30"
-  },
-  {
    "key": "CVE-2026-85706",
    "reason": "GitLab: gitlab-2026-10 reads GitLab's VERSION file for CVE-2026-110264 only; this CVE is not named (candidate)",
    "reviewBy": "2026-11-30",
