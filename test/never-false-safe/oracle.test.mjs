@@ -17,11 +17,12 @@
 import '../support/no-real-home.cjs';
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdirSync, symlinkSync, chmodSync, readFileSync, copyFileSync, realpathSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { writeFileSync, mkdirSync, symlinkSync, chmodSync, readFileSync, copyFileSync, realpathSync, existsSync, readdirSync, statSync, lstatSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { X509Certificate, createHash } from 'node:crypto';
 import { join, delimiter } from 'node:path';
 import { property, holds, scratch, inode, variant, mutatedLib, realLib, incident, todo, MAC, ROOT, RUNS } from './support.mjs';
+import { escapeRegExp } from '../../lib/escape.mjs';
 
 const T = scratch('oracle');
 after(() => T.done());
@@ -38,16 +39,34 @@ function lockTree(g) {
   const root = T.fresh('o1');
   const dirs = [root];
   for (let i = 0; i < 2 + g.int(5); i++) { const d = join(g.pick(dirs), variant(g, g.pick(['app', 'café', 'Svc', 'web', 'straße']))); try { mkdirSync(d, { recursive: true }); dirs.push(d); } catch { /* a file of that name */ } }
+  const files = [];
   for (let i = 0; i < 3 + g.int(8); i++) {
     const d = g.pick(dirs), n = variant(g, g.pick(LOCKS)), p = join(d, g.chance(0.1) ? `${n}${g.pick(['.', ' ', '.bak'])}` : n);
     try {
-      if (g.chance(0.15)) mkdirSync(p);
-      else if (g.chance(0.15)) symlinkSync(join(g.pick(dirs), g.pick(LOCKS)), p);
-      else writeFileSync(p, '{}');
+      // one draw picks what this entry is (a folder, a link by a variant name, a link by a lockfile's name, a file)
+      const kind = g.next();
+      if (kind < 0.15) mkdirSync(p);
+      else if (kind < 0.3) symlinkSync(join(g.pick(dirs), g.pick(LOCKS)), p);
+      // a link under a lockfile's own name to a lockfile written above. Up to 16 Nov 2026 every link was named by
+      // variant() and aimed at a name that might not be there: a case-insensitive disk (a Mac's) opens most of those, a
+      // case-sensitive one (Linux) almost none, so on Linux O1 never met a link it could miss and Om's O1 mutant lived
+      else if (kind < 0.45 && files.length) symlinkSync(g.pick(files), join(d, g.pick(LOCKS)));
+      else { writeFileSync(p, '{}'); files.push(p); }
     } catch { /* that spelling is already there, as a file or folder */ }
   }
   return { root, dirs };
 }
+/** How many of `runs` generated trees hold a link, under a lockfile's own name, that the disk opens as a file: the case
+ *  O1's mutant needs. Om requires some, so a disk on which the generator stops making it is said, not passed. */
+const linkedLockTrees = (runs = RUNS) => {
+  let n = 0;
+  property('O1 lockfile names, the disk\'s answer', (g) => {
+    const { dirs } = lockTree(g);
+    if (dirs.some((d) => LOCKS.some((l) => { const p = join(d, l); try { return lstatSync(p).isSymbolicLink() && statSync(p).isFile(); } catch { return false; } }))) n++;
+    return null;
+  }, { runs });
+  return n;
+};
 /** The OS's answer: for every folder, the file each package manager opens by its lockfile's own name (a regular file,
  *  through links), as folder inode | file inode. */
 const osLocks = (dirs) => {
@@ -104,7 +123,7 @@ function loaderSays(prog, lib) {
     return hit ? realpathSync(hit) : null;
   }
   const r = spawnSync('ldd', [prog], { encoding: 'utf8' });
-  const hit = new RegExp(`^\\s*${lib.replace(/\./g, '\\.')} => (\\/\\S+)`, 'm').exec(r.stdout)?.[1];
+  const hit = new RegExp(`^\\s*${escapeRegExp(lib)} => (\\/\\S+)`, 'm').exec(r.stdout)?.[1];
   return hit ? realpathSync(hit) : null;
 }
 const o2 = (L) => property('O2 the library a program loads', (g) => {
@@ -326,6 +345,7 @@ test('Om mutation proof: each oracle fails on a planted mutation of lib/', async
   const plant = async (file, from, to) => load(await mutatedLib(T.dir, file, from, to));
   const caught = [];
   const red = async (label, r) => { assert.notEqual(await r, null, `mutant survived: ${label}`); caught.push(label); };
+  assert.ok(linkedLockTrees() > 0, 'O1\'s trees hold no link under a lockfile\'s name that opens a file, on this disk: its mutant could not be caught');
   await red('O1: links to lockfiles passed over', o1(await plant('lockfiles.mjs', "if (kind && !e.isDirectory() && pathState(p) !== 'dir') {", "if (kind && !e.isDirectory() && !e.isSymbolicLink() && pathState(p) !== 'dir') {")));
   if (!o2skip) await red('O2: a mix of fixed and unfixed candidates taken as fixed', o2(await plant('brotli.mjs', "if (!bad.length) return { all: 'fixed', libs };", "if (!bad.length || good.length) return { all: 'fixed', libs };")));
   if (OPENSSL) await red('O3: the first withdrawn key in a bundle not counted', o3(await plant('macos.mjs', '    read++;\n    if (want.has(spki)) held.add(want.get(spki));', '    read++;\n    if (want.has(spki) && read > 1) held.add(want.get(spki));')));

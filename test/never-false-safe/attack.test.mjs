@@ -34,7 +34,7 @@ const RSC = incident('react-rsc-2026-11').lockfiles;
 const statusOf = (rows) => rows.map((r) => [r.status, r.version]);
 const prog = (...parts) => Buffer.concat([Buffer.alloc(512, 0xcf), ...parts.map((p) => Buffer.concat([Buffer.from(p), Buffer.alloc(300, 0)]))]);
 /** A program at `root` + the entry's path (its one `*` filled in), with these bytes. */
-const plant = (root, f, bytes, star = '2.7.14') => { const p = T.put(`${root}${f.path.replace('*', star)}`, bytes); chmodSync(p, 0o755); return p; };
+const plant = (root, f, bytes, star = '2.7.14') => { const p = T.put(`${root}${f.path.replaceAll('*', star)}`, bytes); chmodSync(p, 0o755); return p; };
 const mise = DENO.versionFiles.files.find((x) => x.label === 'mise');
 const appleGit = GIT.versionFiles.files.find((x) => x.label === 'Apple, Command Line Tools');
 const tfBin = TF.versionFiles.files.find((x) => x.label === 'Homebrew');
@@ -331,5 +331,9 @@ test('A4m mutation proof: with ~ entries dropped from PATH again, A4\'s php read
   T.put(join(home, 'bin', 'php'), '#!/bin/sh\necho "PHP 8.4.26 (cli)"\n', 0o755);
   T.put(join(fixed, 'php'), '#!/bin/sh\necho "PHP 8.4.27 (cli)"\n', 0o755);
   const r = cli(['--incident', 'php-2026-10'], { home, env: { PATH: `~/bin:${fixed}:/usr/bin:/bin` }, preload: [HIDE_PHP], bin: p });
-  assert.equal(r.code, 0, `mutant survived: A4 (${JSON.stringify(r.rows.map((x) => [x.status, x.bin]))})`);
+  const seen = JSON.stringify(r.rows.map((x) => [x.status, x.bin]));
+  // the machine's own PHP (an Ubuntu runner's /usr/bin/php) is hidden by HIDE_PHP: only the test's two copies can answer
+  assert.ok(r.rows.every((x) => !x.bin || x.bin.startsWith(home) || x.bin.startsWith(fixed)), `a php outside the test's folders was read: ${seen}`);
+  assert.equal(r.rows.some((x) => x.bin === join(home, 'bin', 'php')), false, `mutant survived: A4 (~/bin/php still checked: ${seen})`);
+  assert.equal(r.code, 0, `mutant survived: A4 (${seen})`);
 });
