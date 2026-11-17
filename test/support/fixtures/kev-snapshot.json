@@ -101,6 +101,15 @@
         "dueDate": "2026-10-23"
       }
     ],
+    "screenconnect-2026-09": [
+      {
+        "cve": "CVE-2026-84869",
+        "vendorProject": "ConnectWise",
+        "product": "ScreenConnect",
+        "dateAdded": "2026-09-11",
+        "dueDate": "2026-09-14"
+      }
+    ],
     "sshole-2026-11": [
       {
         "cve": "CVE-2026-123158",
@@ -108,6 +117,15 @@
         "product": "OpenSSH",
         "dateAdded": "2026-11-09",
         "dueDate": "2026-11-12"
+      }
+    ],
+    "starlette-2026-06": [
+      {
+        "cve": "CVE-2026-48710",
+        "vendorProject": "Kludex",
+        "product": "Starlette",
+        "dateAdded": "2026-09-02",
+        "dueDate": "2026-09-16"
       }
     ]
   },
@@ -118,6 +136,13 @@
     "claude-code-2026-11": [
       "CVE-2026-103012",
       "CVE-2026-88968"
+    ],
+    "deno-2026-06": [
+      "CVE-2026-49401"
+    ],
+    "docker-desktop-2026-10": [
+      "CVE-2026-114409",
+      "CVE-2026-123082"
     ],
     "forticlient-2026-11": [
       "CVE-2026-121529"
@@ -136,13 +161,29 @@
     "gpustack-2026-11": [
       "CVE-2026-102894"
     ],
+    "mcp-python-2026-10": [
+      "CVE-2026-116684",
+      "CVE-2026-116685"
+    ],
     "react-rsc-2026-11": [
       "CVE-2026-126187"
+    ],
+    "setuptools-2026-07": [
+      "CVE-2026-59890"
+    ],
+    "terraform-2026-08": [
+      "CVE-2026-14978"
     ],
     "vscode-2026-11": [
       "CVE-2026-114171",
       "CVE-2026-119983",
       "CVE-2026-120779"
+    ],
+    "xcode-2026-10": [
+      "CVE-2026-112602",
+      "CVE-2026-112605",
+      "CVE-2026-86948",
+      "CVE-2026-86949"
     ]
   }
 }

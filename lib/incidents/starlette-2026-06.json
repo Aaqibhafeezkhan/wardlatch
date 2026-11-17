@@ -1,0 +1,39 @@
+{
+  "id": "starlette-2026-06",
+  "type": "installs",
+  "title": "Starlette before 1.0.1: a malformed Host header makes request.url.path differ from the path routed, bypassing path-based checks (CVE-2026-48710, exploited)",
+  "date": "2026-06-04",
+  "fixPublished": {"date":"2026-06-04","source":"GitHub's advisory database, GHSA-86qp-5c8j-p5mr published 4 Jun 2026 (fixed in 1.0.1)"},
+  "kev": [{"cve": "CVE-2026-48710", "vendorProject": "Kludex", "product": "Starlette", "dateAdded": "2026-09-02", "dueDate": "2026-09-16"}],
+  "summary": "Starlette's advisory GHSA-86qp-5c8j-p5mr (CVE-2026-48710) says that before 1.0.1 the HTTP Host header was not validated before Starlette used it to rebuild request.url, while routing uses the raw path, so a malformed Host header can make request.url.path differ from the path actually requested: middleware and endpoints that decide on request.url, not on the scope's path, can be bypassed. 1.0.1 validates the header and falls back to the server's address. CISA added it to its Known Exploited Vulnerabilities catalog on 2 Sep 2026. Python MCP servers run on Starlette: the MCP Python SDK (the mcp package) requires it for its HTTP transports (its PyPI metadata, read 17 Nov 2026), and FastMCP is built on the SDK, so an MCP server served over HTTP from Python carries a Starlette. Wardlatch reads the version from the starlette-<version>.dist-info folder in the site-packages folders it searches, and the version a project pins from its uv.lock, poetry.lock, pylock.toml, Pipfile.lock or requirements*.txt under the folders searched. It never starts Python or the server. Below 1.0.1 is EXPOSED; a version that can't be read, or a pin that is a range rather than one version, is UNKNOWN.",
+  "advisory": "https://github.com/Kludex/starlette/security/advisories/GHSA-86qp-5c8j-p5mr",
+  "sources": [
+    "https://www.cve.org/CVERecord?id=CVE-2026-48710",
+    "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-48710",
+    "https://pypi.org/project/mcp/"
+  ],
+  "sitePackages": {
+    "distVersions": [
+      {
+        "name": "starlette",
+        "product": "Starlette",
+        "cve": "CVE-2026-48710",
+        "ranges": [{ "introduced": "0.0.0", "fixed": "1.0.1" }],
+        "source": "Starlette's advisory GHSA-86qp-5c8j-p5mr, CVE-2026-48710, which CISA lists as exploited (added 2 Sep 2026)"
+      }
+    ],
+    "fix": "Update Starlette to 1.0.1 or later in that environment (python -m pip install -U 'starlette>=1.0.1', or uv lock --upgrade-package starlette), and restart the server that uses it. Until then, decide on request.scope[\"path\"], not request.url.path, in any check that allows or denies by path, and put the server behind a proxy that rejects a malformed Host header."
+  },
+  "pyLockfiles": {
+    "packages": [
+      {
+        "name": "starlette",
+        "ranges": [{ "introduced": "0.0.0", "fixed": "1.0.1" }],
+        "source": "Starlette's advisory GHSA-86qp-5c8j-p5mr, CVE-2026-48710, which CISA lists as exploited (added 2 Sep 2026)",
+        "fix": "Raise the project's Starlette to 1.0.1 or later (starlette>=1.0.1; uv lock --upgrade-package starlette, poetry update starlette, or pipenv update starlette), install from the new lockfile, and restart the server."
+      }
+    ]
+  },
+  "safeText": "no Starlette below 1.0.1 found, installed or pinned",
+  "notCovered": "Starlette vendored inside another package, frozen into an app (PyInstaller, a .app bundle) or inside a container image, and installs and projects in folders Wardlatch does not search (pass --paths for them). A requirements file named other than requirements*.txt is not read, and one that includes a file from another folder (-r, -c) is UNKNOWN as a whole. Whether a server's own checks used request.url.path is not something a version can tell."
+}

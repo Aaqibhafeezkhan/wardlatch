@@ -157,7 +157,10 @@ refuse a self-signed site and open a normal one before its answer counts, output
 
 **Mitigation.** No runtime or development dependencies (enforced by test). Every GitHub Action is pinned by full
 commit SHA; workflows get read-only tokens unless a job needs more. Releases are built by a workflow that waits for a
-maintainer's approval, attested with Sigstore, and published to npm by hand from the attested file
+maintainer's approval and attested with Sigstore. Up to 0.1.18 they were published to npm by hand from the attested
+file. From 0.1.19 the workflow publishes that file itself, after a second approval and a check of its SHA-256 and
+attestation, through npm's trusted publishing: GitHub's OIDC token, no npm token stored anywhere, with npm's
+provenance. Each release also carries an attested SPDX SBOM. The manual publish, with 2FA, is the fallback
 ([docs/RELEASING.md](RELEASING.md)). **Measured:** v0.1.17 and v0.1.18 rebuild from their tags byte for byte, on a
 different operating system and npm version from the release workflow (`scripts/reproduce-release.sh`), and CI checks
 the newest release this way on every push.

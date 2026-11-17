@@ -10,7 +10,8 @@ import './support/no-real-home.cjs';
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, realpathSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, realpathSync, utimesSync } from 'node:fs';
+import { CLOCK_FILES } from '../lib/clock.mjs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,7 +26,10 @@ after(() => rmSync(dir, { recursive: true, force: true }));
 const fresh = (name) => { const d = join(dir, `${name}-${Math.random().toString(36).slice(2, 8)}`); mkdirSync(d, { recursive: true }); return d; };
 const plist = (v, build = '26B131') => `<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0">\n<dict>\n${build === null ? '' : `  <key>ProductBuildVersion</key>\n  <string>${build}</string>\n`}  <key>ProductName</key>\n  <string>macOS</string>\n  <key>ProductVersion</key>\n  <string>${v}</string>\n</dict>\n</plist>\n`;
 // a release build unless a test says otherwise (27.2.1's is 26B131)
-const at = (v, build = '26B131') => macosUpdateRow(INC, v, 'darwin', build);
+// a fixed "today", three days after the list was read (13 Nov 2026), so these verdicts don't turn REVIEW as the real date
+// passes the staleness limit (test/no-stale-safe.test.mjs holds that rule)
+const FRESH = { today: { now: Date.parse('2026-11-16T12:00:00Z'), from: 'the test' } };
+const at = (v, build = '26B131') => macosUpdateRow(INC, v, 'darwin', build, FRESH);
 
 test('M1 the table is Apple\'s and the CVE records\': each line\'s latest release, each exploited flaw\'s fix, the frozen line', () => {
   const by = Object.fromEntries(INC.macosLines.map((l) => [l.major, l]));
@@ -79,9 +83,9 @@ test('M4 each rule, removed, changes the answer: the KEV fixes, the latest relea
   // without the KEV fixes, a Tahoe that lacks the exploited flaw's fix reads only REVIEW
   assert.equal(macosUpdateRow(lines((l) => ({ ...l, kev: [] })), '26.7.0', 'darwin', '25G100').status, 'REVIEW');
   // without the latest release (latest = the KEV fix), 26.7.1 reads SAFE
-  assert.equal(macosUpdateRow(lines((l) => (l.major === 26 ? { ...l, latest: '26.7.1' } : l)), '26.7.1', 'darwin', '25H100').status, 'SAFE');
+  assert.equal(macosUpdateRow(lines((l) => (l.major === 26 ? { ...l, latest: '26.7.1' } : l)), '26.7.1', 'darwin', '25H100', FRESH).status, 'SAFE');
   // without `frozen`, Sonoma's last release reads SAFE, the answer this check exists to refuse
-  assert.equal(macosUpdateRow(lines(({ frozen, ...l }) => ({ ...l, latestSays: 'x' })), '14.8.9', 'darwin', '23J100').status, 'SAFE');
+  assert.equal(macosUpdateRow(lines(({ frozen, ...l }) => ({ ...l, latestSays: 'x' })), '14.8.9', 'darwin', '23J100', FRESH).status, 'SAFE');
   // as shipped
   assert.deepEqual(['26.7.0', '26.7.1', '14.8.9'].map((v) => at(v).status), ['EXPOSED', 'REVIEW', 'REVIEW']);
 });
@@ -102,7 +106,7 @@ test('M4b a beta is never SAFE (an independent review\'s B2): 27.3 beta 1 (26C50
   assert.equal(at('27.2.1', '26B131').status, 'SAFE');
   assert.equal(at('27.3', '26C70').status, 'SAFE', 'a release build of 27.3, when it comes, is past 27.2.1');
   // the control: judged without the build, as before this fix, 27.3 beta 1 read SAFE
-  assert.equal(macosUpdateRow(INC, '27.3', 'darwin', '26C70').status, 'SAFE');
+  assert.equal(macosUpdateRow(INC, '27.3', 'darwin', '26C70', FRESH).status, 'SAFE');
 });
 
 test('M4c the older eMudhra and Brotli judgements (appleFixState): a beta is labelled with its build and can\'t be placed, so it is never "fixed"', () => {
@@ -143,11 +147,16 @@ test('M5 the version is read from the plist\'s ProductVersion, as the command re
 });
 
 // The command, on a Mac: SystemVersion.plist is this test's own (a preload maps the path), as in brotli-0.1.16's B4
-const cli = (v, args = [], build, incidents = ['macos-2026-11']) => {
+const cli = (v, args = [], build, incidents = ['macos-2026-11'], NOW = FRESH.today.now) => {
   const f = join(fresh('plist'), 'SystemVersion.plist'); writeFileSync(f, v === null ? '<plist/>' : plist(v, build));
+  // the run's "today" is pinned three days after the list was read (13 Nov 2026): the clock, the plist's time, and the
+  // other files lib/clock.mjs reads, which are hidden, so the real date can't turn these SAFEs into REVIEWs
+  utimesSync(f, NOW / 1000, NOW / 1000);
+  const hide = CLOCK_FILES.darwin.filter((p) => p !== SYSTEM_VERSION_PLIST);
   const pre = join(fresh('pre'), 'map.cjs');
-  writeFileSync(pre, `const fs = require('node:fs'); const P = ${JSON.stringify(SYSTEM_VERSION_PLIST)}, V = ${JSON.stringify(f)};
-for (const k of ['statSync', 'lstatSync', 'realpathSync', 'openSync', 'existsSync']) { const o = fs[k]; fs[k] = (p, ...a) => o(String(p) === P ? V : p, ...a); }
+  writeFileSync(pre, `const fs = require('node:fs'); const P = ${JSON.stringify(SYSTEM_VERSION_PLIST)}, V = ${JSON.stringify(f)}, H = new Set(${JSON.stringify(hide)});
+for (const k of ['statSync', 'lstatSync', 'realpathSync', 'openSync', 'existsSync']) { const o = fs[k]; fs[k] = (p, ...a) => o(String(p) === P ? V : H.has(String(p)) ? V + '.hidden' : p, ...a); }
+Date.now = () => ${NOW};
 require('node:module').syncBuiltinESMExports();\n`);
   const { NODE_OPTIONS, ...rest } = process.env;
   return spawnSync(process.execPath, ['--require', join(ROOT, 'test', 'support', 'hide-machine-places.cjs'), '--require', pre, BIN, ...incidents.flatMap((i) => ['--incident', i]), ...args], { encoding: 'utf8', env: { ...rest, HOME: fresh('home'), PATH: fresh('p'), WARDLATCH_TEST_OWN_DIR: dir } });
@@ -169,6 +178,10 @@ test('M6 the command on a Mac: EXPOSED exit 1 with the CISA lines and the fix, R
   assert.equal(beta.status, 0, beta.stdout); assert.deepEqual(JSON.parse(beta.stdout).results.map((x) => [x.status, x.build]), [['REVIEW', '26C5035r']]);
   const s = cli('27.2.1', ['--json']);
   assert.equal(s.status, 0); assert.deepEqual(JSON.parse(s.stdout).results.map((x) => x.status), ['SAFE']);
+  // fix/no-stale-safe: the same Mac 31 days after the list was read is REVIEW, through the command, with the reason
+  const old = cli('27.2.1', [], undefined, undefined, Date.parse('2026-12-14T12:00:00Z'));
+  assert.equal(old.status, 0, old.stdout); assert.match(old.stdout, /^REVIEW +macOS 27\.2\.1 /m);
+  assert.match(old.stdout, /Wardlatch's list of Apple releases is 31 days old/); assert.match(old.stdout, /check: Open System Settings, General, Software Update/);
   // a build Apple doesn't give a release, through the command
   const odd = cli('27.3', ['--json'], '26C5035R');
   assert.deepEqual(JSON.parse(odd.stdout).results.map((x) => x.status), ['REVIEW']);

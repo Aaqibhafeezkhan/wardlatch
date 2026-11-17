@@ -64,6 +64,15 @@ export function macosRelease(name) {
 }
 
 /**
+ * Whether an index row is a release that runs on a Mac (release/0.1.19-candidate, pattern P4): macOS itself, and every
+ * other product whose "Available for" column names macOS (Safari, Xcode, Mac apps). Up to this fix the coverage read
+ * took macOS rows only, so Xcode 27.2's two fixes were in neither an incident nor the declined list. A row for iPhones,
+ * iPads, watches, TVs or Vision Pro alone is not a Mac release; refresh.mjs records each one it skips, with its column,
+ * and check.mjs fails if a skipped row names macOS.
+ */
+export const macApplicable = (row) => Boolean(macosRelease(row?.name)) || /\bmacOS\b|\bMac\b/.test(String(row?.availableFor ?? ''));
+
+/**
  * One release's security notes page → { title, released, entries: [{ component, impact, description, cves }],
  * cves }. An entry is Apple's block: a component line, "Available for:", "Impact:", "Description:", then one or more
  * "CVE-…" lines. Completeness gate: every CVE number in the page's text from its title to "Additional recognition"

@@ -27,10 +27,11 @@ import { safe, saw, withdrawUnreceipted } from '../lib/report.mjs';
 import { escapeHidden, escapeJsonHidden } from '../lib/escape.mjs';
 import { trustFix, readMacosRelease, appleVersionLabel, appleNote, appleFixState, appleUnknownNote, appleFileCheck, appleSystemRow, appleCveRow, backupRows, certPemReviewRow, macosUpdateRow } from '../lib/macos.mjs';
 import { checkSshole } from '../lib/sshd.mjs';
-import { lockfilesUnder, checkLockfile, LOCK_DEPTH, NOT_WALKED as LOCK_NOT_WALKED } from '../lib/lockfiles.mjs';
+import { lockfilesUnder, checkLockfile, pyLockKind, LOCK_DEPTH, NOT_WALKED as LOCK_NOT_WALKED } from '../lib/lockfiles.mjs';
 import { measure as measureReach, lines as reachLines, toJson as reachJson } from '../lib/reach.mjs';
 import { checkIocs } from '../lib/iocs.mjs';
 import { checkClaudeCode } from '../lib/claudecode.mjs';
+import { fixAge, effectiveNow } from '../lib/clock.mjs';
 
 // npx puts the current project's node_modules/.bin, and each parent folder's, first on PATH. Wardlatch finds git,
 // python3, node, curl, php, go and the container engines on PATH and runs some of them, so a project could otherwise
@@ -39,7 +40,12 @@ import { checkClaudeCode } from '../lib/claudecode.mjs';
 // .npmrc, before any of this runs; nothing here can undo either: run it from your home folder, as the README says.
 // When nothing is left (PATH unset, or made only of dropped entries), PATH is /usr/bin:/bin, as Node itself assumes for
 // an unset PATH. An empty PATH would make a bare program name resolve in the current folder.
-const kept = (process.env.PATH ?? '').split(delimiter).filter((d) => d && isAbsolute(d) && !/[\\/]node_modules[\\/]\.bin[\\/]?$/.test(d));
+// A PATH entry written ~/bin (export PATH="~/bin:$PATH", the quotes keep the ~) is searched by bash and macOS's /bin/sh,
+// which put the home folder in front of it, so a script or service started by either runs ~/bin's program; zsh and dash
+// skip it. Up to the attack branch of 16 Nov 2026 (A4) it was dropped as relative, and a php there, the one bash runs,
+// was never checked while a fixed one later on PATH read SAFE. It is read as bash reads it: it can only add a copy.
+const tilde = (d) => (d === '~' || d.startsWith('~/') ? `${homedir()}${d.slice(1)}` : d);
+const kept = (process.env.PATH ?? '').split(delimiter).map(tilde).filter((d) => d && isAbsolute(d) && !/[\\/]node_modules[\\/]\.bin[\\/]?$/.test(d));
 process.env.PATH = kept.length ? kept.join(delimiter) : ['/usr/bin', '/bin'].join(delimiter);
 // Programs run from /, so a relative CA file or folder in the person's own environment is made absolute first, against
 // the folder Wardlatch was started from, as their own programs would read it: put in front of it as written, so a '..'
@@ -137,7 +143,12 @@ const c = (code, s) => (tty ? `\x1b[${code}m${clean(s)}\x1b[0m` : clean(s));
 const STATUS = { SAFE: c('32', 'SAFE   '), EXPOSED: c('31;1', 'EXPOSED'), UNKNOWN: c('33', 'UNKNOWN'), REVIEW: c('33', 'REVIEW ') };
 const short = (p) => p.replace(HOME, '~');
 // an EXPOSED line sets the exit code as it is printed, so a crash after it can't turn it into "could not be tested"
-const print = (status, what, extra = '') => { if (status === 'EXPOSED') process.exitCode = 1; if (!json) console.log(`${STATUS[status]}  ${clean(what)}${extra}`); };
+// release/0.1.19-candidate (the machine-speed moves): under every EXPOSED line, how long the incident's fix has been
+// public, from its fixPublished date and the same "today" as every other date check (lib/clock.mjs). The incident
+// loop sets fixAgeNow for the incident it is running; --json carries the same as fixAgeDays on each EXPOSED row.
+let fixAgeNow = null;
+const TODAY = effectiveNow();
+const print = (status, what, extra = '') => { if (status === 'EXPOSED') process.exitCode = 1; if (!json) { console.log(`${STATUS[status]}  ${clean(what)}${extra}`); if (status === 'EXPOSED' && fixAgeNow) console.log(c('31', `         ${clean(fixAgeNow.text)}`)); } };
 const note = (code, text) => { if (!json) console.log(c(code, `         ${text}`)); };
 
 // --reach (lib/reach.mjs, docs/REACH.md): a mode of its own, like --list. It runs instead of the incident checks, never
@@ -376,6 +387,7 @@ if (!json) {
 }
 
 for (const inc of chosen) {
+  fixAgeNow = fixAge(inc.fixPublished, TODAY);
   if (!json) console.log(`\n${c('1', inc.title)} ${c('2', `(${inc.date})`)}`);
   // CISA's KEV rows the incident file carries (lib/kev.mjs): copied from the catalog before release, never fetched here
   if (!json) for (const line of kevLines(inc)) console.log(c('33', clean(line)));
@@ -450,7 +462,7 @@ for (const inc of chosen) {
       // in for the forced-roots control (lib/probe.mjs fileVerdict); settings that point them elsewhere keep it UNKNOWN
       const certsList = listDir('/etc/ssl/certs');
       const { fileCheck, skipped } = appleFileCheck(inc, rt, { os: platform(), macos, env: process.env, home: homedir(), exists: (f) => pathState(f) === 'file', certsDir: certsList.gone ? 0 : certsList.entries ? certsList.entries.length : -1 });
-      const r = await check(rt, canaries, { rootsPem, controlUrl: inc.advisory, fileCheck, bundleCheck: { inc, negativeCa: join(LIB, 'negative-control.pem') } });
+      const r = await check(rt, canaries, { rootsPem, controlUrl: inc.advisory, fileCheck, bundleCheck: { inc, negativeCa: join(LIB, 'negative-control.pem') }, systemNote: inc.systemSafeNote });
       const row = { incident: inc.id, ...rt, ...r, fix: r.status === 'EXPOSED' ? fixFor(rt) : undefined };
       results.push(row);
       const what = rt.label ? `${rt.label} ${rt.version}` : `${rt.kind} ${rt.version}  ${short(rt.bin)}${rt.env ? `  (${short(rt.env)})` : ''}`;
@@ -685,6 +697,20 @@ for (const inc of chosen) {
       // place the reader named (AUDIT-11)
       searched.push(...dirs, ...walked.filter((r) => !dirs.includes(r)));
     }
+    // release/0.1.19-candidate (Starlette, the MCP Python SDK, FastMCP): the Python lockfiles and requirements files
+    // under the folders searched, read as text (lib/lockfiles.mjs pyLockKind). What a project pins is what its next
+    // install fetches; what is installed now is the site-packages part above. Nothing in a project is run.
+    if (inc.pyLockfiles) {
+      const lockDenied = [...lockedRoots], lockLinks = [], lockDeep = [];
+      for (const f of lockfilesUnder(searchable, LOCK_DEPTH, lockDenied, lockLinks, { deep: lockDeep, kindOf: pyLockKind })) {
+        const r = checkLockfile(f, inc.pyLockfiles);
+        if (r.read) searched.push(f.path);
+        for (const row of r.rows) show({ path: f.path, ...row }, `${row.what}  ${short(f.path)}`, row.fix ?? inc.pyLockfiles.fix);
+      }
+      // into this check's own gap lists, each folder once: the one gaps() call below reports them, and the --paths
+      // folders that are not there, once
+      for (const [to, from] of [[denied, lockDenied], [links, lockLinks], [deep, lockDeep]]) for (const d of from) if (!to.includes(d)) to.push(d);
+    }
     if (inc.tmpTrace) {
       const temps = tempDirs();
       // a temp folder that can't be listed is a known place the marker would be: always UNKNOWN, and not in the receipt
@@ -912,7 +938,9 @@ const n = (s) => count[s];
 // lib/escape.mjs says which characters count as hidden. Up to this fix only DEL and C1 were escaped, and only the second way.
 const prose = (v) => (Array.isArray(v) ? v.map(prose) : v && typeof v === 'object'
   ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, k === 'reason' && typeof x === 'string' ? clean(x) : prose(x)])) : v);
-if (json) console.log(escapeJsonHidden(JSON.stringify(prose({ tool: 'wardlatch', version: VERSION, incidents: chosen.map((i) => ({ id: i.id, title: i.title, advisory: i.advisory, ...(i.kev ? { kev: kevRows(i) } : {}) })), results: all, ...(appleSaid ? { macos: appleSaid } : {}) }), null, 1)));
+// every EXPOSED row carries its incident's fix age (null when the fix date is unknown), as the text line says it
+const aged = all.map((r) => { if (r.status !== 'EXPOSED') return r; const a = fixAge(chosen.find((i) => i.id === r.incident)?.fixPublished, TODAY); return { ...r, fixAgeDays: a.days, fixAge: a.text }; });
+if (json) console.log(escapeJsonHidden(JSON.stringify(prose({ tool: 'wardlatch', version: VERSION, incidents: chosen.map((i) => ({ id: i.id, title: i.title, advisory: i.advisory, ...(i.kev ? { kev: kevRows(i) } : {}), ...(i.fixPublished ? { fixPublished: i.fixPublished } : {}) })), results: aged, ...(appleSaid ? { macos: appleSaid } : {}) }), null, 1)));
 else {
   console.log(`\n${count.SAFE} safe · ${n('EXPOSED')} exposed · ${n('UNKNOWN')} could not be tested${n('REVIEW') ? ` · ${n('REVIEW')} to review` : ''}`);
   const trust = chosen.find((i) => i.type === 'trust');

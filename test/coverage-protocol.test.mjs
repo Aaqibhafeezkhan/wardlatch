@@ -13,8 +13,8 @@ import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { check, report, items, classesOf, namedCves, incomplete, SNAPSHOT, DECLINED, MAX_AGE_DAYS, SOURCES } from '../scripts/coverage/check.mjs';
-import { parseIndex, parseNotes, macosRelease, isoDate, htmlText } from '../scripts/coverage/apple-notes.mjs';
+import { check, report, items, classesOf, namedCves, incomplete, SNAPSHOT, DECLINED, MAX_AGE_DAYS, SOURCES, RUNS_ON, IDENTITY } from '../scripts/coverage/check.mjs';
+import { parseIndex, parseNotes, macosRelease, macApplicable, isoDate, htmlText } from '../scripts/coverage/apple-notes.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SNAP = JSON.parse(readFileSync(SNAPSHOT, 'utf8'));
@@ -31,7 +31,7 @@ test('C1 the committed snapshot, incidents and declined list pass: a complete re
   assert.deepEqual(r.expired.map((e) => e.key), [], `declines past their review date: run the triage (docs/COVERAGE-PROTOCOL.md)`);
   assert.deepEqual(r.badDeclines, []);
   assert.equal(r.ok, true);
-  assert.match(report(r), /NO GAPS, from a complete read of: apple-macos, cisa-kev$/);
+  assert.match(report(r), /NO GAPS, from a complete read of: apple-macos, cisa-kev, cert-vu$/);
   // the read is named: every source with its own counts
   assert.deepEqual(r.sources.map((s) => s.id), SOURCES);
   assert.ok(r.inScope > 100 && r.total > r.inScope, `${r.inScope} of ${r.total}`);
@@ -47,7 +47,7 @@ test('C2 the 16 Nov 2026 miss, replayed: without apple-audio-2026-08, CVE-2026-6
   const r = run({ named });
   assert.equal(r.ok, false);
   assert.deepEqual(r.gaps.map((g) => g.key), ['CVE-2026-65339']);
-  assert.match(report(r), /^GAP CVE-2026-65339 \[privacy\] Audio: An app may be able to leak sensitive user information \(macOS Sequoia 15\.8; macOS Tahoe 26\.6\.2\)$/m);
+  assert.match(report(r), /^GAP CVE-2026-65339 \[identity,privacy\] Audio: An app may be able to leak sensitive user information \(macOS Sequoia 15\.8; macOS Tahoe 26\.6\.2\)$/m);
   assert.match(report(r), /FAIL$/);
 });
 
@@ -78,6 +78,11 @@ test('C4 "no gaps" only from a complete read: a missing source, a short read or 
     'the index read not reaching the window': (s) => { s.sources.find((x) => x.id === 'apple-macos').indexOldest = '2026-10-01'; },
     'KEV read short': (s) => { s.sources.find((x) => x.id === 'cisa-kev').read -= 1; },
     'KEV rows dropped': (s) => { s.kev.pop(); },
+    // P4 (release/0.1.19-candidate): a Mac product's page left out, as the read did before it, is never "no gaps"
+    'Xcode 27.2\'s page skipped': (s) => { const a = s.sources.find((x) => x.id === 'apple-macos'); const i = s.apple.findIndex((r) => r.name === 'Xcode 27.2'); const [x] = s.apple.splice(i, 1); a.macReleasesInWindow -= 1; a.skipped.push({ name: x.name, date: x.date, availableFor: x.availableFor }); },
+    'a Safari page skipped': (s) => { const a = s.sources.find((x) => x.id === 'apple-macos'); const i = s.apple.findIndex((r) => /^Safari /.test(r.name)); const [x] = s.apple.splice(i, 1); a.macReleasesInWindow -= 1; a.skipped.push({ name: x.name, date: x.date, availableFor: x.availableFor }); },
+    'a row dropped from both lists': (s) => { s.sources.find((x) => x.id === 'apple-macos').skipped.pop(); },
+    'a snapshot from the macOS-only read': (s) => { const a = s.sources.find((x) => x.id === 'apple-macos'); delete a.skipped; delete a.releasesInWindow; },
   };
   for (const [name, f] of Object.entries(cases)) {
     const s = clone(SNAP); f(s);
@@ -96,9 +101,38 @@ test('C4 "no gaps" only from a complete read: a missing source, a short read or 
   assert.match(incomplete(SNAP, day(MAX_AGE_DAYS + 1)).join(' '), /read \d+ days ago/);
 });
 
+test('C4p P4: every Apple release that runs on a Mac is read, not only macOS; the rows skipped are for other devices, each named', () => {
+  const a = SNAP.sources.find((x) => x.id === 'apple-macos');
+  const names = SNAP.apple.map((r) => r.name);
+  // the products this read must carry, in the window measured on 17 Nov 2026
+  for (const re of [/^macOS /, /^Safari /, /^Xcode 27\.2$/, /^Xcode 27$/]) assert.ok(names.some((n) => re.test(n)), `${re} read`);
+  assert.equal(SNAP.apple.length + a.skipped.length, a.releasesInWindow);
+  assert.ok(a.skipped.length > 0, 'the control: the window holds rows for other devices');
+  for (const s of a.skipped) { assert.equal(macApplicable(s), false, s.name); assert.ok(s.name && s.date && typeof s.availableFor === 'string', JSON.stringify(s)); }
+  // the rule itself: macOS by name, any product whose Available for column names macOS, nothing else
+  assert.equal(macApplicable({ name: 'Xcode 27.2', availableFor: 'macOS Tahoe 26.6 and later' }), true);
+  assert.equal(macApplicable({ name: 'Safari 27.2', availableFor: 'macOS Sequoia and macOS Tahoe' }), true);
+  assert.equal(macApplicable({ name: 'macOS Golden Gate 27.2', availableFor: '' }), true);
+  assert.equal(macApplicable({ name: 'iOS 27.2 and iPadOS 27.2', availableFor: 'iPhone 11 and later' }), false);
+  // Xcode 27.2's two fixes, which the macOS-only read never saw, are items now, and named
+  const r = check({ snapshot: SNAP, named: NAMED, declined: DEC, today: TODAY });
+  for (const c of ['CVE-2026-112605', 'CVE-2026-112602', 'CVE-2026-86948', 'CVE-2026-86949']) assert.ok(r.named.some((i) => i.key === c && i.incidents.includes('xcode-2026-10')), c);
+});
+
+test('C4pm P4 mutation: with the read back to macOS rows only, Xcode 27.2\'s page is skipped and the check fails', () => {
+  // the refresh's old filter, applied to this snapshot: what it would have read, and what it would have skipped
+  const s = clone(SNAP), a = s.sources.find((x) => x.id === 'apple-macos');
+  const keep = s.apple.filter((x) => macosRelease(x.name)), drop = s.apple.filter((x) => !macosRelease(x.name));
+  assert.ok(drop.some((x) => x.name === 'Xcode 27.2'), 'the mutant drops Xcode');
+  s.apple = keep; a.macReleasesInWindow = keep.length; a.skipped.push(...drop.map((x) => ({ name: x.name, date: x.date, availableFor: x.availableFor })));
+  const r = check({ snapshot: s, named: NAMED, declined: DEC, today: TODAY });
+  assert.equal(r.ok, false);
+  assert.match(r.why.join('\n'), /Xcode 27\.2 \(2026-10-29, available for macOS Tahoe 26\.6 and later\) runs on a Mac and its page was skipped/);
+});
+
 test('C5 the snapshot is the sources\' own words: Apple entries carry a component, an impact and CVE numbers; KEV rows a date', () => {
   for (const r of SNAP.apple) {
-    assert.ok(macosRelease(r.name), r.name); assert.match(r.date, /^\d{4}-\d{2}-\d{2}$/); assert.ok(r.date >= SNAP.since, r.name);
+    assert.ok(macApplicable(r), r.name); assert.match(r.date, /^\d{4}-\d{2}-\d{2}$/); assert.ok(r.date >= SNAP.since, r.name);
     if (!r.noCves) assert.match(r.url, /^https:\/\/support\.apple\.com\/en-us\/\d+$/, r.name);
     for (const e of r.entries) { assert.ok(e.component && e.impact, r.name); for (const c of e.cves) assert.match(c, /^CVE-\d{4}-\d{4,}$/); }
   }
@@ -143,13 +177,73 @@ test('C8 the classes: each of the owner\'s classes matches Apple\'s own impact l
     'A malicious application may be able to bypass Privacy preferences': ['privacy'],
     'An app may be able to break out of its sandbox': ['sandbox'],
     'An app may bypass Gatekeeper checks': ['code-signing'],
-    'An attacker in a privileged network position may be able to impersonate a Kerberos KDC': ['trust'],
+    'An attacker in a privileged network position may be able to impersonate a Kerberos KDC': ['identity', 'trust'],
     'An app may be able to gain root privileges': ['privilege'],
     'Processing a maliciously crafted file may lead to arbitrary code execution. Apple is aware of a report that this issue may have been exploited': ['exploited'],
     'An app may be able to cause unexpected system termination': [],
     'Processing maliciously crafted web content may lead to an unexpected Safari crash': [],
   };
   for (const [impact, classes] of Object.entries(want)) assert.deepEqual(classesOf(impact), classes, impact);
+});
+
+test('C10 every skip says where the flawed code runs: a decline without runsOn, or with another word, fails the check', () => {
+  for (const e of DEC.entries) assert.ok(RUNS_ON.includes(e.runsOn), `${e.key}: runsOn ${e.runsOn}`);
+  const pick = DEC.entries.find((e) => e.runsOn === 'server');
+  for (const bad of [(({ runsOn, ...e }) => e)(pick), { ...pick, runsOn: 'appliance' }, { ...pick, runsOn: '' }]) {
+    const r = run({ declined: { entries: DEC.entries.map((e) => (e === pick ? bad : e)) } });
+    assert.equal(r.ok, false, JSON.stringify(bad.runsOn)); assert.match(report(r), new RegExp(`^BAD DECLINE ${pick.key}: no runsOn`, 'm'));
+  }
+  // the PR #37 miss: ScreenConnect's client flaw was declined as a "self-hosted server". It is named now, and every
+  // decline worded as a server or an appliance says server; the re-read of 16 Nov 2026 moved the rest
+  assert.equal(DEC.entries.find((e) => e.key === 'CVE-2026-84869'), undefined);
+  for (const e of DEC.entries.filter((x) => /^(self-hosted server|network appliance)/.test(x.reason))) assert.equal(e.runsOn, 'server', e.key);
+  // the re-read's client-side candidates: listed, not added (no incident names them)
+  const reread = ['CVE-2026-124194', 'CVE-2026-41091', 'CVE-2026-45498', 'CVE-2026-8398', 'CVE-2026-87886', 'CVE-2026-34926', 'CVE-2026-123039', 'CVE-2026-85102', 'CVE-2025-61624', 'CVE-2025-25249'];
+  for (const k of reread) { const e = DEC.entries.find((x) => x.key === k); assert.ok(e?.candidate && e.runsOn !== 'server' && /16 Nov/.test(e.reason), k); assert.equal(NAMED.has(k), false, k); }
+});
+
+test('C11 the identity/authority class reads Apple\'s Description line too, and a snapshot without that line is not a complete read', () => {
+  const want = [
+    ['An app may be able to access protected user data', 'A logic issue was addressed with improved checks.', ['identity', 'privacy']],
+    ['An app may be able to cause unexpected app behavior', 'A case-insensitive comparison was replaced with an exact one.', ['equivalence']],
+    ['A remote attacker may be able to cause unexpected app behavior', 'This issue was addressed with improved Unicode normalization.', ['equivalence']],
+    ['A malicious app may be able to forge a request', 'An authentication issue was addressed: requests could be forged.', ['identity']],
+    ['An attacker may be able to spoof the sender of a message', 'The issue was addressed with improved validation.', ['identity', 'trust']],
+    // the controls: a logic issue with no permission in it, and a type confusion, are not this class
+    ['An app may be able to cause unexpected system termination', 'A logic issue was addressed with improved checks.', []],
+    ['Processing maliciously crafted web content may lead to memory corruption', 'A type confusion issue was addressed with improved checks.', []],
+  ];
+  for (const [impact, description, classes] of want) assert.deepEqual(classesOf(impact, description), classes, `${impact} / ${description}`);
+  // without the Description, the description-only cases fall out of scope: the instrument can tell the two apart
+  assert.deepEqual(classesOf('An app may be able to cause unexpected app behavior'), []);
+  // the snapshot carries the line on every entry; strip it from one and the read is INCOMPLETE
+  assert.ok(SNAP.apple.every((r) => r.entries.every((e) => typeof e.description === 'string' && e.description)), 'every entry has its Description');
+  const s = clone(SNAP); delete s.apple.find((r) => r.entries.length).entries[0].description;
+  const r = check({ snapshot: s, named: NAMED, declined: DEC, today: TODAY });
+  assert.equal(r.ok, false); assert.match(r.why.join(' '), /1 entries carry no Description line/);
+  // a new CVE of the shape, planted in the snapshot, is a gap until it is named or declined
+  const p = clone(SNAP); p.apple[0].entries.push({ component: 'Planted', impact: 'An app may be able to cause unexpected app behavior', description: 'A path normalization issue was addressed.', cves: ['CVE-2026-999999'] });
+  const g = check({ snapshot: p, named: NAMED, declined: DEC, today: TODAY });
+  assert.deepEqual(g.gaps.map((x) => [x.key, x.classes]), [['CVE-2026-999999', ['equivalence']]]);
+  assert.ok(IDENTITY.words && IDENTITY.logic && IDENTITY.authority);
+});
+
+test('C13 equivalence (name or path folding) and identity (an impersonated or forged caller) are distinct; a CVE in both is one item, counted once', () => {
+  // folding alone: equivalence, never identity
+  for (const d of ['A case-insensitive comparison was fixed.', 'A path normalization issue was addressed.', 'Symlinks were handled.']) assert.deepEqual(classesOf('An app may be able to cause unexpected app behavior', d), ['equivalence'], d);
+  // a forged or impersonated party alone: identity, never equivalence
+  for (const d of ['Requests could be forged.', 'A process could impersonate another.']) assert.deepEqual(classesOf('An app may be able to cause unexpected app behavior', d), ['identity'], d);
+  // both shapes in one entry: both classes, one item
+  const both = ['An app may be able to cause unexpected app behavior', 'A case-insensitive comparison let one app impersonate another.'];
+  assert.deepEqual(classesOf(...both), ['equivalence', 'identity']);
+  const p = clone(SNAP);
+  p.apple[0].entries.push({ component: 'PlantedA', impact: both[0], description: both[1], cves: ['CVE-2026-999998'] });
+  p.apple[1].entries.push({ component: 'PlantedB', impact: both[0], description: 'Requests could be forged.', cves: ['CVE-2026-999998'] });
+  const base = check({ snapshot: SNAP, named: NAMED, declined: DEC, today: TODAY });
+  const g = check({ snapshot: p, named: NAMED, declined: DEC, today: TODAY });
+  assert.equal(g.inScope, base.inScope + 1); assert.equal(g.total, base.total + 1);
+  assert.deepEqual(g.gaps.map((x) => [x.key, x.classes]), [['CVE-2026-999998', ['equivalence', 'identity']]]);
+  assert.match(report(g), /in a covered class: \d+; named in an incident: \d+; declined: \d+; gaps: 1$/m);
 });
 
 test('C9 the command: exit 0 with the sources named on the committed files; exit 1 with GAP lines when the declines are taken away', () => {
@@ -165,4 +259,53 @@ test('C9 the command: exit 0 with the sources named on the committed files; exit
     assert.equal((bad.stdout.match(/^GAP /gm) ?? []).length, DEC.entries.length);
     assert.match(bad.stdout, /FAIL$/m);
   } finally { rmSync(d, { recursive: true, force: true }); }
+  assert.match(ok.stdout, /^ {2}cert-vu: https:\/\/kb\.cert\.org\/vuls\/api\/ \(\d+ monthly listings, .* in the equivalence class\)$/m);
+});
+
+// 16 Nov 2026: the identity-equivalence class (docs/PATTERN-IDENTITY-EQUIVALENCE.md) and its third source, CERT/CC's
+// notes, read whole by month. VU#604762 is the note that started it; each of its CVEs is named or declined.
+test('C10 the equivalence class: CERT/CC\'s notes read whole; VU#604762\'s six CVEs are each named or declined; the three incidents, taken out, are gaps', () => {
+  const src = SNAP.sources.find((s) => s.id === 'cert-vu');
+  assert.ok(src && src.months.length === src.monthsInWindow && src.notesRead > 0, 'every month in the window was listed');
+  const vu = SNAP.cert.find((n) => n.id === 'VU#604762');
+  assert.deepEqual(vu.cves, ['CVE-2026-11313', 'CVE-2026-14978', 'CVE-2026-23950', 'CVE-2026-45110', 'CVE-2026-49401', 'CVE-2026-59890']);
+  const r = run();
+  for (const c of vu.cves) assert.ok(r.named.some((i) => i.key === c) || r.declined.some((i) => i.key === c), c);
+  assert.deepEqual(['CVE-2026-49401', 'CVE-2026-14978', 'CVE-2026-59890'].map((c) => NAMED.get(c)), [['deno-2026-06'], ['terraform-2026-08'], ['setuptools-2026-07']]);
+  const named = new Map(NAMED); for (const c of ['CVE-2026-49401', 'CVE-2026-14978', 'CVE-2026-59890']) named.delete(c);
+  const g = run({ named });
+  assert.deepEqual(g.gaps.map((x) => x.key).sort(), ['CVE-2026-14978', 'CVE-2026-49401', 'CVE-2026-59890']);
+  assert.match(report(g), /^GAP CVE-2026-49401 \[equivalence\] VU#604762: Multiple vendors vulnerable to Unicode Normalization Collision on macOS \(APFS\)$/m);
+  // a note with no CVE is one item, by its VU number, and a decline is the only way to cover it
+  assert.ok(r.declined.some((i) => i.key === 'VU#410595'));
+  const noVu = run({ declined: { entries: DEC.entries.filter((e) => e.key !== 'VU#410595') } });
+  assert.deepEqual(noVu.gaps.map((x) => x.key), ['VU#410595']);
+});
+
+test('C11 the CERT/CC source is "whole" only when every month and every in-class note\'s rows and vendors were read', () => {
+  const cases = {
+    'no CERT/CC source': (s) => { s.sources = s.sources.filter((x) => x.id !== 'cert-vu'); s.cert = []; },
+    'a month not listed': (s) => { s.sources.find((x) => x.id === 'cert-vu').months.pop(); },
+    'an in-class note dropped': (s) => { s.cert.pop(); },
+    'a note\'s vendors not read': (s) => { s.cert[0].vendorsRead = false; },
+    'a note\'s rows not read': (s) => { delete s.cert[0].vulsRead; },
+    'fewer notes read than kept': (s) => { s.sources.find((x) => x.id === 'cert-vu').notesRead = 1; },
+  };
+  for (const [name, mutate] of Object.entries(cases)) {
+    const s = clone(SNAP); mutate(s);
+    const r = run({ snapshot: s });
+    assert.equal(r.complete, false, name); assert.equal(r.ok, false, name);
+    assert.match(report(r), /INCOMPLETE/, name);
+  }
+});
+
+test('C12 the class on Apple\'s lines: a path, link or name-handling Description puts an entry in scope; the Impact rule is unchanged', () => {
+  assert.deepEqual(classesOf('Extracting a maliciously crafted archive may allow an attacker to write arbitrary files', 'A path handling issue was addressed with improved validation.'), ['equivalence']);
+  assert.deepEqual(classesOf('An app may be able to access sensitive user data', 'This issue was addressed with improved handling of symlinks.'), ['equivalence', 'privacy']);
+  assert.deepEqual(classesOf('An app may be able to cause unexpected system termination', 'A memory corruption issue was addressed with improved bounds checks.'), []);
+  // the Description alone never adds another class: only equivalence and identity read it
+  assert.deepEqual(classesOf('An app may be able to cause unexpected system termination', 'A sandbox issue with certificates'), []);
+  for (const t of ['Unicode Normalization Collision on macOS (APFS)', 'a case-insensitive comparison', 'HFS+ volumes', 'Name-Constraint inconsistency', 'CWE-41']) assert.deepEqual(classesOf('', t), ['equivalence'], t);
+  // every Apple entry in the committed snapshot carries its Description, so the class can be read
+  assert.ok(SNAP.apple.every((r) => r.entries.every((e) => typeof e.description === 'string')));
 });

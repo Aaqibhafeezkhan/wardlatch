@@ -1,0 +1,31 @@
+{
+  "id": "setuptools-2026-07",
+  "type": "installs",
+  "title": "setuptools before 83.0.0 on a Mac: a MANIFEST.in exclusion misses a file whose name is in another Unicode form, and it is packed into the sdist (CVE-2026-59890)",
+  "date": "2026-07-08",
+  "fixPublished": {"date":"2026-07-08","source":"setuptools' advisory GHSA-h35f-9h28-mq5c on its repository, as this incident dates it (fixed in 83.0.0)"},
+  "summary": "setuptools' advisory GHSA-h35f-9h28-mq5c (CVE-2026-59890, moderate, CWE-176 and CWE-697) says that before 83.0.0 its FileList applied MANIFEST.in's exclude, global-exclude, recursive-exclude and prune directives by matching patterns against the names on disk byte for byte, with no Unicode normalization, so on a Mac's APFS or HFS+ disk a file named in NFD slips past a rule written in NFC and is packed into the source distribution, and from there into what is published to PyPI. setuptools 83.0.0 fixes it. CERT/CC lists it in VU#604762 (16 Nov 2026). CISA's catalog (2026.11.13) does not list it. Wardlatch reads the version from the setuptools-<version>.dist-info folder in the site-packages folders it searches (as for LiteLLM and GPUStack); it never starts Python. Below 83.0.0 on a Mac is EXPOSED. Building with python -m build or pip, the build runs in its own environment with the setuptools the project's pyproject.toml asks for, usually the newest, so the copy found here is the one used by python setup.py sdist, --no-isolation builds and tools that import it; a version can't tell which a project uses. On Linux the flaw does not apply (the advisory names APFS and HFS+), and no row is added.",
+  "advisory": "https://github.com/pypa/setuptools/security/advisories/GHSA-h35f-9h28-mq5c",
+  "sources": [
+    "https://www.cve.org/CVERecord?id=CVE-2026-59890",
+    "https://nvd.nist.gov/vuln/detail/CVE-2026-59890",
+    "https://kb.cert.org/vuls/id/604762",
+    "https://github.com/pypa/setuptools/releases/tag/v83.0.0"
+  ],
+  "sitePackages": {
+    "distVersions": [
+      {
+        "name": "setuptools",
+        "product": "setuptools",
+        "minVersion": "83.0.0",
+        "cve": "CVE-2026-59890",
+        "why": "which fixes CVE-2026-59890 (on a Mac, a MANIFEST.in exclusion misses a file named in another Unicode form, and an sdist built with this copy can carry it; not in CISA's catalog)",
+        "onlyOn": ["darwin"],
+        "notAffectedOn": "the advisory names APFS and HFS+, a Mac's disks"
+      }
+    ],
+    "fix": "Update setuptools to 83.0.0 or later in that environment (python -m pip install -U 'setuptools>=83'), and in a project that pins it, raise the pin in pyproject.toml's [build-system] requires. Before publishing an sdist built on a Mac, list what is in it (tar -tzf dist/*.tar.gz) and look for files MANIFEST.in meant to leave out."
+  },
+  "safeText": "no setuptools below 83.0.0 found on a Mac's disk (on Linux and Windows this flaw does not apply)",
+  "notCovered": "setuptools inside wheels and caches that are not installed (pip's cache, build isolation's temporary environments, ensurepip's bundled wheel), and in folders Wardlatch does not search (pass --paths for them). Whether an sdist already published carried an excluded file is not something a version can tell: list the sdist's contents."
+}

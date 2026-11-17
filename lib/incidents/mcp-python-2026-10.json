@@ -1,0 +1,76 @@
+{
+  "id": "mcp-python-2026-10",
+  "type": "installs",
+  "title": "MCP Python SDK before 1.30.0 or 2.2.0, and FastMCP 4.0.0 to 4.1.1: tokens for another server accepted, credentials sent across redirects, a client secret sent to an advertised authorization server (CVE-2026-116684, CVE-2026-116685, GHSA-vqqp-x5qm-5qp4); two of the fixes are off until you set them",
+  "date": "2026-10-27",
+  "fixPublished": {"date":"2026-10-27","source":"the MCP Python SDK's advisories GHSA-w4fh-qvv9-3v23 and GHSA-5h93-6whr-6q8j, 27 Oct 2026 (FastMCP's GHSA-vqqp-x5qm-5qp4 is of 23 Oct)"},
+  "summary": "Three advisories for Python MCP code, none in CISA's catalog (2026.11.13), so Wardlatch says \"fixed in\", not \"exploited\". The MCP Python SDK's GHSA-w4fh-qvv9-3v23 (CVE-2026-116684, 27 Oct 2026): from mcp 1.10.0 to 1.29.1 and 2.0.0 to 2.1.1 a server's bearer authentication accepted a token issued for a different resource server; fixed in 1.30.0 and 2.2.0, but the advisory says \"Upgrading alone changes nothing\": the fix is a setting, validate_token_resource, off unless it is set. GHSA-5h93-6whr-6q8j (CVE-2026-116685, 27 Oct 2026): from mcp 1.8.0 to 1.29.1 and 2.0.0 to 2.1.1 the HTTP client transports followed redirects to any host, sending custom headers and, on 307 and 308, the body; fixed by upgrading alone. FastMCP's GHSA-vqqp-x5qm-5qp4 (23 Oct 2026, no CVE): fastmcp and fastmcp-slim from 4.0.0a1 up to 4.1.2 built OAuth client-credentials providers with no issuer binding, so an untrusted MCP server could advertise another authorization server and receive the client secret; 4.1.2 adds an issuer parameter, which is optional, and FastMCP says upgrading alone is insufficient. So below each fix is EXPOSED. At or past it, the SDK and FastMCP are REVIEW, never SAFE: the setting that turns the fix on is in your code, which Wardlatch does not read (pattern P9, docs/PATTERNS.md). Wardlatch reads versions from the <name>-<version>.dist-info folders in site-packages and from the project lockfiles and requirements files under the folders searched; it never starts Python.",
+  "advisory": "https://github.com/modelcontextprotocol/python-sdk/security/advisories/GHSA-w4fh-qvv9-3v23",
+  "sources": [
+    "https://github.com/advisories/GHSA-w4fh-qvv9-3v23",
+    "https://github.com/advisories/GHSA-5h93-6whr-6q8j",
+    "https://github.com/advisories/GHSA-vqqp-x5qm-5qp4",
+    "https://www.cve.org/CVERecord?id=CVE-2026-116684",
+    "https://www.cve.org/CVERecord?id=CVE-2026-116685"
+  ],
+  "sitePackages": {
+    "distVersions": [
+      {
+        "name": "mcp",
+        "product": "MCP Python SDK (mcp)",
+        "ranges": [{ "introduced": "1.8.0", "fixed": "1.30.0" }, { "introduced": "2.0.0", "fixed": "2.2.0" }],
+        "source": "the MCP Python SDK's advisories GHSA-5h93-6whr-6q8j (CVE-2026-116685, credentials sent across redirects, from 1.8.0) and GHSA-w4fh-qvv9-3v23 (CVE-2026-116684, tokens for another server accepted, from 1.10.0)",
+        "fixNeedsConfig": { "from": "1.30.0", "reason": "CVE-2026-116684's fix is off unless it is set: in an HTTP server using the SDK's bearer authentication, set validate_token_resource=True in AuthSettings with resource_server_url set to the audience your authorization server puts in tokens for this server, and return the token's audience from verify_token() as AccessToken.resource (GHSA-w4fh-qvv9-3v23: \"Upgrading alone changes nothing\"). Wardlatch does not read your server's code, so whether it is set is not known. CVE-2026-116685 is fixed by this version." },
+        "reviewFix": "In each MCP server that uses the SDK's bearer authentication, set validate_token_resource=True and resource_server_url in AuthSettings, and return the token's audience as AccessToken.resource from verify_token(); or reject in verify_token() any token whose aud does not name this server. A client, or a server without bearer authentication, needs nothing more."
+      },
+      {
+        "name": "fastmcp",
+        "product": "FastMCP (fastmcp)",
+        "ranges": [{ "introduced": "4.0.0", "fixed": "4.1.2" }],
+        "source": "FastMCP's advisory GHSA-vqqp-x5qm-5qp4 (no CVE; affected 4.0.0a1 up to 4.1.2)",
+        "fixNeedsConfig": { "from": "4.1.2", "reason": "the fix is optional: pass issuer= (the authorization server that issued the credentials) to ClientCredentialsOAuthProvider and PrivateKeyJWTOAuthProvider; without it the old behaviour stays (GHSA-vqqp-x5qm-5qp4: \"Upgrading alone is insufficient\"). Wardlatch does not read your code, so whether it is set is not known." },
+        "reviewFix": "Pass issuer= to every ClientCredentialsOAuthProvider and PrivateKeyJWTOAuthProvider, and rotate any client secret that may have been sent to an MCP server you do not control."
+      },
+      {
+        "name": "fastmcp-slim",
+        "product": "FastMCP (fastmcp-slim)",
+        "ranges": [{ "introduced": "4.0.0", "fixed": "4.1.2" }],
+        "source": "FastMCP's advisory GHSA-vqqp-x5qm-5qp4 (no CVE; affected 4.0.0a1 up to 4.1.2)",
+        "fixNeedsConfig": { "from": "4.1.2", "reason": "the fix is optional: pass issuer= (the authorization server that issued the credentials) to ClientCredentialsOAuthProvider and PrivateKeyJWTOAuthProvider; without it the old behaviour stays (GHSA-vqqp-x5qm-5qp4: \"Upgrading alone is insufficient\"). Wardlatch does not read your code, so whether it is set is not known." },
+        "reviewFix": "Pass issuer= to every ClientCredentialsOAuthProvider and PrivateKeyJWTOAuthProvider, and rotate any client secret that may have been sent to an MCP server you do not control."
+      }
+    ],
+    "fix": "Update the MCP Python SDK to 1.30.0 (1.x) or 2.2.0 (2.x) or later, and FastMCP to 4.1.2 or later, in that environment; then turn the fixes on: validate_token_resource=True for an SDK server with bearer authentication, issuer= for FastMCP's OAuth client providers. Rotate credentials a client may have sent through a cross-origin redirect or to an untrusted MCP server."
+  },
+  "pyLockfiles": {
+    "packages": [
+      {
+        "name": "mcp",
+        "ranges": [{ "introduced": "1.8.0", "fixed": "1.30.0" }, { "introduced": "2.0.0", "fixed": "2.2.0" }],
+        "source": "the MCP Python SDK's advisories GHSA-5h93-6whr-6q8j (CVE-2026-116685, from 1.8.0) and GHSA-w4fh-qvv9-3v23 (CVE-2026-116684, from 1.10.0)",
+        "fixNeedsConfig": { "from": "1.30.0", "reason": "CVE-2026-116684's fix is off unless it is set (validate_token_resource=True with resource_server_url in AuthSettings, and the token's audience returned as AccessToken.resource; GHSA-w4fh-qvv9-3v23: \"Upgrading alone changes nothing\"), and Wardlatch does not read the project's code. CVE-2026-116685 is fixed by this version." },
+        "fix": "Raise mcp to 1.30.0 (1.x) or 2.2.0 (2.x) or later in the project, install from the new lockfile, and set validate_token_resource=True in a server that uses bearer authentication.",
+        "reviewFix": "In a server that uses the SDK's bearer authentication, set validate_token_resource=True and resource_server_url, and return the token's audience as AccessToken.resource."
+      },
+      {
+        "name": "fastmcp",
+        "ranges": [{ "introduced": "4.0.0", "fixed": "4.1.2" }],
+        "source": "FastMCP's advisory GHSA-vqqp-x5qm-5qp4 (no CVE)",
+        "fixNeedsConfig": { "from": "4.1.2", "reason": "the fix is optional: issuer= must be passed to ClientCredentialsOAuthProvider and PrivateKeyJWTOAuthProvider (GHSA-vqqp-x5qm-5qp4: \"Upgrading alone is insufficient\"), and Wardlatch does not read the project's code." },
+        "fix": "Raise fastmcp to 4.1.2 or later, and pass issuer= to its OAuth client providers.",
+        "reviewFix": "Pass issuer= to every ClientCredentialsOAuthProvider and PrivateKeyJWTOAuthProvider, and rotate client secrets that may have been sent to an untrusted server."
+      },
+      {
+        "name": "fastmcp-slim",
+        "ranges": [{ "introduced": "4.0.0", "fixed": "4.1.2" }],
+        "source": "FastMCP's advisory GHSA-vqqp-x5qm-5qp4 (no CVE)",
+        "fixNeedsConfig": { "from": "4.1.2", "reason": "the fix is optional: issuer= must be passed to ClientCredentialsOAuthProvider and PrivateKeyJWTOAuthProvider (GHSA-vqqp-x5qm-5qp4: \"Upgrading alone is insufficient\"), and Wardlatch does not read the project's code." },
+        "fix": "Raise fastmcp-slim to 4.1.2 or later, and pass issuer= to its OAuth client providers.",
+        "reviewFix": "Pass issuer= to every ClientCredentialsOAuthProvider and PrivateKeyJWTOAuthProvider, and rotate client secrets that may have been sent to an untrusted server."
+      }
+    ]
+  },
+  "reviewFix": "Turn the fix on in your code: validate_token_resource=True for an MCP SDK server with bearer authentication; issuer= for FastMCP's OAuth client providers.",
+  "safeText": "no MCP Python SDK or FastMCP in an affected range found, installed or pinned",
+  "notCovered": "The SDK or FastMCP vendored, frozen into an app or inside a container image, and installs and projects in folders Wardlatch does not search (pass --paths for them). FastMCP's pre-releases (4.0.0a1 and the like) are not plain releases, and read UNKNOWN. Whether your server uses bearer authentication, or your client follows redirects, is not something a version can tell."
+}

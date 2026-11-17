@@ -3,6 +3,7 @@
   "type": "apple-cve",
   "title": "macOS Audio flaw CVE-2026-65339 (an app may be able to leak sensitive user information), fixed in Tahoe 26.6.2 and Sequoia 15.8",
   "date": "2026-08-17",
+  "fixPublished": {"date":"2026-08-17","source":"Apple, macOS Tahoe 26.6.2 (support.apple.com/en-us/148281), the first release with the fix"},
   "summary": "Apple's notes list CVE-2026-65339 under \"Audio\": \"An app may be able to leak sensitive user information\", \"A logic issue was addressed with improved checks\", credited to Mustafa Calap and Meta Red Team X. The CVE record (Apple, published 17 Aug 2026) lists macOS before 26.6.2 and before 15.8 as affected, and iOS and iPadOS before 26.6.1 and 18.7.11, tvOS, visionOS and watchOS before 27. macOS Tahoe 26.6.2 shipped the fix on 17 Aug 2026, and macOS Sequoia 15.8 on 14 Sep 2026; Apple says 26.6.2's fixes were first made available in the macOS Golden Gate 27 beta, and the CVE record names no Golden Gate 27 version as affected. Neither Apple nor the CVE record names macOS Sonoma 14. CISA's catalog (2026.11.13) does not list it. Apple's notes do not name the audio service, the microphone or the recording indicator; reports that describe those are not Apple's words and are not used here. A Mac on Tahoe below 26.6.2, or on Sequoia below 15.8, is EXPOSED. Sonoma 14 and older are UNKNOWN: Apple's notes neither list a fix nor say they are affected. A beta build, a build that can't be read, or a version that can't be placed is UNKNOWN. Wardlatch reads the version and the build from /System/Library/CoreServices/SystemVersion.plist; it runs no program.",
   "advisory": "https://support.apple.com/en-us/148281",
   "sources": [
@@ -21,6 +22,7 @@
     "date": "17 Aug 2026 (Tahoe 26.6.2) and 14 Sep 2026 (Sequoia 15.8)",
     "releases": ["26.6.2", "15.8"],
     "sources": ["https://support.apple.com/en-us/148281", "https://support.apple.com/en-us/149043"],
+    "newerMajor": "Apple's notes for Tahoe 26.6.2 say its fixes \"were first made available in the macOS Golden Gate 27 beta\", and the CVE record names no macOS 27 version as affected, so macOS 27 includes this fix",
     "basis": "The flaw is in macOS itself, which is not read here: this rests on the version and Apple's notes",
     "said": "Audio. Impact: An app may be able to leak sensitive user information. Description: A logic issue was addressed with improved checks. CVE-2026-65339",
     "fix": "Update macOS to {release} or later (System Settings, General, Software Update)."

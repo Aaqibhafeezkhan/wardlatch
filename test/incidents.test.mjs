@@ -32,7 +32,11 @@ test('every incident has the fields its check reads, named after its file', () =
       assert.ok(i.safeText, `${i.id}: safeText`);
       if (i.versionFiles) {
         const v = i.versionFiles; assert.ok(v.product && v.fix && v.lookedIn && (v.fixedIn || v.bad || v.minVersion) && v.files.length, `${i.id}: versionFiles`);
-        for (const f of v.files) { assert.match(f.path, /^(\/|~\/)/); assert.ok(new RegExp(f.re ?? f.versionFromRealPath).source.includes('('), `${i.id}: ${f.path} re captures`); assert.ok(!(f.re && f.versionFromRealPath), `${i.id}: ${f.path} reads its version one way`); if (f.reviewWhenFixed) assert.ok(i.reviewFix, `${i.id}: reviewFix for ${f.path}`); }
+        for (const f of v.files) {
+          assert.match(f.path, /^(\/|~\/)/);
+          // a path whose presence is the answer (screenconnect-2026-09) reads nothing, and says what it is
+          if (f.whenFound) { assert.ok(['EXPOSED', 'UNKNOWN'].includes(f.whenFound.status) && f.whenFound.reason && !f.re && !f.versionFromRealPath, `${i.id}: ${f.path} whenFound`); continue; }
+          assert.ok(new RegExp(f.re ?? f.versionFromRealPath).source.includes('('), `${i.id}: ${f.path} re captures`); assert.ok(!(f.re && f.versionFromRealPath), `${i.id}: ${f.path} reads its version one way`); if (f.reviewWhenFixed) assert.ok(i.reviewFix, `${i.id}: reviewFix for ${f.path}`); }
       }
       if (i.sitePackages) {
         assert.ok(i.sitePackages.fix);

@@ -11,23 +11,171 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
 
 ## [Unreleased]
 
+## [0.1.19] - 2026-11-16
+
+Four branches in one release: the coverage protocol (PR #37), the identity-equivalence pattern (VU#604762), no SAFE
+from a stale list, and the never-a-false-SAFE suite, with what the suite and an attacker's pass found fixed. From
+this release the workflow publishes to npm itself, through npm's trusted publishing, and each release carries a
+signed SBOM.
+
+<!-- 0.1.19 is open until it is tagged: a change made before the tag gets its entry below. The date above is a
+     pre-tag placeholder for the releaser to set. -->
+
+### Upgrading
+
+Nothing to do: `npx wardlatch@latest` picks it up. A few rows that read SAFE before now read UNKNOWN or REVIEW, on
+purpose: a Homebrew Deno whose keg folder and program name different versions, a program that names two versions, a
+cut lockfile or dpkg status file, and a Mac at Apple's newest release once Wardlatch's list of releases is more than
+30 days old. Each says why.
+
 ### Added
 
+- **Starlette before 1.0.1, CVE-2026-48710** (`starlette-2026-06`, CISA KEV 2 Sep 2026, so "exploited"). A malformed
+  Host header makes `request.url.path` differ from the path Starlette routed, so a check that allows or denies by
+  `request.url` can be bypassed. Python MCP servers run on Starlette: the MCP Python SDK requires it. Read from
+  `starlette-<version>.dist-info` in site-packages, and, new, from the Python lockfiles and pin files under the folders
+  searched: `uv.lock`, `poetry.lock`, `pylock.toml`, `Pipfile.lock` and `requirements*.txt`, as text, nothing run.
+  Below 1.0.1 is EXPOSED. A pin that is a range, a URL or no version is UNKNOWN, and so is a file cut short, a line the
+  reader can't read, or an include from another folder. It was declined until now as a developer package (D3).
+- **MCP Python SDK and FastMCP** (`mcp-python-2026-10`): CVE-2026-116684 (a token for another resource server
+  accepted), CVE-2026-116685 (credentials sent across a cross-origin redirect) and FastMCP's GHSA-vqqp-x5qm-5qp4 (a
+  client secret sent to an authorization server an MCP server advertises). Below each fix is EXPOSED (mcp 1.8.0 to
+  1.29.1 and 2.0.0 to 2.1.1; fastmcp and fastmcp-slim 4.0.0 to 4.1.1). At or past it, the SDK and FastMCP are REVIEW,
+  never SAFE. The vendors say upgrading alone changes nothing: the fix is a setting off by default, and the row names
+  it (`validate_token_resource=True`; `issuer=`). Not in CISA's catalog.
+- **Xcode before 27.2** (`xcode-2026-10`): CoreDevice's symlink file read (CVE-2026-112605) and an Instruments
+  authorization issue (CVE-2026-112602), and Xcode 27's two sandbox escapes (CVE-2026-86948, CVE-2026-86949). Read
+  from the `version.plist` of every `Xcode*.app` in /Applications and ~/Applications, matched as a Mac's disk matches
+  names, and from the Xcode `xcode-select` points to, each install once. A beta (`Xcode-beta.app`) is REVIEW at the
+  fixed number. Not in CISA's catalog.
+- **Docker Desktop before 4.97.0, CVE-2026-114409** (`docker-desktop-2026-10`): third-party API keys and OAuth
+  tokens written in cleartext to its logs and diagnostics bundles (and, before 4.94.0, the Docker Hub token,
+  CVE-2026-123082). Below 4.97.0 is EXPOSED. At or past it, Docker says logs containing credentials can remain after
+  upgrading. Wardlatch lists Docker Desktop's log folder by file name and date only, never a file's contents. A file
+  older than 4.97.0's release, or older than this copy of Docker.app, makes the row REVIEW, naming the folder and
+  telling you to delete the logs and rotate the tokens. A folder that can't be listed is UNKNOWN. Not in CISA's catalog.
+- **Fix age on every EXPOSED line**: "fix public for N days (since YYYY-MM-DD)", and `fixAgeDays` (with `fixAge`) on
+  each EXPOSED row in `--json`. Attackers can now turn a public fix into an exploit within hours, so the line says how
+  long the fix has been out. Every incident file carries `fixPublished`, the advisory's date with its source. Where
+  there is no fixed release (a malicious release, a leaked key, a compromised authority) it carries no date and the
+  reason, and the line says "fix date unknown". "Today" is the same as every other date check's (`lib/clock.mjs`).
+- **A daily coverage sweep in CI** (`.github/workflows/coverage-sweep.yml`, `scripts/coverage/gap-issues.mjs`). Every
+  day, and by hand with no inputs, it reads the sources and runs the coverage check. It opens or updates one issue per
+  gap ("Coverage gap: <CVE> (<classes>)", label `coverage-gap`) with the job's own token, `contents: read` and
+  `issues: write` only. It never commits, pushes or opens a pull request. The metric is "fix public → named":
+  baseline 91 days, target under 24 hours ([docs/COVERAGE-PROTOCOL.md](docs/COVERAGE-PROTOCOL.md)).
+- **Bridge advice for a bundled Brotli** ([docs/BRIDGE-BROTLI.md](docs/BRIDGE-BROTLI.md)). When Pillow, opencv-python or
+  opencv-contrib-python carries a Brotli decoder without the fix and has shipped no fixed release, the EXPOSED line's fix
+  adds "While no fixed release exists:" and points to an opt-in, reversible swap for Homebrew's fixed Brotli, on a
+  Mac. The page gives exact commands, a backup first, a check and an undo, and warns that a reinstall reverts the swap.
+  Text only: Wardlatch changes nothing. The commands were run on copies of the two packages' `.dylibs` folders, never
+  on the installed ones, and the undo gave back the original files byte for byte.
+- **Class first**: the coverage report and the gap issues list identity- and equivalence-class gaps before the others.
+- **Two new patterns, P8 and P9** ([docs/PATTERNS.md](docs/PATTERNS.md)). P8: a self-erasing compromise (a commit
+  reverted, its run and logs deleted) is not "never ran", so an incident of that kind must read history and say UNKNOWN
+  when history is absent. P9: the fixed version is not the fixed state (a fix that is a setting, or residue an update
+  leaves). Two new incident keys enforce P9: `fixNeedsConfig` (REVIEW at or past the fix) and `residueWhenFixed`
+  (what an earlier version left, by name and date).
 - **macOS Audio flaw CVE-2026-65339** (`apple-audio-2026-08`, a new kind of check, `apple-cve`, `lib/macos.mjs`
   `appleCveRow`). Apple's "Audio" entry, "An app may be able to leak sensitive user information", fixed in Tahoe
   26.6.2 (17 Aug 2026) and Sequoia 15.8 (14 Sep 2026). Below the fix on its own line is EXPOSED; Sonoma 14 and older,
   a beta, an unread build or an unplaceable version is UNKNOWN; off a Mac the row says iPhones and iPads are not
   checked. CISA's catalog (2026.11.13) does not list it. Tests: `test/apple-audio-2026-08.test.mjs`.
+- **CERT/CC VU#604762, a Mac's disk opening one file for two spellings of its name** (16 Nov 2026): Deno before 2.7.14
+  (`deno-2026-06`, CVE-2026-49401, `--deny-*` rules), Terraform built with go-slug before 0.18.3 (`terraform-2026-08`,
+  CVE-2026-14978, `.terraformignore`; read from the go-slug line Go writes into the program) and setuptools before
+  83.0.0 (`setuptools-2026-07`, CVE-2026-59890, `MANIFEST.in`). EXPOSED below the fix on a Mac; on Linux, where the
+  vendors say the flaws are not, SAFE with that reason (Deno, Terraform) or no row (setuptools). Nothing is run. Two
+  new keys for version files: `scan` (a program's bytes read in pieces) and `onlyOn` (the systems the flaw is on).
+  Every Deno is read from its program, never from a folder's name, which need not match it: mise's and asdf's
+  (`installs/deno/<version>/bin/deno`), the official installer's `~/.deno/bin/deno` and Homebrew's keg
+  (`Cellar/deno/<version>/bin/deno`, reached by `opt/deno` and `bin/deno`). A program that can't be read, or carries no
+  version, is UNKNOWN, and so is a Homebrew keg whose folder and program name different versions. The version is the
+  user agent Deno compiles in, `Deno/<version>+<commit>`, measured on Deno's own 2.7.13 and 2.7.14 macOS arm64 release
+  builds (16 Nov 2026; [COVERAGE-PROTOCOL D8](docs/COVERAGE-PROTOCOL.md)), which read 2.7.13 EXPOSED and 2.7.14 SAFE.
+  Tests: `test/equivalence-2026-11.test.mjs`.
+- **ConnectWise ScreenConnect client, CVE-2026-84869** (`screenconnect-2026-09`, CISA KEV 11 Sep 2026). PR #37's
+  coverage list declined it as a "self-hosted server": the flaw is in the client, and ConnectWise says servers are not
+  affected. Reads the host client's and the access agent's `Info.plist` on a Mac: below 26.6.5 is EXPOSED; at or past
+  it REVIEW (no real bundle read yet); a Linux agent folder UNKNOWN; an agent named for the attacker instance in
+  Huntress's report EXPOSED.
+
+### Fixed
+
+- **Eight false SAFEs found by an attacker's pass** (`test/never-false-safe/attack.test.mjs`, A1 to A9, each with a
+  planted mutation). A program naming two versions that would be judged differently (a fixed one's text ahead of its
+  own) is UNKNOWN, not the first one's verdict, and a scanned program not read to its end is UNKNOWN (A1). Terraform
+  built with go-slug replaced (a `=>` line) is UNKNOWN (A2). Homebrew's `bin/deno` and `bin/git`, the copies a shell
+  runs, are read beside `opt/` (A3). A PATH entry written `~/bin`, which bash and `/bin/sh` search, is read as they read
+  it instead of being dropped (A4). On an updated Mac, a shell start-up file that names `SSL_CERT_FILE`, `SSL_CERT_DIR`
+  or `CURL_CA_BUNDLE` keeps the built-in curl and python3 from being judged by `/etc/ssl/cert.pem` (A5). PYTHONPATH's
+  folders are searched as site-packages is (A6). Lockfiles: classic yarn's `npm:` alias read from its spec, a listed
+  name installed from another package (`"react-server-dom-webpack": "npm:@acme/fork@1.0.0"`) is UNKNOWN in npm and yarn
+  lockfiles, and a pnpm lockfile re-indented or written inline is UNKNOWN, not "pins nothing" (A7, A8). One is left
+  as a todo for the owner: the same alias in a pnpm lockfile's `importers` section (A7t). The suite's clock preload now stands in for every file `lib/clock.mjs` reads, so H11c no longer turns REVIEW by
+  itself once this Mac's own update files are a month newer than the list (A9).
+- **A Homebrew Deno keg named for the fix, holding an older program, read SAFE** (the attacker's pass's A3t, a todo
+  until D8's measurement). `deno-2026-06` judged Homebrew's Deno by its keg folder's name (`Cellar/deno/2.7.14`). It
+  now reads the program in the keg, never running it, and the row stands only when the bytes name the folder's
+  version: a keg named 2.7.14 holding Deno's real 2.7.13 program reads UNKNOWN (it read SAFE). A planted mutation of
+  each part turns the test red (A3tm).
+- **No SAFE from a stale list of Apple releases** (`macos-2026-11`, `lib/clock.mjs`). A SAFE there means "at the newest
+  release Wardlatch knows", read from Apple's index on 13 Nov 2026. Once that list is more than 30 days old, a Mac at
+  its newest release reads REVIEW and says how old the list is and to check Software Update. Today's date is the
+  later of the clock and the newest change to macOS's own update files, so a clock set back can't keep it SAFE.
+- **The same bug in Wardlatch itself** ([docs/PATTERN-IDENTITY-EQUIVALENCE.md](docs/PATTERN-IDENTITY-EQUIVALENCE.md)).
+  On a Mac's case-insensitive disk three comparisons missed a file the program using it opens: a lockfile named
+  `Package-Lock.json` (npm reads it; its pins were never read, and the run said SAFE), a folder matched by a `*`
+  pattern in another case (`xcode.app` for `Xcode*.app`), and a program on PATH listed as `PHP` (the shell runs it for
+  `php`). Lockfile names are now compared as the disk resolves them (`sameNameOnDisk`, which asks for the file's device
+  and inode, so Linux is unchanged); `*` segments also match by case and Unicode form on a Mac; and a PATH program is
+  also asked for by its exact name. A lint (`test/support/equivalence-lint.mjs`) now fails the suite on any new exact
+  comparison of a listed name or path prefix that nobody has classified.
+- **A cut lockfile read SAFE** (found by the never-a-false-SAFE suite). A `yarn.lock` or `pnpm-lock.yaml` cut inside a
+  quoted string or a `{ }` mapping (a write that stopped, a full disk) read as pinning nothing, the all-clear, where
+  yarn itself refuses the file. Such a file is now UNKNOWN. And a folder's lockfile reached from two `--paths` roots
+  is one row, not two.
+- **A WordPress `Version:` header that names no version** (`Version: 3.0.` with `123` on the next line, Rank Math
+  PRO's compromised 3.0.123 split) read SAFE as version "3.0.". It is UNKNOWN now.
+- **A cut dpkg status file read as "not installed"** (`lib/installs.mjs`; Chrome, VS Code, git and Plex on Linux). A
+  `/var/lib/dpkg/status` cut inside the product's own record names no record of it, and the check gave its
+  all-clear. A shared file like it that is empty or ends part way through a line is now UNKNOWN.
+- **macOS 27 wording on the `apple-cve` and Brotli SAFE lines.** On macOS 27.x the CVE-2026-65339 line called 26.6.2
+  and 15.8, other release lines, "one of them or later". It now says why a newer major has the fix, in the source's
+  own words (Apple's 26.6.2 notes: first available in the macOS 27 beta), or only that it is newer than every macOS
+  named. Verdicts are unchanged.
+- **The Safari and Apple apps row says what its SAFE rests on** (`emudhra-2026-10`). "refused all 12 test hosts
+  through Apple's trust layer; Apple blocks the 12 certificates through valid.apple.com (support.apple.com/en-us/149555);
+  the cert.pem removal is a separate step, for command-line tools". The status logic is unchanged. A caveat: macOS
+  ships Apple's `valid.sqlite` without the six serials, so a Mac that never fetched the update would accept the
+  chains; the live nscurl probe is what catches that, and it reads EXPOSED there. Checked by the suite's O5 oracle:
+  Apple's own `SecTrustEvaluateWithError`, offline, on the 12 chains as served on 16 Nov 2026 (0 of 12 trusted on the
+  Mac measured), must agree with the row host by host.
 
 ### Development (no code in the package changes)
 
+- **The never-a-false-SAFE suite** (`test/never-false-safe/`, run by `npm test`): invariants on generated inputs
+  (`properties`), the operating system as oracle (`oracle`: which file a name opens, which library loads, which
+  certificates a bundle holds, which program PATH runs, whether Apple's trust layer accepts the test chains) and
+  hostile fixture machines (`hostile`), each with a planted mutation that must turn it red. One todo remains, O4 (a
+  non-executable file first on PATH: the shell skips it, Wardlatch names it; no SAFE comes of it), a design question
+  for the owner.
 - Coverage protocol ([docs/COVERAGE-PROTOCOL.md](docs/COVERAGE-PROTOCOL.md)): every Apple macOS fix in the owner's
-  classes (privacy and TCC, sandbox, code signing, trust, privilege, exploited) and every row CISA added to its catalog
-  in the last six months must be named in an incident or declined with a one-line reason and a review date, or
+  classes and every row CISA added to its catalog in the last six months must be named in an incident or declined with
+  a one-line reason, a review date and where the flawed code runs (`runsOn`: server, client, both or unknown), or
   `test/coverage-protocol.test.mjs` fails. It reads a committed snapshot (`scripts/coverage/refresh.mjs` is the one
   network step) and says "no gaps" only from a complete read that names each source. First run, 16 Nov 2026: 442 items
-  in scope, 14 named, 428 declined (32 of them candidates for an incident); before `apple-audio-2026-08` it reported
-  CVE-2026-65339 as a gap.
+  in scope, 14 named, 428 declined; before `apple-audio-2026-08` it reported CVE-2026-65339 as a gap. Same day, three
+  more pieces: a third source, CERT/CC's notes read whole by month; the `equivalence` class (name or path folding:
+  case, Unicode form, links, name constraints) and the `identity` class (an impersonated or forged caller or
+  authority), both read on Apple's Description line too, which the snapshot now keeps; one CVE may be in both and is
+  counted once. From 17 Nov 2026 the Apple read covers every release that runs on a Mac (Safari, Xcode, Mac apps),
+  not only macOS. Each other row is recorded as skipped, and the check fails if a skipped row names macOS
+  ([docs/PATTERNS.md](docs/PATTERNS.md) P4). The macOS-only read had missed Xcode 27.2's and Xcode 27's fixes. Now
+  (refresh of 17 Nov 2026): 1,033 items, 468 in scope, 23 named, 445 declined (47 of them candidates for an incident),
+  no gaps. 28 Mac releases were read, and 37 rows for other Apple devices were skipped. The refresh asked Apple's pages for "text/html,application/json", which Apple answered 404 for Tahoe 26.7's
+  notes, so no refresh could finish; it now asks each source for one type, and retries each request up to 5 times
+  (Apple's pages answer 404 now and then) before it stops loudly with nothing written.
 - Coverage floors: `npm run coverage` now fails below 90% of lines, 80% of branches or 80% of functions of `bin/` and
   `lib/` (it was 80% of lines and functions, with no branch floor). CI measured 99.70% of lines, 93.31% of branches and
   98.82% of functions at 1dfd218. A test fails if a floor is lowered or an exclude is added.
@@ -37,6 +185,26 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
   its tag and compares them with the release's `SHA256SUMS` ([docs/RELEASING.md](docs/RELEASING.md#reproducing-a-release)).
   v0.1.17 and v0.1.18 reproduce byte for byte. A new CI job, `reproducible`, runs it on the newest release and checks
   that the current commit packs to the same bytes from two trees.
+- **npm trusted publishing, with provenance** (`.github/workflows/release.yml`, a new `npm` job). After the
+  `release` job (its approval, tests, attestation and check, and the GitHub release), and after its own approval in
+  the `release` environment, it downloads the npm package from the release. It checks that the file's SHA-256 is the
+  one the release job attested, against the release's `SHA256SUMS` and with `gh attestation verify`, then runs
+  `npm publish --provenance --access public` on that file. It uses GitHub's OIDC token, not an npm token: none is
+  stored, and the job fails if one is set. It needs a one-time setting on npmjs.com by a package owner
+  ([docs/RELEASING.md](docs/RELEASING.md#4-npm-trusted-publishing-from-the-workflow-0119-and-later)). The manual
+  `npm publish`, with 2FA, stays as the fallback.
+- **A signed SBOM per release.** Each release carries `wardlatch-X.Y.Z.spdx.json`, an SPDX 2.3 SBOM of the npm
+  package, bound to the tarball's SHA-256 (`scripts/sbom.mjs`; npm's `npm sbom` where the runner's npm has it). It is
+  attested with `actions/attest-sbom`, pinned by commit, and that attestation is checked before the release. It must
+  list Wardlatch alone, which has no dependencies. `test/release-0.1.19.test.mjs` holds the workflow to both, with a
+  planted mutant of each rule.
+- **The release tarballs committed at the top of the repository are gone**: `wardlatch-0.1.7.tgz`,
+  `wardlatch-0.1.9.tgz` and `wardlatch-0.1.10.tgz`. Each is still attached to its GitHub release
+  ([v0.1.7](https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.7),
+  [v0.1.9](https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.9),
+  [v0.1.10](https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.10)), with its Sigstore bundle, and is on npm
+  (`npm pack wardlatch@0.1.10`). The committed `SHA256SUMS` keeps their three digests unchanged, and says how to check
+  a download against them. GitHub's digest of each release asset matched them on 16 Nov 2026.
 - `test/hardening.test.mjs` runs every offline incident under Node's permission model with reading and child processes
   allowed and nothing else, and requires the same answers as without it; a control shows a write is refused under the
   same flags. [docs/SECURITY-REVIEW.md](docs/SECURITY-REVIEW.md) is a threat model and security review by the project
@@ -2676,7 +2844,8 @@ Published 05:14 UTC. npm `gitHead`: `4d4f295`. The first release.
 npm also lists `0.0.0-stage` (21 October, 05:13 UTC), a 331-byte, two-file placeholder from npm's staged publishing,
 described on npm as a "Temporary package placeholder". It is not a release and holds none of Wardlatch's code.
 
-[Unreleased]: https://github.com/deimos-hq/wardlatch/compare/v0.1.18...main
+[Unreleased]: https://github.com/deimos-hq/wardlatch/compare/v0.1.19...main
+[0.1.19]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.19
 [0.1.18]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.18
 [0.1.17]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.17
 [0.1.16]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.16

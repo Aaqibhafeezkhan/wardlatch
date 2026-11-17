@@ -139,3 +139,17 @@ test('A6 the command on a Mac: EXPOSED exit 1 with the fix, SAFE exit 0, Sonoma 
     assert.match(u.stdout, /^UNKNOWN +macOS Audio/m);
   }
 });
+
+// The coordinator's read of PR #37 (16 Nov 2026): on macOS 27 the SAFE line said "this is one of them or later" of
+// 26.6.2 and 15.8, which are other lines. It now says, in Apple's words, why 27 has the fix; a Tahoe or Sequoia at or
+// past its release says "that release or later"; and a newer major with no such source says only that it is newer.
+test('A7 the SAFE line on macOS 27 says why 27 has the fix, from Apple\'s notes, and never calls 26.6.2 or 15.8 "one of them"', () => {
+  const g = at('27.2.1', '26B131');
+  assert.equal(g.status, 'SAFE');
+  assert.match(g.reason, /and this is macOS 27: Apple's notes for Tahoe 26\.6\.2 say its fixes "were first made available in the macOS Golden Gate 27 beta", and the CVE record names no macOS 27 version as affected, so macOS 27 includes this fix\./);
+  for (const [v, b] of [['27.2.1', '26B131'], ['26.6.2', '25G84'], ['15.8', '24H100']]) assert.doesNotMatch(at(v, b).reason, /one of them or later/, v);
+  assert.match(at('26.7.3', '25H100').reason, /and this is that release or later\./);
+  // the control: without the source's sentence, a newer major is only said to be newer
+  const { newerMajor, ...bare } = INC.appleSystem;
+  assert.match(at('27.2.1', '26B131', { ...INC, appleSystem: bare }).reason, /and this is macOS 27, newer than every macOS that list names\./);
+});

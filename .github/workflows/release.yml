@@ -1,13 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Deimos AI LLC
 #
-# Cut a GitHub release when a v* tag is pushed, and attest what was built. It never publishes to npm: the maintainer
-# publishes the exact npm package attested here (docs/RELEASING.md), so the file on npm can be checked against this
-# run.
+# Cut a GitHub release when a v* tag is pushed, attest what was built, attest its SBOM, and then publish to npm the
+# exact npm package attested here (docs/RELEASING.md), so the file on npm can be checked against this run.
 #
 # Keyless, through Sigstore: the attestation binds each file to the GitHub OIDC identity of this workflow run and
 # commit. There is no signing key to store, leak, lose or hand to a successor. It answers "which workflow, at which
 # commit, built this file", not "was that commit any good"; the tests and review answer that.
+#
+# npm, too, is keyless (0.1.19): npm's trusted publishing takes this run's GitHub OIDC token in place of an npm token,
+# and npm adds its own provenance statement. There is no npm token in this repository's secrets, and this file
+# refers to none. The one-time setup on npmjs.com, which only a package owner can do, is in docs/RELEASING.md.
 name: Release
 on:
   push:
@@ -23,7 +26,12 @@ jobs:
     permissions:
       contents: write        # create the release
       id-token: write        # what lets Sigstore issue a keyless certificate
-      attestations: write    # record the provenance
+      attestations: write    # record the provenance and the SBOM
+    defaults:
+      run: { shell: bash }   # -e and -o pipefail: a failed command in a pipe fails the step
+    outputs:
+      version: ${{ steps.built.outputs.version }}
+      tgz-sha256: ${{ steps.built.outputs.tgz-sha256 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with: { fetch-depth: 0, persist-credentials: false }
@@ -32,7 +40,7 @@ jobs:
 
       # Nothing ships untested.
       - name: Tests
-        run: node --test test/*.test.mjs   # npm test, without npm itself running under these options
+        run: node --test test/*.test.mjs test/never-false-safe/*.test.mjs   # npm test, without npm itself running under these options
         env:
           NODE_OPTIONS: --throw-deprecation --pending-deprecation
 
@@ -46,12 +54,16 @@ jobs:
           echo "VERSION=$pkg" >> "$GITHUB_ENV"
 
       - name: Build the source archive and the npm package
+        id: built
         run: |
           git archive --format=tar.gz --prefix="wardlatch-$GITHUB_REF_NAME/" -o "wardlatch-$GITHUB_REF_NAME.tar.gz" "$GITHUB_REF_NAME"
           npm pack --silent
           test -f "wardlatch-$VERSION.tgz"
           sha256sum "wardlatch-$GITHUB_REF_NAME.tar.gz" "wardlatch-$VERSION.tgz" | tee SHA256SUMS
           awk -v v="$VERSION" '$0 ~ "^## \\[" v "\\]" {on=1; next} on && /^## \[/ {exit} on' CHANGELOG.md > notes.md
+          # the npm job publishes only a file with this digest
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tgz-sha256=$(sha256sum "wardlatch-$VERSION.tgz" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
       - name: Attest what was built
         id: attest
@@ -74,8 +86,36 @@ jobs:
             gh attestation verify "$f" --bundle "$BUNDLE" --repo "$GITHUB_REPOSITORY" --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/release.yml"
           done
 
+      # The SBOM (0.1.19): SPDX 2.3 for the npm package, bound to its SHA-256 (scripts/sbom.mjs). npm's own `npm sbom`
+      # is the base where this npm has it; otherwise the script writes a minimal one. Either way it must list
+      # Wardlatch alone, since it has no dependencies, or the step fails and nothing is published.
+      - name: SBOM of the npm package
+        run: |
+          npm sbom --sbom-format spdx --sbom-type library > npm-sbom.json || { echo "::warning::npm sbom is not available on npm $(npm --version); writing the minimal SBOM"; rm -f npm-sbom.json; }
+          node scripts/sbom.mjs "wardlatch-$VERSION.tgz" "wardlatch-$VERSION.spdx.json" $(test -s npm-sbom.json && echo npm-sbom.json)
+          rm -f npm-sbom.json
+          test -s "wardlatch-$VERSION.spdx.json"
+
+      - name: Attest the SBOM
+        id: attest-sbom
+        uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e  # v4.1.0
+        with:
+          subject-path: wardlatch-${{ env.VERSION }}.tgz
+          sbom-path: wardlatch-${{ env.VERSION }}.spdx.json
+
+      - name: Check the SBOM attestation before publishing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUNDLE: ${{ steps.attest-sbom.outputs.bundle-path }}
+        run: |
+          test -n "$BUNDLE" && test -s "$BUNDLE" || { echo "no SBOM attestation bundle from the attest-sbom step"; exit 1; }
+          gh attestation verify "wardlatch-$VERSION.tgz" --bundle "$BUNDLE" --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/release.yml" --predicate-type https://spdx.dev/Document/v2.3
+          cp "$BUNDLE" "wardlatch-$VERSION.spdx.json.sigstore.json"
+
       # The attestation is also in GitHub's attestation store; the bundle beside the files serves verifiers without
-      # GitHub, and OpenSSF Scorecard, which looks for it there.
+      # GitHub, and OpenSSF Scorecard, which looks for it there. SHA256SUMS keeps naming only the two release files
+      # (scripts/reproduce-release.sh rebuilds exactly those); the SBOM is covered by its own attestation.
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -96,7 +136,73 @@ jobs:
             --deny-self-hosted-runners
           \`\`\`
 
-          See docs/RELEASING.md for the offline check with the attached bundle, and for the signed tag.
+          The npm package's SBOM (SPDX 2.3) is attached as wardlatch-$VERSION.spdx.json, with its own attestation:
+          add \`--predicate-type https://spdx.dev/Document/v2.3\` to the command above. npm shows the package's own
+          provenance on its page, and \`npm audit signatures\` checks it.
+
+          See docs/RELEASING.md for the offline check with the attached bundles, and for the signed tag.
           NOTES
           gh release create "$GITHUB_REF_NAME" --title "wardlatch $VERSION" --notes-file notes.md \
-            "wardlatch-$GITHUB_REF_NAME.tar.gz" "wardlatch-$VERSION.tgz" SHA256SUMS "wardlatch-$VERSION.tgz.sigstore.json"
+            "wardlatch-$GITHUB_REF_NAME.tar.gz" "wardlatch-$VERSION.tgz" SHA256SUMS "wardlatch-$VERSION.tgz.sigstore.json" \
+            "wardlatch-$VERSION.spdx.json" "wardlatch-$VERSION.spdx.json.sigstore.json"
+
+  # npm (0.1.19): runs only after the release job, so after its approval, its tests, both attestations and their
+  # checks, and the GitHub release. It publishes the package from that release, and only when the file is byte for
+  # byte the one the release job attested. It names the release environment because npm's trusted publisher entry
+  # names it, so it waits for its own approval in that environment: the step that cannot be taken back gets its own yes.
+  npm:
+    needs: release
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read         # download the release's files
+      id-token: write        # the OIDC token npm's trusted publishing exchanges for a one-time publish credential
+    defaults:
+      run: { shell: bash }
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with: { node-version: '24' }   # trusted publishing needs npm 11.5.1 or later; Node 22's npm is 10
+
+      # Fail closed: an npm too old for trusted publishing would ask for a token, and a token set here would be used
+      # in OIDC's place. Neither is allowed.
+      - name: npm can publish with this run's OIDC token, and no npm token is set
+        run: |
+          v="$(npm --version)"
+          node -e 'const [a,b,c]=process.argv[1].split(".").map(Number); if (a<11 || (a===11 && (b<5 || (b===5 && c<1)))) { console.error("npm "+process.argv[1]+" is too old for trusted publishing (11.5.1 or later)"); process.exit(1) }' "$v"
+          if [ -n "${NODE_AUTH_TOKEN:-}${NPM_TOKEN:-}" ]; then echo "::error::an npm token is set; this job publishes only through trusted publishing"; exit 1; fi
+          # npm will not print a configured token, so the files that could hold one are read instead
+          for f in "$HOME/.npmrc" "${NPM_CONFIG_USERCONFIG:-}" "${npm_config_userconfig:-}" "$(npm config get globalconfig)" .npmrc; do
+            if [ -f "$f" ] && grep -Eq '(_authToken|_auth|_password)[[:space:]]*=' "$f"; then echo "::error::$f holds an npm credential"; exit 1; fi
+          done
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" || { echo "::error::no OIDC token for this job (id-token: write)"; exit 1; }
+
+      - name: Download the attested package from the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          test -n "$VERSION" && [ "v$VERSION" = "$GITHUB_REF_NAME" ] || { echo "::error::the release job's version ($VERSION) is not the tag's"; exit 1; }
+          gh release download "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" -D pkg \
+            -p "wardlatch-$VERSION.tgz" -p "wardlatch-$VERSION.tgz.sigstore.json" -p SHA256SUMS
+
+      - name: The package is byte for byte the one attested
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.release.outputs.version }}
+          SHA: ${{ needs.release.outputs.tgz-sha256 }}
+        working-directory: pkg
+        run: |
+          [[ "$SHA" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::no SHA-256 from the release job"; exit 1; }
+          echo "$SHA  wardlatch-$VERSION.tgz" | sha256sum -c -
+          grep -qx "$SHA  wardlatch-$VERSION.tgz" SHA256SUMS || { echo "::error::the release's SHA256SUMS names another digest"; exit 1; }
+          gh attestation verify "wardlatch-$VERSION.tgz" --bundle "wardlatch-$VERSION.tgz.sigstore.json" --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/release.yml" --source-ref "$GITHUB_REF" --deny-self-hosted-runners
+
+      - name: Publish to npm with provenance (trusted publishing; no npm token)
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+          SHA: ${{ needs.release.outputs.tgz-sha256 }}
+        working-directory: pkg
+        run: |
+          echo "$SHA  wardlatch-$VERSION.tgz" | sha256sum -c -
+          npm publish "./wardlatch-$VERSION.tgz" --provenance --access public

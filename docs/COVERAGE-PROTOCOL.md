@@ -29,12 +29,17 @@ Each source is read whole for the window, or the check says INCOMPLETE and fails
 
 | Source | What is read | Whole means |
 |---|---|---|
-| `apple-macos` | Apple's security releases index, [support.apple.com/en-us/100100](https://support.apple.com/en-us/100100), and the notes page of every macOS release it lists in the window | the index reaches back past the window's start; every macOS row in the window has its page read (or Apple's own "no published CVE entries"); every CVE number on each page is placed in an entry (`parseNotes` throws otherwise); every entry has its Impact line |
+| `apple-macos` | Apple's security releases index, [support.apple.com/en-us/100100](https://support.apple.com/en-us/100100), and the notes page of every release it lists in the window that runs on a Mac: macOS, and every product whose "Available for" column names macOS (Safari, Xcode, Mac apps; from 17 Nov 2026, [PATTERNS.md](PATTERNS.md) P4) | the index reaches back past the window's start; every Mac row in the window has its page read (or Apple's own "no published CVE entries"); every other row in the window is recorded as skipped with its column, the read and skipped rows add up to the window, and no skipped row names macOS; every CVE number on each page is placed in an entry (`parseNotes` throws otherwise); every entry has its Impact line |
 | `cisa-kev` | CISA's [Known Exploited Vulnerabilities feed](https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json), every row added in the window | the feed's own `count` equals the rows read; the rows kept equal the rows in the window |
+| `cert-vu` | CERT/CC's vulnerability notes, through the VINCE API's monthly listings ([kb.cert.org/vuls/api/YYYY/MM/](https://kb.cert.org/vuls/api/2026/11/)), every month in the window; for each note in the `equivalence` class, its vulnerability rows and its vendors (added 16 Nov 2026) | every month in the window was listed; the notes kept equal the notes in the class; each kept note's rows and vendors were read, so a CVE printed only in a vendor's addendum or a reference is an item |
 
-Read and not covered, by name: Apple's iOS, iPadOS, watchOS, tvOS, visionOS, Safari, Xcode and other non-macOS rows in
-the same index (Wardlatch runs on the Mac and reads no other Apple device; incidents that also affect them say so in
-their output, as `apple-audio-2026-08` does). Not read at all: Linux distributions' security trackers, GitHub's
+Read and not covered, by name: Apple's iOS, iPadOS, watchOS, tvOS, visionOS and other rows in the same index whose
+"Available for" column names no Mac (Wardlatch runs on the Mac and reads no other Apple device; each is in the
+snapshot's `skipped` list, with its column; Safari and Xcode were in this list until 17 Nov 2026, and Xcode 27.2's
+fixes were missed because of it; incidents that also affect them say so in
+their output, as `apple-audio-2026-08` does); and CERT/CC's notes outside the `equivalence` class, which are listed
+and counted but not in scope (77 of the 85 notes from May to 16 Nov 2026; the owner's other classes are not applied to
+them). Not read at all: Linux distributions' security trackers, GitHub's
 advisory database, and the vendors behind the other incidents (Google, Microsoft, Git, GitLab, and the rest). Adding
 one is adding a source here and to `scripts/coverage/refresh.mjs`, with its own "whole means" rule.
 
@@ -49,7 +54,26 @@ owner's list of 16 Nov 2026, plus privilege escalation and anything Apple says m
 - `code-signing`: Gatekeeper and code-signing bypass;
 - `trust`: certificates, trust, TLS, impersonation and spoofing;
 - `privilege`: root, kernel or elevated privileges, and writing protected parts of the file system;
-- `exploited`: Apple's "Apple is aware of a report that this issue may have been exploited".
+- `exploited`: Apple's "Apple is aware of a report that this issue may have been exploited";
+- `equivalence` (16 Nov 2026, [docs/PATTERN-IDENTITY-EQUIVALENCE.md](PATTERN-IDENTITY-EQUIVALENCE.md)): **name or
+  path folding**, a check that compares one notion of a name or a path while the system resolves another: case and
+  Unicode forms of a file name (APFS, HFS+), "case-insensitive", "normalization", path handling and links, name
+  constraints. Matched on Apple's Impact **or Description** line (`EQUIVALENCE` and `APPLE_FOLDING` in
+  `scripts/coverage/check.mjs`), and on a CERT/CC note's title and text. Every CVE number an in-class CERT/CC note
+  prints is an item; a note with none is one item keyed by its VU number;
+- `identity` (16 Nov 2026): **an impersonated or forged caller or authority**, matched on the Impact **and** the
+  Description line: "impersonate", "spoof", "forged", or Apple's "logic issue ... improved checks" together with
+  permission, TCC, privacy or an authorization. The snapshot keeps every entry's Description line; one without it is
+  INCOMPLETE, since this class and `equivalence` would then match nothing there.
+
+The two classes are distinct; one CVE may be in both. An item is one CVE (or one VU note, or one Apple entry without
+a CVE), so the totals the check prints count it once whatever its classes.
+
+Every declined entry says where the flawed code runs, `runsOn`: `server` (a server, an appliance, a hosted service),
+`client` (the machine a person uses: an app, an agent, a desktop, the OS), `both`, or `unknown`. A decline without
+it fails the check. PR #37 declined ScreenConnect's client flaw (CVE-2026-84869) as a "self-hosted server"; the
+re-read of 16 Nov 2026 named it (`screenconnect-2026-09`) and marked the client-side declines Wardlatch could see as
+candidates.
 
 Every row CISA adds to its catalog in the window is in scope as `exploited`, whatever the product.
 
@@ -84,6 +108,29 @@ same sentence, or it is reported as incomplete.
   own.
 - **The window** is six months back from the refresh (`--months`, 1 to 36). An item that leaves the window leaves
   the check; its incident or decline stays as history.
+- **Daily, in CI** (from 0.1.19): `.github/workflows/coverage-sweep.yml` runs the refresh and the check every day at
+  06:17 UTC, and by hand (`workflow_dispatch`, with no inputs, so a manual run does what the schedule does). For each
+  gap it opens or updates one issue, "Coverage gap: <CVE> (<classes>)", labelled `coverage-gap`, identity- and
+  equivalence-class gaps first (`scripts/coverage/gap-issues.mjs`). An issue that was closed while its item is still a
+  gap is reopened. The run fails unless the check passes. Its token has `contents: read` and `issues: write` and
+  nothing else, and it never commits, pushes or opens a pull request: the day's snapshot stays in the runner, and the
+  committed one moves only through a maintainer's refresh. `test/coverage-sweep-0.1.19.test.mjs` holds the workflow
+  to that, with a planted mutant of each rule.
+
+## The metric: from "fix public" to "named"
+
+The time from the day a fix is public (the incident's `fixPublished` date) to the day Wardlatch names it (the commit
+that adds the incident, or the decline that answers it). Attackers can now turn a public fix into a working attack
+within hours, so this is the number that measures whether Wardlatch keeps up.
+
+- **Baseline: 91 days.** Apple's Audio fix CVE-2026-65339 shipped in macOS Tahoe 26.6.2 on 17 Aug 2026, and
+  `apple-audio-2026-08` named it on 16 Nov 2026. The first coverage run found it as a gap; before the protocol nothing
+  would have.
+- **Target: under 24 hours.** The daily sweep files the issue within a day of the source publishing it. The rest is a
+  human writing the incident or the decline.
+
+Every EXPOSED line also says how long its own fix has been public ("fix public for N days (since YYYY-MM-DD)"), so a
+reader sees the same clock.
 
 ## Proving the check can fail
 
@@ -107,3 +154,23 @@ were each caught by this test on 16 Nov 2026.
   Kestra, Gitea, TeamCity, Tomcat). Which become incidents?
 - **D4.** The 31-day age gate and the `reviewBy` dates make CI fail on their own after a missed refresh or triage.
   Keep that, or move the gate to the release workflow only?
+- **D5** (16 Nov 2026). Two Apple fixes are in scope only by the new `equivalence` class (CVE-2026-112511, Screen
+  Sharing links; CVE-2026-84534, archive path handling). Declined until 30 Nov 2026 as D1 declines them. Same answer as
+  D1, or name them?
+- **D6** (16 Nov 2026). Six candidates from the `equivalence` class: libarchive CVE-2026-45110 (no fix released yet),
+  yarn CVE-2026-11313 (no public record yet), node-tar CVE-2026-23950, app-builder CVE-2026-13723, pyca/cryptography
+  CVE-2026-34073, GnuTLS CVE-2026-3833. Which become incidents, and when?
+- **D7** (16 Nov 2026). `setuptools-2026-07` reads EXPOSED for the copies inside Apple's Command Line Tools and Xcode
+  Pythons (setuptools 58.0.4 on the Mac this was written on), which a person cannot update in place. Keep EXPOSED, or
+  make Apple's copies REVIEW, as `git-2026-11` does for Apple's git?
+- **D8** (16 Nov 2026). `deno-2026-06` reads the official installer's `~/.deno/bin/deno` by a constant found in Deno's
+  source (`Deno/<version>+<commit>`), not yet measured on a release build (that needs a download, which needs a yes). A
+  build without it reads UNKNOWN, never SAFE. Measure it on a downloaded release before shipping?
+  **Answered** (the owner, 16 Nov 2026: "yes"). Measured on Deno's official `deno-aarch64-apple-darwin.zip` for 2.7.13
+  and 2.7.14, from Deno's GitHub releases, each verified against the SHA-256 published with it (2.7.13 `e2e63288…5378089`,
+  2.7.14 `aeb5825f…bc9e4bb`); the programs were never run, only read. Each carries the constant once, as
+  `Deno/2.7.13+eea9126` and `Deno/2.7.14+2d674b2`, the short commit run straight into the full one and TypeScript's
+  `5.9.2`, next to a bare `Deno/<version>` (which the `+<commit>` anchor skips). The incident's pattern reads 2.7.13
+  EXPOSED and 2.7.14 SAFE from them in a fixture tree (mise, asdf, `~/.deno/bin/deno` and Homebrew kegs). Homebrew's
+  keg is now judged by the same bytes (the attacker's pass's A3t): a keg whose folder and program name different
+  versions is UNKNOWN. The downloads were deleted afterwards; the tests copy only the bytes' shape.

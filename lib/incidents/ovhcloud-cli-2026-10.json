@@ -3,6 +3,7 @@
   "type": "binaries",
   "title": "OVHcloud CLI releases swapped for a secret-stealer",
   "date": "2026-10-19",
+  "fixPublished": {"date":null,"why":"releases swapped for a secret-stealer, not a flaw with a fixed version"},
   "summary": "For up to 94 minutes on 19 October (12:47 to 14:21 UTC), the release binaries of OVHcloud CLI v0.11.0 to v0.15.0 on GitHub were replaced with a credential stealer (GlassWorm-linked, per OVHcloud). Only people who installed or updated in that window got it; about 250 downloads. Wardlatch never runs the program: it compares the file with the five compromised builds OVHcloud published and looks for the envchecker-NNNNNNNNN folder the stealer leaves in the temp directory every time it runs.",
   "advisory": "https://github.com/ovh/ovhcloud-cli/security/advisories/GHSA-862f-55f5-vmvw",
   "binaries": [

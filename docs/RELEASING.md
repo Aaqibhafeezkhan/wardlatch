@@ -25,19 +25,72 @@ git tag -s vX.Y.Z -m "wardlatch X.Y.Z"
 git push origin vX.Y.Z
 ```
 
-The tag push runs `.github/workflows/release.yml`: the full test suite, a check that the tag matches
-`package.json`, then it builds the source archive (`git archive`) and the npm package (`npm pack`), attests both with
-Sigstore, and publishes a GitHub release with the changelog section as its notes. **If any step fails, no release
-appears.** The workflow never publishes to npm.
+The tag push runs `.github/workflows/release.yml`. Its `release` job waits for a maintainer's approval in the
+`release` environment, then runs the full test suite and a check that the tag matches `package.json`. It builds the
+source archive (`git archive`) and the npm package (`npm pack`), attests both with Sigstore and checks that
+attestation. It writes the npm package's SBOM, attests that and checks it. Then it publishes a GitHub release with
+the changelog section as its notes. **If any step fails, no release appears.** Its `npm` job then publishes that
+release's npm package to npm (below).
+
+### 4. npm: trusted publishing, from the workflow (0.1.19 and later)
+
+The `npm` job needs the `release` job, so it starts only after that job's approval, tests, both attestations and
+their checks, and the GitHub release. It is in the `release` environment too, because npm's trusted publisher entry
+names it, so it waits for its own approval there. Approve it once the GitHub release looks right: it is the step that
+cannot be taken back. It downloads `wardlatch-X.Y.Z.tgz` and its bundle from the release, and checks that the file's
+SHA-256 is the one the `release` job computed and attested, that the release's `SHA256SUMS` names the same digest,
+and that `gh attestation verify` passes for this tag. Then it runs
+`npm publish ./wardlatch-X.Y.Z.tgz --provenance --access public`. Any failure stops it before the publish.
+
+It uses no npm token. npm's trusted publishing exchanges the job's GitHub OIDC token (`id-token: write`, with only
+`contents: read` beside it) for a one-time credential for this package, and npm records its own provenance
+statement for the version. There is no npm token in the repository's secrets, and the job fails if one is set.
+It runs on Node 24, because trusted publishing needs npm 11.5.1 or later and Node 22's npm is 10.
+
+**One-time setup, which only a package owner can do, on npmjs.com.** Until this is done, the `npm` job fails at the
+publish with an authentication error, and nothing is published:
+
+1. Sign in to npmjs.com as an owner of `wardlatch`, with 2FA.
+2. Open the package: npmjs.com/package/wardlatch → **Settings**.
+3. Under **Trusted publishing** (Trusted Publisher), choose **GitHub Actions** and fill in:
+   - Organization or user: `deimos-hq`
+   - Repository: `wardlatch`
+   - Workflow filename: `release.yml`
+   - Environment name: `release`
+4. Save. Then, on the same page, under **Publishing access**, you may require 2FA and disallow tokens: trusted
+   publishing still works, and every other path then needs a person with 2FA.
+
+**The manual path, kept as a fallback** (for when the workflow cannot publish, say npm's OIDC exchange is down).
+It needs an owner's npm login with 2FA, as before; npm asks for the one-time code at the publish:
 
 ```bash
-# 4. Publish to npm the exact package the workflow attested, so what is on npm can be verified.
 gh release download vX.Y.Z -p 'wardlatch-X.Y.Z.tgz' -R deimos-hq/wardlatch
 gh attestation verify wardlatch-X.Y.Z.tgz --repo deimos-hq/wardlatch \
   --signer-workflow deimos-hq/wardlatch/.github/workflows/release.yml --source-ref refs/tags/vX.Y.Z \
   --deny-self-hosted-runners
-npm publish ./wardlatch-X.Y.Z.tgz
+npm publish ./wardlatch-X.Y.Z.tgz          # with 2FA; the exact package the workflow attested
 ```
+
+A version published this way has the workflow's Sigstore attestation, but not npm's provenance statement.
+
+### The SBOM
+
+Each release from 0.1.19 carries `wardlatch-X.Y.Z.spdx.json`, an SPDX 2.3 SBOM of the npm package, and
+`wardlatch-X.Y.Z.spdx.json.sigstore.json`, its attestation (`actions/attest-sbom`, pinned by commit like the other
+actions). `scripts/sbom.mjs` writes it: npm's `npm sbom --sbom-format spdx` is the base where the runner's npm has it,
+and a minimal SPDX document otherwise. Either way the package entry carries the tarball's file name, SHA-256 and npm
+URL, and the step fails unless the SBOM lists Wardlatch alone, since it has no dependencies. `SHA256SUMS` still
+names only the source archive and the npm package, which `scripts/reproduce-release.sh` rebuilds. To check the SBOM's
+attestation:
+
+```bash
+gh attestation verify wardlatch-X.Y.Z.tgz --bundle wardlatch-X.Y.Z.spdx.json.sigstore.json --repo deimos-hq/wardlatch \
+  --signer-workflow deimos-hq/wardlatch/.github/workflows/release.yml --predicate-type https://spdx.dev/Document/v2.3
+```
+
+`test/release-0.1.19.test.mjs` holds the workflow to all of this. It checks the order of the steps, the `npm` job's
+two permissions, the absence of any token, the digest and attestation checks before the publish, the SBOM's
+attestation and attachment, and that every action is pinned by commit. A planted mutant of each rule fails it.
 
 ```bash
 # 5. If the release fixes a draft security advisory, publish it once the package is on npm: the changelog and the
@@ -88,12 +141,14 @@ sha256sum -c SHA256SUMS                  # the files are byte for byte what was 
 ```
 
 That `SHA256SUMS` is the release asset, downloaded beside the release files, and it covers them — including the
-source tarball GitHub builds from the tag. The `SHA256SUMS` committed in the repository is a different file: it
-covers the packed tarballs committed here, so that `shasum -a 256 -c SHA256SUMS` is checkable in a clone with
-nothing downloaded. Repack and regenerate it when a release adds a tarball to the repository:
+source tarball GitHub builds from the tag. The `SHA256SUMS` committed in the repository is a different file: it is
+the record of the npm packages of 0.1.7, 0.1.9 and 0.1.10, which were committed here until 0.1.19 and now live only
+on their GitHub releases. It never changes, and no release adds a tarball to the repository (`.gitignore` keeps
+`npm pack`'s output out). To check one of the three:
 
 ```bash
-shasum -a 256 wardlatch-*.tgz            # append the new line; never type a digest
+gh release download v0.1.10 -p wardlatch-0.1.10.tgz -R deimos-hq/wardlatch
+grep ' wardlatch-0.1.10.tgz$' SHA256SUMS | shasum -a 256 -c
 ```
 
 **0.1.3 and 0.1.4 verify under the repository's earlier name.** The repository moved from
