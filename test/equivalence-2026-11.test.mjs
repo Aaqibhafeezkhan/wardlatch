@@ -58,7 +58,12 @@ const TF_BIN = TF.versionFiles.files[0];
 const rule = (base, f, path) => ({ ...base, files: [{ ...f, path }] });
 const bytes = (content, pad = 0) => { const p = join(fresh('bin'), 'prog'); writeFileSync(p, Buffer.concat([Buffer.alloc(pad, 0xcf), Buffer.from(content, 'latin1'), Buffer.alloc(64, 0)])); return p; };
 const verdict = (base, f, path, os) => checkVersionFiles(rule(base, f, path), { os }).map((r) => [r.status, r.version]);
-const keg = (version) => { const d = fresh('brew'); const cellar = join(d, 'Cellar', 'deno', version); mkdirSync(cellar, { recursive: true }); mkdirSync(join(d, 'opt')); symlinkSync(cellar, join(d, 'opt', 'deno')); return join(d, 'opt', 'deno'); };
+// a keg holds its program (A3t: the keg is judged by the program's bytes, which must agree with its folder's name)
+const keg = (version, inside = version.replace(/_\d+$/, '')) => {
+  const d = fresh('brew'); const cellar = join(d, 'Cellar', 'deno', version); mkdirSync(join(cellar, 'bin'), { recursive: true });
+  writeFileSync(join(cellar, 'bin', 'deno'), Buffer.concat([Buffer.alloc(256, 0xcf), Buffer.from(`Deno/${inside}+a1b2c3d`, 'latin1'), Buffer.alloc(64)]));
+  mkdirSync(join(d, 'opt')); symlinkSync(cellar, join(d, 'opt', 'deno')); return join(d, 'opt', 'deno');
+};
 
 /** The Deno table: every verdict this incident gives, on a Mac and on Linux. `v` is the incident's versionFiles. */
 const denoTable = (v = DENO.versionFiles, F = { keg: DENO_KEG, mise: DENO_MISE, bin: DENO_BIN }) => {
@@ -68,6 +73,7 @@ const denoTable = (v = DENO.versionFiles, F = { keg: DENO_KEG, mise: DENO_MISE, 
   want(verdict(v, F.keg, keg('2.7.14'), 'darwin'), [['SAFE', '2.7.14']], 'keg 2.7.14');
   want(verdict(v, F.keg, keg('2.7.14_1'), 'darwin'), [['SAFE', '2.7.14']], 'a revised keg');
   want(verdict(v, F.keg, keg('2.7.13'), 'linux'), [['SAFE', '2.7.13']], 'keg 2.7.13 on Linux: not affected');
+  want(verdict(v, F.keg, keg('2.7.14', '2.7.13'), 'darwin'), [['UNKNOWN', '']], 'keg: a folder named 2.7.14 holding 2.7.13 (A3t)');
   // mise and asdf (release/0.1.19-candidate, the never-false-safe suite's H9b): the program inside the install folder is
   // read, never the folder's name. A folder named 2.7.14 holding a 2.7.13 deno is EXPOSED; one whose program can't be
   // read, or carries no version, is UNKNOWN
@@ -114,6 +120,8 @@ test('E2m Deno mutation proof: each planted mistake fails the table', () => {
     'the keg revision suffix not stripped': [v, { keg: { ...DENO_KEG, versionFromRealPath: '/Cellar/deno/([^/]+)$' }, mise: DENO_MISE, bin: DENO_BIN }],
     // H9b: mise's Deno judged by the folder it sits in, as before release/0.1.19-candidate
     'mise judged by its folder name (H9b)': [v, { keg: DENO_KEG, mise: { label: 'mise', versionFromRealPath: '/installs/deno/(\\d+\\.\\d+\\.\\d+)/bin/deno$' }, bin: DENO_BIN }],
+    // A3t: Homebrew's keg judged by its folder's name alone, as before release/0.1.19-candidate
+    'the keg judged by its folder name (A3t)': [v, { keg: { ...DENO_KEG, programRe: undefined }, mise: DENO_MISE, bin: DENO_BIN }],
     'mise read whole, not scanned (the cap)': [v, { keg: DENO_KEG, mise: { ...DENO_MISE, scan: false, maxBytes: 64 }, bin: DENO_BIN }],
   };
   assert.ok(allTrue(denoTable()), 'the true rules pass');

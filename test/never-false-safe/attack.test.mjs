@@ -6,7 +6,7 @@
 //   A1 a program that names two versions (a fixed one's text ahead of its own): the first one answered
 //   A2 Terraform built with go-slug replaced (a => line under the dep line): the dep line's version answered
 //   A3 Homebrew's bin/deno leading to an old keg while opt/deno leads to the new one: only opt was read
-//   A3t (todo) Homebrew's keg folder named for the fix, over a program that isn't: the folder's name answers
+//   A3t Homebrew's keg folder named for the fix, over a program that isn't: the folder's name answered (fixed: the bytes, D8)
 //   A4 a PATH entry written ~/bin, which bash and /bin/sh search: dropped as relative, and its php never checked
 //   A5 SSL_CERT_FILE set in a shell start-up file, absent from the run's environment: cert.pem read in the control's place
 //   A6 a PYTHONPATH folder holding a stealer's install record or an old setuptools: never searched
@@ -104,9 +104,56 @@ test('A3 Homebrew\'s bin/deno, the one a shell runs, leading to an older keg tha
   assert.deepEqual(statusOf(brewRows(brew(T.fresh('a3m'), ['2.7.13', '2.7.14'], '2.7.14', '2.7.13'), optOnly)), [['SAFE', '2.7.14']]);
 });
 
-test('A3t Homebrew\'s Deno keg named 2.7.14 holding a 2.7.13 program is not SAFE', todo('A3t Homebrew keg name'), () => {
-  const rows = brewRows(brew(T.fresh('a3t'), ['2.7.14'], '2.7.14', '2.7.14', () => prog('Deno/2.7.13+abcdef0')));
-  assert.ok(rows.length && rows.every((r) => r.status !== 'SAFE'), JSON.stringify(rows));
+/** The bytes around the version constant as Deno's own release builds lay them out (measured on the official 2.7.13 and
+ *  2.7.14 macOS arm64 zips, 16 Nov 2026, COVERAGE-PROTOCOL D8): the release channels, the version, a bare Deno/<v>, then
+ *  Deno/<v>+<short commit> run straight into the full commit and TypeScript's version, no separator. The shape only:
+ *  the commits here are made up, and the 100 MB programs themselves are not in the repository. */
+const denoShape = (v, short = 'abcdef0', full = '0123456789abcdef0123456789abcdef01234567') => Buffer.concat([
+  Buffer.alloc(512, 0xcf), Buffer.from(`S - stablecanaryrclts${v}denover${v}+${short}Deno/${v}Deno/${v}+${short}${full}5.9.2\n\nFallback failed: `, 'latin1'), Buffer.alloc(300, 0),
+]);
+
+test('A3t Homebrew\'s Deno is judged by the program in the keg: a keg named 2.7.14 holding a 2.7.13 program is UNKNOWN, never SAFE', () => {
+  // the shape reads as the release builds read (genuinely): one version, the program's own
+  assert.deepEqual(statusOf(brewRows(brew(T.fresh('a3t-ok'), ['2.7.14'], '2.7.14', '2.7.14', denoShape))), [['SAFE', '2.7.14']]);
+  assert.deepEqual(statusOf(brewRows(brew(T.fresh('a3t-old'), ['2.7.13'], '2.7.13', '2.7.13', denoShape))), [['EXPOSED', '2.7.13']]);
+  // the keg's folder says 2.7.14 and the program says 2.7.13: reached by opt/deno and bin/deno alike, and by bin/deno alone
+  const lie = brewRows(brew(T.fresh('a3t'), ['2.7.14'], '2.7.14', '2.7.14', () => denoShape('2.7.13')));
+  assert.deepEqual(statusOf(lie), [['UNKNOWN', '']], JSON.stringify(lie));
+  assert.match(lie[0].reason, /keg folder named 2\.7\.14, but the program in it \(.*\/Cellar\/deno\/2\.7\.14\/bin\/deno\) says 2\.7\.13/);
+  assert.deepEqual(statusOf(brewRows(brew(T.fresh('a3t-bin'), ['2.7.14'], null, '2.7.14', () => denoShape('2.7.13')))), [['UNKNOWN', '']]);
+  // the other way round is not an answer either: folder and bytes disagree, so which one runs is not known
+  assert.deepEqual(statusOf(brewRows(brew(T.fresh('a3t-rev'), ['2.7.13'], '2.7.13', null, () => denoShape('2.7.14')))), [['UNKNOWN', '']]);
+  // a revised keg (2.7.14_1) holding 2.7.14 is that release (genuinely SAFE)
+  assert.deepEqual(statusOf(brewRows(brew(T.fresh('a3t-r1'), ['2.7.14_1'], '2.7.14_1', '2.7.14_1', () => denoShape('2.7.14')))), [['SAFE', '2.7.14']]);
+  // a keg with no program in it, one with no constant, one naming two versions, one that can't be read: UNKNOWN
+  const empty = T.fresh('a3t-empty'); mkdirSync(join(empty, 'opt', 'homebrew', 'Cellar', 'deno', '2.7.14'), { recursive: true });
+  mkdirSync(join(empty, 'opt', 'homebrew', 'opt'), { recursive: true }); symlinkSync('../Cellar/deno/2.7.14', join(empty, 'opt', 'homebrew', 'opt', 'deno'));
+  assert.deepEqual(statusOf(brewRows(empty)), [['UNKNOWN', '']]);
+  assert.deepEqual(statusOf(brewRows(brew(T.fresh('a3t-none'), ['2.7.14'], '2.7.14', null, () => prog('deno 2.7.14 (stable)')))), [['UNKNOWN', '']]);
+  assert.deepEqual(statusOf(brewRows(brew(T.fresh('a3t-two'), ['2.7.14'], '2.7.14', null, () => Buffer.concat([denoShape('2.7.14'), denoShape('2.7.13')])))), [['UNKNOWN', '']]);
+  if (process.getuid?.() !== 0) {
+    const locked = brew(T.fresh('a3t-lock'), ['2.7.14'], '2.7.14', null, denoShape);
+    const p = join(locked, 'opt', 'homebrew', 'Cellar', 'deno', '2.7.14', 'bin', 'deno');
+    chmodSync(p, 0o000);
+    try { assert.deepEqual(statusOf(brewRows(locked)), [['UNKNOWN', '']]); } finally { chmodSync(p, 0o644); }
+  }
+});
+
+test('A3tm mutation proof: with the keg\'s program not read, or a disagreement let through, A3t\'s keg reads SAFE', async () => {
+  const lying = () => brew(T.fresh('a3tm'), ['2.7.14'], '2.7.14', '2.7.14', () => denoShape('2.7.13'));
+  const homebrew = DENO.versionFiles.files.filter((f) => f.label.startsWith('Homebrew'));
+  for (const [from, to, what] of [
+    ['if (f.programRe) {', 'if (false) {', 'the program not read (the folder name answers)'],
+    ['said.length > 1 || said[0] !== v ?', 'said.length > 1 ?', 'a program naming another version than its folder let through'],
+  ]) {
+    const get = await mutatedLib(T.dir, 'installs.mjs', from, to);
+    const { checkVersionFiles: cvf } = await get('installs.mjs');
+    assert.deepEqual(statusOf(cvf({ ...DENO.versionFiles, files: homebrew }, { root: lying(), os: 'darwin' })), [['SAFE', '2.7.14']], `mutant survived: ${what}`);
+  }
+  // and the incident's own rule: Homebrew's entries with programRe dropped read the folder's name again
+  const byName = homebrew.map(({ programRe, programIn, ...f }) => f);
+  assert.ok(homebrew.every((f) => f.programRe), 'every Homebrew entry reads the program');
+  assert.deepEqual(statusOf(checkVersionFiles({ ...DENO.versionFiles, files: byName }, { root: lying(), os: 'darwin' })), [['SAFE', '2.7.14']], 'mutant survived: programRe dropped from the incident');
 });
 
 // ---------------------------------------------------------------- A4 a PATH entry written ~/bin

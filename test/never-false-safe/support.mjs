@@ -155,10 +155,10 @@ export const realLib = (m) => import(pathToFileURL(join(ROOT, 'lib', m)).href);
 /** Tests that FAIL today, each with the reason and the branch whose landing is to turn it green. Run as node:test todo
  *  tests: a todo that fails is reported and does not fail the run; one that passes is reported too, so it is noticed.
  *  release/0.1.19-candidate: c2, c3, H11, H12 (fix/no-stale-safe's lib), b4d (lib/installs.mjs) and H9b
- *  (deno-2026-06 reads mise's and asdf's program) are real tests now, each with a planted mutation that turns it red. */
+ *  (deno-2026-06 reads mise's and asdf's program) are real tests now, each with a planted mutation that turns it red;
+ *  so is A3t (Homebrew's keg judged by its program's bytes, the constant measured on Deno's release builds, D8). */
 export const KNOWN_FAILING = {
   'O4 PATH non-executable': 'lib/binaries.mjs findAllOnPath takes the first regular file of the name on PATH, executable or not; the shell skips a file it cannot execute. With a mode 644 php first on PATH, Wardlatch names that file as the one that runs and the shell runs the next one. No SAFE comes of it today (the next copy is still run or reported not run), so it is left for the owner',
-  'A3t Homebrew keg name': 'deno-2026-06 reads Homebrew\'s Deno by its keg folder\'s name (Cellar/deno/<version>), never by the program\'s bytes. Reading the bytes needs the Deno/<version>+<commit> constant measured on a release build first (COVERAGE-PROTOCOL D8): without it every Homebrew Deno would read UNKNOWN. The owner\'s call',
   'A7t pnpm alias': 'lib/lockfiles.mjs readPnpm reads only the packages and snapshots sections; a dependency installed under a listed name from another package is named only in importers (and in its dependents\' snapshots), so it pins nothing and reads SAFE. Reading importers is a new parser for a section of another shape; left for the owner',
 };
 export const todo = (key) => ({ todo: `KNOWN-FAILING: ${KNOWN_FAILING[key]}` });

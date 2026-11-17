@@ -141,3 +141,11 @@ were each caught by this test on 16 Nov 2026.
 - **D8** (16 Nov 2026). `deno-2026-06` reads the official installer's `~/.deno/bin/deno` by a constant found in Deno's
   source (`Deno/<version>+<commit>`), not yet measured on a release build (that needs a download, which needs a yes). A
   build without it reads UNKNOWN, never SAFE. Measure it on a downloaded release before shipping?
+  **Answered** (the owner, 16 Nov 2026: "yes"). Measured on Deno's official `deno-aarch64-apple-darwin.zip` for 2.7.13
+  and 2.7.14, from Deno's GitHub releases, each verified against the SHA-256 published with it (2.7.13 `e2e63288…5378089`,
+  2.7.14 `aeb5825f…bc9e4bb`); the programs were never run, only read. Each carries the constant once, as
+  `Deno/2.7.13+eea9126` and `Deno/2.7.14+2d674b2`, the short commit run straight into the full one and TypeScript's
+  `5.9.2`, next to a bare `Deno/<version>` (which the `+<commit>` anchor skips). The incident's pattern reads 2.7.13
+  EXPOSED and 2.7.14 SAFE from them in a fixture tree (mise, asdf, `~/.deno/bin/deno` and Homebrew kegs). Homebrew's
+  keg is now judged by the same bytes (the attacker's pass's A3t): a keg whose folder and program name different
+  versions is UNKNOWN. The downloads were deleted afterwards; the tests copy only the bytes' shape.
