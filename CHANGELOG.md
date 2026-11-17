@@ -64,6 +64,12 @@ cut lockfile or dpkg status file, and a Mac at Apple's newest release once Wardl
   gap ("Coverage gap: <CVE> (<classes>)", label `coverage-gap`) with the job's own token, `contents: read` and
   `issues: write` only. It never commits, pushes or opens a pull request. The metric is "fix public → named":
   baseline 91 days, target under 24 hours ([docs/COVERAGE-PROTOCOL.md](docs/COVERAGE-PROTOCOL.md)).
+- **Bridge advice for a bundled Brotli** ([docs/BRIDGE-BROTLI.md](docs/BRIDGE-BROTLI.md)). When Pillow, opencv-python or
+  opencv-contrib-python carries a Brotli decoder without the fix and has shipped no fixed release, the EXPOSED line's fix
+  adds "While no fixed release exists:" and points to an opt-in, reversible swap for Homebrew's fixed Brotli, on a
+  Mac. The page gives exact commands, a backup first, a check and an undo, and warns that a reinstall reverts the swap.
+  Text only: Wardlatch changes nothing. The commands were run on copies of the two packages' `.dylibs` folders, never
+  on the installed ones, and the undo gave back the original files byte for byte.
 - **Class first**: the coverage report and the gap issues list identity- and equivalence-class gaps before the others.
 - **Two new patterns, P8 and P9** ([docs/PATTERNS.md](docs/PATTERNS.md)). P8: a self-erasing compromise (a commit
   reverted, its run and logs deleted) is not "never ran", so an incident of that kind must read history and say UNKNOWN

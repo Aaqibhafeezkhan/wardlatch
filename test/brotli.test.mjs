@@ -2729,10 +2729,14 @@ test('site-packages: every copy found, owned through RECORD (both owners of a sh
   });
   const row = (rel) => rows.find((r) => r.file === join(sp, rel));
   // a bundled copy with no fixed release yet: EXPOSED, and the fix says what to do until one ships
-  assert.equal(row('PIL/.dylibs/libbrotlidec.1.2.0.dylib').fix, INC.dists.pillow.fix);
+  // 0.1.19 (the machine-speed moves, 3): and points to the opt-in bridge, docs/BRIDGE-BROTLI.md
+  assert.equal(row('PIL/.dylibs/libbrotlidec.1.2.0.dylib').fix, `${INC.dists.pillow.fix} While no fixed release exists: ${INC.dists.pillow.bridge}`);
   assert.match(INC.dists.pillow.fix, /^No Pillow release had a fixed Brotli on 10 November 2026 \(the newest on PyPI, 13\.0\.0, came out on 16 October, before Brotli's fix of 21 October\): update Pillow when one ships/);
   const cv = row('cv2/.dylibs/libbrotlidec.1.1.0.dylib');
-  assert.match(cv.fix, /^No (opencv-python|opencv-contrib-python) release had a fixed Brotli on 10 November 2026 \([^)]*\): update \1 when one ships, since this copy is fixed by an \1 release with a fixed Brotli\.$/);
+  assert.match(cv.fix, /^No (opencv-python|opencv-contrib-python) release had a fixed Brotli on 10 November 2026 \([^)]*\): update \1 when one ships, since this copy is fixed by an \1 release with a fixed Brotli\. While no fixed release exists: an opt-in, reversible swap .* docs\/BRIDGE-BROTLI\.md/);
+  // a package whose fixed release is out gets no bridge: Brotli's own binding, and the general fix
+  assert.doesNotMatch(row('_brotli.cpython-314-darwin.so').fix, /BRIDGE-BROTLI/);
+  assert.doesNotMatch(row('otherpkg.libs/libbrotlidec-0f0f0f0f.so.1.0.9').fix, /BRIDGE-BROTLI/);
   assert.match(cv.owner, /opencv-python 5\.0\.0\.93/); assert.match(cv.owner, /opencv-contrib-python 5\.0\.0\.93/);
   assert.match(row('_brotli.cpython-314-darwin.so').fix, /'Brotli>=1\.2\.1'/);
   assert.match(row('examplepkg/driver/node').fix, /Node\.js runtime that examplepkg carries/);
