@@ -59,6 +59,12 @@ cut lockfile or dpkg status file, and a Mac at Apple's newest release once Wardl
   long the fix has been out. Every incident file carries `fixPublished`, the advisory's date with its source. Where
   there is no fixed release (a malicious release, a leaked key, a compromised authority) it carries no date and the
   reason, and the line says "fix date unknown". "Today" is the same as every other date check's (`lib/clock.mjs`).
+- **A daily coverage sweep in CI** (`.github/workflows/coverage-sweep.yml`, `scripts/coverage/gap-issues.mjs`). Every
+  day, and by hand with no inputs, it reads the sources and runs the coverage check. It opens or updates one issue per
+  gap ("Coverage gap: <CVE> (<classes>)", label `coverage-gap`) with the job's own token, `contents: read` and
+  `issues: write` only. It never commits, pushes or opens a pull request. The metric is "fix public → named":
+  baseline 91 days, target under 24 hours ([docs/COVERAGE-PROTOCOL.md](docs/COVERAGE-PROTOCOL.md)).
+- **Class first**: the coverage report and the gap issues list identity- and equivalence-class gaps before the others.
 - **Two new patterns, P8 and P9** ([docs/PATTERNS.md](docs/PATTERNS.md)). P8: a self-erasing compromise (a commit
   reverted, its run and logs deleted) is not "never ran", so an incident of that kind must read history and say UNKNOWN
   when history is absent. P9: the fixed version is not the fixed state (a fix that is a setting, or residue an update

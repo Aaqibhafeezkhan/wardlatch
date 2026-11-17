@@ -108,6 +108,29 @@ same sentence, or it is reported as incomplete.
   own.
 - **The window** is six months back from the refresh (`--months`, 1 to 36). An item that leaves the window leaves
   the check; its incident or decline stays as history.
+- **Daily, in CI** (from 0.1.19): `.github/workflows/coverage-sweep.yml` runs the refresh and the check every day at
+  06:17 UTC, and by hand (`workflow_dispatch`, with no inputs, so a manual run does what the schedule does). For each
+  gap it opens or updates one issue, "Coverage gap: <CVE> (<classes>)", labelled `coverage-gap`, identity- and
+  equivalence-class gaps first (`scripts/coverage/gap-issues.mjs`). An issue that was closed while its item is still a
+  gap is reopened. The run fails unless the check passes. Its token has `contents: read` and `issues: write` and
+  nothing else, and it never commits, pushes or opens a pull request: the day's snapshot stays in the runner, and the
+  committed one moves only through a maintainer's refresh. `test/coverage-sweep-0.1.19.test.mjs` holds the workflow
+  to that, with a planted mutant of each rule.
+
+## The metric: from "fix public" to "named"
+
+The time from the day a fix is public (the incident's `fixPublished` date) to the day Wardlatch names it (the commit
+that adds the incident, or the decline that answers it). Attackers can now turn a public fix into a working attack
+within hours, so this is the number that measures whether Wardlatch keeps up.
+
+- **Baseline: 91 days.** Apple's Audio fix CVE-2026-65339 shipped in macOS Tahoe 26.6.2 on 17 Aug 2026, and
+  `apple-audio-2026-08` named it on 16 Nov 2026. The first coverage run found it as a gap; before the protocol nothing
+  would have.
+- **Target: under 24 hours.** The daily sweep files the issue within a day of the source publishing it. The rest is a
+  human writing the incident or the decline.
+
+Every EXPOSED line also says how long its own fix has been public ("fix public for N days (since YYYY-MM-DD)"), so a
+reader sees the same clock.
 
 ## Proving the check can fail
 

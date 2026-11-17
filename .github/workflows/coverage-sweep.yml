@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Deimos AI LLC
+#
+# The daily coverage sweep (docs/COVERAGE-PROTOCOL.md; the machine-speed moves, release/0.1.19-candidate). Every day
+# it reads the sources (scripts/coverage/refresh.mjs: Apple's pages for every Mac release, CISA's KEV feed, CERT/CC)
+# and runs the coverage check on that fresh read. For each in-class fix that no incident names and no decline covers,
+# it opens or updates one issue ("Coverage gap: <CVE> (<classes>)", label coverage-gap). A human then writes the
+# incident or the decline. The metric is the time from "fix public" to "Wardlatch names it".
+#
+# It reads and files issues, and nothing else. It never commits, pushes, or opens a pull request: the snapshot it
+# reads stays in the runner. Its token can read the repository and write issues, no more. It takes no inputs, so a
+# manual run does exactly what the schedule does (the answers to OSPS-BR-01 depend on that).
+name: Coverage sweep
+on:
+  schedule:
+    - cron: '17 6 * * *'     # every day, 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read         # check out the incidents and the declined list
+      issues: write          # open, edit and reopen the gap issues
+    defaults:
+      run: { shell: bash }   # -e and -o pipefail
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with: { node-version: '22' }
+
+      # The one network step. A source not read whole stops it here, loudly, with nothing written.
+      - name: Read the sources (Apple, CISA KEV, CERT/CC)
+        run: node scripts/coverage/refresh.mjs --out "$RUNNER_TEMP/coverage-snapshot.json"
+
+      # The check on that read. It exits 1 on a gap, an expired decline or an incomplete read; the next step decides.
+      - name: The coverage check on today's read
+        run: |
+          node scripts/coverage/check.mjs --snapshot "$RUNNER_TEMP/coverage-snapshot.json" | tee "$RUNNER_TEMP/coverage-report.txt" || true
+          node scripts/coverage/check.mjs --snapshot "$RUNNER_TEMP/coverage-snapshot.json" --json > "$RUNNER_TEMP/coverage-check.json" || true
+          test -s "$RUNNER_TEMP/coverage-check.json"
+
+      # One issue per gap, identity- and equivalence-class gaps first. Fails the run unless the check passed, so an
+      # incomplete read, an expired decline or a gap stays red until a human acts.
+      - name: Open or update one issue per gap
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/coverage/gap-issues.mjs "$RUNNER_TEMP/coverage-check.json" --repo "$GITHUB_REPOSITORY"
