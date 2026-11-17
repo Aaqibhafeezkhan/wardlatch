@@ -178,10 +178,10 @@ test('M6 the command on a Mac: EXPOSED exit 1 with the CISA lines and the fix, R
   assert.equal(beta.status, 0, beta.stdout); assert.deepEqual(JSON.parse(beta.stdout).results.map((x) => [x.status, x.build]), [['REVIEW', '26C5035r']]);
   const s = cli('27.2.1', ['--json']);
   assert.equal(s.status, 0); assert.deepEqual(JSON.parse(s.stdout).results.map((x) => x.status), ['SAFE']);
-  // fix/no-stale-safe: the same Mac 30 days after the list was read is REVIEW, through the command, with the reason
-  const old = cli('27.2.1', [], undefined, undefined, Date.parse('2026-12-13T12:00:00Z'));
+  // fix/no-stale-safe: the same Mac 31 days after the list was read is REVIEW, through the command, with the reason
+  const old = cli('27.2.1', [], undefined, undefined, Date.parse('2026-12-14T12:00:00Z'));
   assert.equal(old.status, 0, old.stdout); assert.match(old.stdout, /^REVIEW +macOS 27\.2\.1 /m);
-  assert.match(old.stdout, /Wardlatch's list of Apple releases is 30 days old/); assert.match(old.stdout, /check: Open System Settings, General, Software Update/);
+  assert.match(old.stdout, /Wardlatch's list of Apple releases is 31 days old/); assert.match(old.stdout, /check: Open System Settings, General, Software Update/);
   // a build Apple doesn't give a release, through the command
   const odd = cli('27.3', ['--json'], '26C5035R');
   assert.deepEqual(JSON.parse(odd.stdout).results.map((x) => x.status), ['REVIEW']);

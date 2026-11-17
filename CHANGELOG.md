@@ -14,7 +14,7 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
 ### Fixed
 
 - **No SAFE from a stale list of Apple releases** (`macos-2026-11`, `lib/clock.mjs`). A SAFE there means "at the newest
-  release Wardlatch knows", read from Apple's index on 13 Nov 2026. Once that list is more than 21 days old, a Mac at
+  release Wardlatch knows", read from Apple's index on 13 Nov 2026. Once that list is more than 30 days old, a Mac at
   its newest release reads REVIEW and says how old the list is and to check Software Update. Today's date is the
   later of the clock and the newest change to macOS's own update files, so a clock set back can't keep it SAFE.
 - **ConnectWise ScreenConnect client, CVE-2026-84869** (`screenconnect-2026-09`, CISA KEV 11 Sep 2026). Wrongly

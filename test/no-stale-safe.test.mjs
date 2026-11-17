@@ -3,7 +3,7 @@
 // fix/no-stale-safe (the pattern review of 16 Nov 2026): a SAFE that means "at the newest release Wardlatch knows" must
 // not outlive the list it rests on. macos-2026-11's list of Apple releases was read on 13 Nov 2026; Apple had release
 // candidates of Tahoe 26.7.4 and Sequoia 15.8.4 out, and when they ship, a Mac on 26.7.3 is behind. Once the list is
-// more than STALE_AFTER_DAYS (21) old, a Mac at its newest release is REVIEW, and "today" is the later of the clock and
+// more than STALE_AFTER_DAYS (30) old, a Mac at its newest release is REVIEW, and "today" is the later of the clock and
 // the newest system update file, so a clock set back can't keep it SAFE. Each rule has a planted mutation, applied to a
 // copy of lib/, that must turn the verdict table red.
 import './support/no-real-home.cjs';
@@ -26,39 +26,39 @@ let dir;
 before(() => { dir = realpathSync(mkdtempSync(join(tmpdir(), 'wardlatch-stale-'))); });
 after(() => rmSync(dir, { recursive: true, force: true }));
 
-test('S0 one named constant, 21 days; the list date is recorded in the incident; the clock reads system update files on both platforms', () => {
-  assert.equal(STALE_AFTER_DAYS, 21);
+test('S0 one named constant, 30 days; the list date is recorded in the incident; the clock reads system update files on both platforms', () => {
+  assert.equal(STALE_AFTER_DAYS, 30);
   assert.equal(INC.latestListed, '2026-11-13');
   assert.ok(CLOCK_FILES.darwin.includes('/System/Library/CoreServices/SystemVersion.plist'));
   assert.ok(CLOCK_FILES.linux.length >= 3);
-  assert.equal(listAgeDays('2026-11-13', day(20)), 20);
+  assert.equal(listAgeDays('2026-11-13', day(29)), 29);
   assert.ok(Number.isNaN(listAgeDays('13 Nov 2026', day(1))) && Number.isNaN(listAgeDays(undefined, day(1))));
 });
 
 // the three cases the review asked for, plus the clock set before the list: [what, today, version, want]
 const TABLE = [
-  ['20 days', () => clockAt(20), '26.7.3', 'SAFE'],
-  ['21 days (the limit itself)', () => clockAt(21), '26.7.3', 'SAFE'],
-  ['22 days', () => clockAt(22), '26.7.3', 'REVIEW'],
-  ['clock set back to 3 days, a system file changed at 22', () => clockAt(3, { file: 22 }), '26.7.3', 'REVIEW'],
+  ['29 days', () => clockAt(29), '26.7.3', 'SAFE'],
+  ['30 days (the limit itself)', () => clockAt(30), '26.7.3', 'SAFE'],
+  ['31 days', () => clockAt(31), '26.7.3', 'REVIEW'],
+  ['clock set back to 3 days, a system file changed at 31', () => clockAt(3, { file: 31 }), '26.7.3', 'REVIEW'],
   ['clock set before the list was read', () => clockAt(-5), '26.7.3', 'REVIEW'],
-  ['a newer major than every line, at 22 days', () => clockAt(22), '28.0', 'REVIEW'],
+  ['a newer major than every line, at 31 days', () => clockAt(31), '28.0', 'REVIEW'],
 ];
 const verdicts = (row, nowOf = (f) => f()) => TABLE.every(([, f, v, want]) => row(INC, v, 'darwin', '25H100', { today: nowOf(f) }).status === want);
 
-test('S1 age 20 and 21 days: SAFE; 22: REVIEW, saying how old the list is and to check Software Update', () => {
+test('S1 age 29 and 30 days: SAFE; 31: REVIEW, saying how old the list is and to check Software Update', () => {
   for (const [what, f, v, want] of TABLE) assert.equal(macosUpdateRow(INC, v, 'darwin', '25H100', { today: f() }).status, want, what);
-  const r = macosUpdateRow(INC, '26.7.3', 'darwin', '25H100', { today: clockAt(22) });
-  assert.match(r.reason, /at or past 26\.7\.3, Apple's latest security release for macOS Tahoe 26 \(9 Nov 2026\); but Wardlatch's list of Apple releases is 22 days old \(read 2026-11-13; today's date from the system clock\), and a newer release may have come out since; check Software Update$/);
+  const r = macosUpdateRow(INC, '26.7.3', 'darwin', '25H100', { today: clockAt(31) });
+  assert.match(r.reason, /at or past 26\.7\.3, Apple's latest security release for macOS Tahoe 26 \(9 Nov 2026\); but Wardlatch's list of Apple releases is 31 days old \(read 2026-11-13; today's date from the system clock\), and a newer release may have come out since; check Software Update$/);
   assert.equal(r.fix, INC.fixStale); assert.match(r.fix, /Software Update/);
   assert.equal(r.stale, true); assert.equal(r.searched, undefined, 'a REVIEW carries no SAFE receipt');
 });
 
 test('S2 a clock set back can\'t keep it SAFE: a system file changed later than the clock is today', () => {
-  const t = clockAt(3, { file: 22 });
-  assert.equal(t.now, day(22)); assert.equal(t.from, 'the modification time of /fake/SystemVersion.plist');
+  const t = clockAt(3, { file: 31 });
+  assert.equal(t.now, day(31)); assert.equal(t.from, 'the modification time of /fake/SystemVersion.plist');
   const r = macosUpdateRow(INC, '26.7.3', 'darwin', '25H100', { today: t });
-  assert.equal(r.status, 'REVIEW'); assert.match(r.reason, /22 days old .*today's date from the modification time of \/fake\/SystemVersion\.plist/);
+  assert.equal(r.status, 'REVIEW'); assert.match(r.reason, /31 days old .*today's date from the modification time of \/fake\/SystemVersion\.plist/);
   // the control: the same set-back clock with no later file reads SAFE, so it is the file that made the difference
   assert.equal(macosUpdateRow(INC, '26.7.3', 'darwin', '25H100', { today: clockAt(3) }).status, 'SAFE');
   // an older file never moves today back
@@ -82,8 +82,8 @@ test('S3 fails closed: no list date, or a clock before it, is REVIEW; EXPOSED an
     assert.equal(macosUpdateRow(INC, '14.8.9', 'darwin', '23J100', { today: clockAt(n) }).status, 'REVIEW');
   }
   // the staleness reason itself, from the helper
-  assert.equal(staleList('2026-11-13', clockAt(21), { what: 'x', check: 'y' }), null);
-  assert.equal(staleList('2026-11-13', clockAt(22), { what: 'x', check: 'y' }).days, 22);
+  assert.equal(staleList('2026-11-13', clockAt(30), { what: 'x', check: 'y' }), null);
+  assert.equal(staleList('2026-11-13', clockAt(31), { what: 'x', check: 'y' }).days, 31);
 });
 
 // S4: the planted mutations. Each is a change a careless edit could make, applied as text to a copy of lib/; each must
