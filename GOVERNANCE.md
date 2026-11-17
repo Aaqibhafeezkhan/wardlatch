@@ -27,11 +27,11 @@ pull requests that pass CI", has covered `main`, with nobody allowed to bypass i
 reaches `main` only through a pull request, and only after 13 checks pass: the tests on Node 18, 20 and 22 on Linux
 and macOS (six), the Mac fix job on macOS and on Linux (its checksum; on macOS its harness on copies of a vendored
 macOS `cert.pem` and the one-root shapes, on Linux that it refuses to run), coverage, ShellCheck, REUSE licence and
-DCO sign-off checks, and CodeQL's analysis. `main` can't be deleted or force-pushed. The ruleset requires 0 approving reviews, so there is
-still no second reviewer: an author can merge their own pull request once the checks pass. A second ruleset lets only
+DCO sign-off checks, and CodeQL's analysis. `main` can't be deleted or force-pushed. Since 16 November 2026 the ruleset also requires
+one approving review: a pull request reaches `main` only after someone other than its author approves it, under the
+checklist in [CONTRIBUTING.md](CONTRIBUTING.md#review-standards). A second ruleset lets only
 admins create, move or delete release tags (`v*`). OpenSSF Scorecard runs on pushes to `main` and weekly, and is not
-a required check. Requiring an approving review from someone other than the author, as Deimos's Crimp and Ratchet
-do, is on the [roadmap](ROADMAP.md).
+a required check. Nobody, the admins included, can bypass either rule.
 
 ## Continuity
 

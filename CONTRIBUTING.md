@@ -133,6 +133,28 @@ a check that runs locally (a trust probe, a version rule, a file or plugin rule)
 State only what the source supports, and credit it. When an advisory changes (a fixed version ships, a test host
 moves), the incident file changes with a dated line in the changelog.
 
+## Review standards
+
+Every pull request needs one approving review from someone other than its author before it can merge into `main`
+(the repository ruleset enforces this, admins included). The reviewer checks, and says in the review which of these
+they checked:
+
+1. **Never a false SAFE.** Any new or changed check returns UNKNOWN, not SAFE, when it cannot tell: an unreadable
+   version, an unknown release line, a missing file, a parse error. Look for the branch that would wrongly say SAFE.
+2. **Read-only and local.** The shipped code writes, moves and deletes nothing and changes nothing on the machine;
+   only `lib/probe.mjs` opens network connections, and it sends nothing (see Coding standards).
+3. **Sources.** Every incident cites the vendor's own advisory or the CVE record, with the fixed versions as the vendor
+   states them. "Exploited" appears only if the CVE is in CISA's Known Exploited Vulnerabilities catalog.
+4. **Tests that can fail.** New behaviour has tests, and the author shows each one failing on a planted mistake
+   (a mutation) before it passed. Coverage stays at or above the CI floors (90% lines, 80% branches).
+5. **Plain output.** Messages say what was found and what to do, in plain words, with no secrets, tokens or personal
+   paths printed.
+6. **Sign-off and licence.** Every commit is signed off (DCO), and every new file carries its SPDX licence and
+   copyright lines.
+7. **CI is green.** All required checks pass, and CodeQL alerts are fixed or dismissed with a written reason.
+
+A reviewer who is unsure asks in the pull request rather than approving.
+
 ## Working on it
 
     git clone https://github.com/deimos-hq/wardlatch.git
