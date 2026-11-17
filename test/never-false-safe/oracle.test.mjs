@@ -8,7 +8,9 @@
 //      @rpath / @loader_path or $ORIGIN, against the library Wardlatch judged and the verdict it gave;
 //   O3 which certificates a bundle holds: LibreSSL or OpenSSL's own reading of a CA file (crl2pkcs7), against
 //      Wardlatch's (lib/macos.mjs bundleHolds), for bundles built in every shape a reader can trip on;
-//   O4 which program PATH runs: `command -v` in /bin/sh with a clean environment, against lib/binaries.mjs findOnPath.
+//   O4 which program PATH runs: `command -v` in /bin/sh with a clean environment, against lib/binaries.mjs findOnPath;
+//   O5 whether Apple's trust layer accepts the 12 eMudhra test chains: SecTrustEvaluateWithError (a Swift helper,
+//      offline), against the Safari and Apple apps row lib/probe.mjs check makes from nscurl's answers.
 // Then R, the real-machine agreement pass: the same questions about this machine's own PATH programs, cert.pem (and
 // certifi's bundle) and system keychain, read only. It REPORTS differences (as test diagnostics) and never fails, since
 // a developer's machine is not a fixture. Om plants a mutation for each oracle and requires it to fail.
@@ -24,7 +26,7 @@ import { property, holds, scratch, inode, variant, mutatedLib, realLib, incident
 const T = scratch('oracle');
 after(() => T.done());
 const has = (cmd) => spawnSync('/bin/sh', ['-c', `command -v ${cmd}`], { encoding: 'utf8' }).status === 0;
-const load = async (get) => ({ files: await get('files.mjs'), lockfiles: await get('lockfiles.mjs'), binaries: await get('binaries.mjs'), brotli: await get('brotli.mjs'), macos: await get('macos.mjs') });
+const load = async (get) => ({ files: await get('files.mjs'), lockfiles: await get('lockfiles.mjs'), binaries: await get('binaries.mjs'), brotli: await get('brotli.mjs'), macos: await get('macos.mjs'), probe: await get('probe.mjs') });
 const REAL = await load(realLib);
 
 // ---------------------------------------------------------------- O1 which file a name opens
@@ -210,6 +212,79 @@ const o4 = (L, shapes = SHAPES) => property(`O4 the program PATH runs (${shapes.
 const O4_PASSING = SHAPES.filter((s) => s !== 'not executable');
 test('O4 which program PATH runs: findOnPath names the file `command -v` names', todo('O4 PATH non-executable'), () => holds(o4(REAL)));
 test('O4x which program PATH runs, every shape but a file the shell cannot execute: findOnPath agrees with the shell', () => holds(o4(REAL, O4_PASSING)));
+
+// ---------------------------------------------------------------- O5 the Safari and Apple apps row: Apple's trust layer
+//
+// The row for macOS's own trust layer (lib/probe.mjs check, kind macos-system) is SAFE when nscurl refuses every test
+// host. The oracle: Apple's Security framework itself (SecTrustEvaluateWithError, test/support/sectrust.swift), given
+// each of the 12 test hosts' chains as they were served on 16 Nov 2026 (test/support/fixtures/sectrust/), offline (no
+// network fetch: the answer is what this Mac holds, its trust store and Apple's valid.sqlite) and as of that day. Each
+// answer is played to check() through a stand-in nscurl that prints what nscurl prints for it; the row must agree with
+// the OS, host by host: any chain the OS trusts makes the row EXPOSED. Controls: github.com's chain must evaluate true
+// and revoked.badssl.com's false, or the instrument can't tell the two apart and the test fails. macOS only; skipped,
+// with the reason, where swiftc is missing. A Mac that never fetched Apple's valid.sqlite update would trust the chains
+// here, and this test would then require EXPOSED: the live nscurl probe is what catches that on a person's Mac.
+const SECTRUST_DIR = join(ROOT, 'test', 'support', 'fixtures', 'sectrust');
+const SECTRUST_DATE = '2026-11-16T12:00:00Z';
+const EMU = incident('emudhra-2026-10');
+const swiftWhy = !MAC ? 'Apple\'s Security framework is on a Mac only' : !has('swiftc') ? 'swiftc is not installed (Xcode or the Command Line Tools), so the OS oracle cannot be built' : '';
+let sectrustBin = null;
+/** The OS's answer for one saved chain: true (trusted), false (refused). Throws when it could not evaluate. */
+function osTrusts(host) {
+  if (!sectrustBin) {
+    sectrustBin = join(T.fresh('sectrust'), 'sectrust');
+    execFileSync('swiftc', ['-O', '-o', sectrustBin, join(ROOT, 'test', 'support', 'sectrust.swift')], { stdio: 'pipe', timeout: 300000 });
+  }
+  const r = spawnSync(sectrustBin, [host, 'offline', join(SECTRUST_DIR, `${host}.pem`)], { encoding: 'utf8', env: { SECTRUST_VERIFY_DATE: SECTRUST_DATE, PATH: '/usr/bin:/bin' }, timeout: 60000 });
+  if (r.status === 0 && /SecTrustEvaluateWithError: true/.test(r.stdout)) return true;
+  if (r.status === 1 && /SecTrustEvaluateWithError: false/.test(r.stdout)) return false;
+  throw new Error(`sectrust could not evaluate ${host} (exit ${r.status}): ${r.stdout}${r.stderr}`);
+}
+/** A stand-in nscurl: for each URL, what nscurl prints when Apple's trust layer accepts it (the page, nothing on stderr)
+ *  or refuses it ("Load failed" with NSURLErrorDomain -1202 on stderr, nscurl's refusal). Anything else loads. */
+function fakeNscurl(refusedHosts) {
+  const p = join(T.fresh('nscurl'), 'nscurl');
+  const cases = refusedHosts.map((h) => `  "https://${h}/") echo 'Load failed with error: Error Domain=NSURLErrorDomain Code=-1202 "The certificate for this server is invalid."' >&2 ;;`).join('\n');
+  writeFileSync(p, `#!/bin/sh\ncase "$1" in\n${cases}\n  *) echo '<html>ok</html>' ;;\nesac\nexit 0\n`, { mode: 0o755 });
+  return p;
+}
+const emuCanaries = () => EMU.canaries.map((id) => {
+  const host = EMU.canaryHost.replace('{id}', id);
+  return { id, host, url: `https://${host}/`, root: EMU.canaryRoots.find((x) => x.canaries.includes(id))?.root, up: true };
+});
+/** O5 for a probe module: → null when the row agrees with the OS on every host, else the disagreement. `answers`: the
+ *  OS's answer per host (true trusted), so a planted answer can show the instrument can differ. */
+async function o5(probeMod, answers) {
+  const canaries = emuCanaries();
+  const refused = canaries.filter((c) => !answers[c.host]).map((c) => c.host);
+  const trusted = canaries.filter((c) => answers[c.host]).map((c) => c.id).sort();
+  const rt = { kind: 'macos-system', bin: fakeNscurl(refused), label: 'macOS system (Safari and Apple apps)' };
+  const r = await probeMod.check(rt, canaries, { controlUrl: EMU.advisory, timeoutMs: 5000, systemNote: EMU.systemSafeNote });
+  const want = trusted.length ? 'EXPOSED' : 'SAFE';
+  const got = [...(r.trusted ?? [])].sort();
+  if (r.status !== want || got.join() !== trusted.join()) return { want, got: r.status, osTrusts: trusted, wardlatchTrusted: got, reason: r.reason };
+  if (want === 'SAFE' && !/refused all 12 test hosts through Apple's trust layer; Apple blocks the 12 certificates through valid\.apple\.com/.test(r.note ?? '')) return { note: r.note ?? null };
+  return null;
+}
+let O5_ANSWERS = null;
+const o5Answers = () => (O5_ANSWERS ??= Object.fromEntries(emuCanaries().map((c) => [c.host, osTrusts(c.host)])));
+test('O5 the Safari and Apple apps row agrees with Apple\'s own trust evaluation of the 12 test chains (offline, as of 16 Nov 2026): a chain it trusts is EXPOSED', { skip: swiftWhy || false }, async (t) => {
+  // the instrument can differ: a chain Apple trusts and one it refuses
+  assert.equal(osTrusts('github.com'), true, 'control: github.com\'s chain must evaluate true');
+  assert.equal(osTrusts('revoked.badssl.com'), false, 'control: revoked.badssl.com\'s chain must evaluate false');
+  const answers = o5Answers();
+  t.diagnostic(`OS trusts ${Object.values(answers).filter(Boolean).length} of ${Object.keys(answers).length} test chains on this Mac`);
+  assert.equal(await o5(REAL.probe, answers), null);
+  // and the row follows the OS when it does trust one: a Mac without Apple's block, played as one host the OS accepts
+  const one = { ...answers, [emuCanaries()[0].host]: true };
+  assert.equal(await o5(REAL.probe, one), null, 'one trusted chain: the row is EXPOSED, naming that host');
+});
+test('O5m mutation proof: nscurl\'s output always read as a load that worked turns O5 red', { skip: swiftWhy || false }, async () => {
+  const get = await mutatedLib(T.dir, 'probe.mjs', "export const nscurlOk = (text) => !/Load failed|NSURLErrorDomain|error/i.test(text);", 'export const nscurlOk = (text) => true;');
+  const answers = o5Answers();
+  assert.ok(Object.values(answers).some((x) => !x), 'O5m needs at least one chain the OS refuses');
+  assert.notEqual(await o5(await get('probe.mjs'), answers), null, 'mutant survived: O5 with nscurlOk always true');
+});
 
 // ---------------------------------------------------------------- R the real machine, read only: reported, never failed
 

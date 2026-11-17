@@ -302,6 +302,7 @@
   ],
   "reviewKeysNote": "Keys and certificates a CA file should not hold, reported as REVIEW lines and never as EXPOSED: for the RSA CAs nothing shows that anyone else holds their keys, and the two October code-signing CAs are not TLS CAs. Eleven are the eight RSA CAs of rsaRevocation, the two CAs that issued them and emSign Root CA - G1 above the six TLS ones, matched by key (spkiSha256, the SHA-256 of the SubjectPublicKeyInfo as it ships). Each value was derived from the certificate three times, with LibreSSL 3.3.6, OpenSSL 4.1.0 and node's crypto, refused if it came out as the SHA-256 of no input (e3b0c442...), and the eight RSA CAs' certificate fingerprints match Appendix C of bug 2083449 comment 82. The other two are the October code-signing CAs EM OV CS CA - G3B and G3C, matched by their four certificate fingerprints only (see their why). They are read where Wardlatch already reads a CA file by key on a Mac: /etc/ssl/cert.pem and the copies of it beside it. rsaN48 is the first 48 bytes of the RSA modulus, the match a Mac fix would need; nothing uses it yet.",
   "rootsPem": "emudhra-2026-10-roots.pem",
+  "systemSafeNote": "refused all {tested} test hosts through Apple's trust layer; Apple blocks the 12 certificates through valid.apple.com (support.apple.com/en-us/149555); the cert.pem removal is a separate step, for command-line tools",
   "canaries": [
     "dv-g3b",
     "dv-g3b-aaa",

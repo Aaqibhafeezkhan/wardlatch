@@ -450,7 +450,7 @@ for (const inc of chosen) {
       // in for the forced-roots control (lib/probe.mjs fileVerdict); settings that point them elsewhere keep it UNKNOWN
       const certsList = listDir('/etc/ssl/certs');
       const { fileCheck, skipped } = appleFileCheck(inc, rt, { os: platform(), macos, env: process.env, home: homedir(), exists: (f) => pathState(f) === 'file', certsDir: certsList.gone ? 0 : certsList.entries ? certsList.entries.length : -1 });
-      const r = await check(rt, canaries, { rootsPem, controlUrl: inc.advisory, fileCheck, bundleCheck: { inc, negativeCa: join(LIB, 'negative-control.pem') } });
+      const r = await check(rt, canaries, { rootsPem, controlUrl: inc.advisory, fileCheck, bundleCheck: { inc, negativeCa: join(LIB, 'negative-control.pem') }, systemNote: inc.systemSafeNote });
       const row = { incident: inc.id, ...rt, ...r, fix: r.status === 'EXPOSED' ? fixFor(rt) : undefined };
       results.push(row);
       const what = rt.label ? `${rt.label} ${rt.version}` : `${rt.kind} ${rt.version}  ${short(rt.bin)}${rt.env ? `  (${short(rt.env)})` : ''}`;

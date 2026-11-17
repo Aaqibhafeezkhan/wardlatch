@@ -78,6 +78,13 @@ path = ["test/support/fixtures/macos-27.2-cert.pem", "test/support/fixtures/maco
 SPDX-FileCopyrightText = "The certificate authorities named in each certificate"
 SPDX-License-Identifier = "LicenseRef-Public-CA-Certificate"
 
+# The 12 eMudhra test hosts' chains, github.com's and revoked.badssl.com's, as the servers sent them on 16 Nov 2026
+# (the PEM blocks of `openssl s_client -showcerts`, unchanged), for the never-a-false-SAFE suite's O5 oracle.
+[[annotations]]
+path = "test/support/fixtures/sectrust/*.pem"
+SPDX-FileCopyrightText = "The certificate authorities named in each certificate"
+SPDX-License-Identifier = "LicenseRef-Public-CA-Certificate"
+
 # Deimos AI LLC's own self-signed certificate, generated for the negative control (a cert that must be refused).
 [[annotations]]
 path = "lib/negative-control.pem"
