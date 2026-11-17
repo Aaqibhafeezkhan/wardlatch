@@ -7,7 +7,7 @@ import './support/no-real-home.cjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -119,27 +119,25 @@ test('no test asks where the real home folder is: no test file takes homedir or 
   }
 });
 
-test('SHA256SUMS is a checkable receipt: every line names a file in the repository, with its real digest', () => {
-  // docs/RELEASING.md tells people to run `sha256sum -c SHA256SUMS`. Until 29 Oct 2026 the committed file was the
-  // 0.1.9 release asset: one of its two lines named wardlatch-v0.1.9.tar.gz, which is not in the repository, so
-  // the check could not pass in a clone, and it omitted wardlatch-0.1.10.tgz, which is committed. A receipt with
-  // an uncheckable line and a missing current entry is worse than none.
+test('no release tarball is committed; SHA256SUMS keeps the digests of the three that were, unchanged', () => {
+  // Until 0.1.19 the npm packages of 0.1.7, 0.1.9 and 0.1.10 were committed at the top of the repository, with this
+  // file as their receipt (until 29 Oct 2026 it was the 0.1.9 release asset, naming a file not here and omitting
+  // wardlatch-0.1.10.tgz, which was). They are now only assets of their GitHub releases, whose digests GitHub reports
+  // as these (checked 16 Nov 2026), and the file stays as the record: a receipt may not change what it once said.
+  const tracked = spawnSync('git', ['ls-files', '-z'], { cwd: ROOT, encoding: 'utf8' });
+  const inRepo = tracked.status === 0 ? tracked.stdout.split('\0').filter(Boolean) : FILES;   // a tree with no .git: what is on disk
+  assert.deepEqual(inRepo.filter((f) => /\.tgz$/.test(f)), [], 'a packed tarball is committed: it belongs on its GitHub release');
   const lines = read('SHA256SUMS').split('\n').filter((l) => l.trim() && !l.startsWith('#'));
-  assert.ok(lines.length >= 1, 'SHA256SUMS lists nothing');
-  const listed = new Set();
-  for (const line of lines) {
-    const m = /^([0-9a-f]{64}) {2}(\S.*)$/.exec(line);
-    assert.ok(m, `SHA256SUMS: not a digest line: ${line}`);
-    const [, digest, name] = m;
-    assert.ok(FILES.includes(name), `SHA256SUMS names ${name}, which is not in the repository`);
-    const actual = createHash('sha256').update(readFileSync(join(ROOT, name))).digest('hex');
-    assert.equal(actual, digest, `SHA256SUMS: ${name}`);
-    listed.add(name);
-  }
-  // and every tarball committed here is listed, so a release that adds one cannot leave it out
-  for (const f of FILES.filter((f) => /^wardlatch-[0-9.]+\.tgz$/.test(f))) {
-    assert.ok(listed.has(f), `${f} is committed but not listed in SHA256SUMS`);
-  }
+  assert.deepEqual(lines, [
+    '5bb9b1eb74dd206733aa7e88d53258901c055109ac24560df74c0d041db77917  wardlatch-0.1.7.tgz',
+    '738c55f3b700a0d4f5949739c556e631970b29733fdf99577e4ac30e0cce29e3  wardlatch-0.1.9.tgz',
+    'd9d73c94db830add31d6af47b2ac664e34ad33bfb16bb0426b494b4dbb9d9eb6  wardlatch-0.1.10.tgz',
+  ]);
+  // and it says where they are, in a form that works with macOS's shasum (which has no --ignore-missing)
+  assert.match(read('SHA256SUMS'), /^# {3}gh release download v0\.1\.10 -p wardlatch-0\.1\.10\.tgz -R deimos-hq\/wardlatch$/m);
+  assert.match(read('SHA256SUMS'), /^# {3}grep ' wardlatch-0\.1\.10\.tgz\$' SHA256SUMS \| shasum -a 256 -c$/m);
+  // the changelog names where each one still lives
+  for (const v of ['0.1.7', '0.1.9', '0.1.10']) assert.match(read('CHANGELOG.md'), new RegExp(`releases/tag/v${v.replace(/\./g, '\\.')}\\b`), v);
 });
 
 test('the coverage gate holds the floors: 90% of lines, 80% of branches and of functions, over all of bin/ and lib/', () => {

@@ -66,9 +66,10 @@ path = "lib/incidents/emudhra-2026-10-root-emsign.pem"
 SPDX-FileCopyrightText = "eMudhra Technologies Limited (emSign ECC Root CA - G3)"
 SPDX-License-Identifier = "LicenseRef-Public-CA-Certificate"
 
-# The published npm packages, kept so `shasum -a 256 -c SHA256SUMS` can be checked in a clone.
+# The digests of the npm packages of 0.1.7, 0.1.9 and 0.1.10, committed here until 0.1.19 and now kept on their
+# GitHub releases.
 [[annotations]]
-path = ["wardlatch-*.tgz", "SHA256SUMS"]
+path = "SHA256SUMS"
 SPDX-FileCopyrightText = "2026 Deimos AI LLC"
 SPDX-License-Identifier = "Apache-2.0"
 
