@@ -26,7 +26,7 @@ commits on `main`, up to 21 October 2026, predate this rule and carry no sign-of
 
 ## What an acceptable contribution looks like
 
-1. **The tests pass**: `npm test` (that is, `node --test test/*.test.mjs`) on Node 18.17 or later. CI runs it on Node 18, 20
+1. **The tests pass**: `npm test` (that is, `node --test test/*.test.mjs test/never-false-safe/*.test.mjs`) on Node 18.17 or later. CI runs it on Node 18, 20
    and 22, on Linux and macOS.
 2. **It comes with tests**: see the testing policy below.
 3. **It never says SAFE without a control.** A check may report SAFE only when a control has shown that it could have
