@@ -3,6 +3,7 @@
   "type": "macos",
   "title": "macOS older than Apple's latest security update, and fixes for exploited flaws (CVE-2026-86950 and others)",
   "date": "2026-11-09",
+  "fixPublished": {"date":"2026-11-09","source":"Apple's security releases index: macOS Golden Gate 27.2.1, Tahoe 26.7.3 and Sequoia 15.8.3, all 9 Nov 2026"},
   "kev": [
     {"cve": "CVE-2024-27834", "vendorProject": "Apple", "product": "Multiple Products", "dateAdded": "2026-11-04", "dueDate": "2026-11-18"},
     {"cve": "CVE-2026-65400", "vendorProject": "Apple", "product": "macOS", "dateAdded": "2026-08-18", "dueDate": "2026-08-21"},

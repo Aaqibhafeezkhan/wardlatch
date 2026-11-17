@@ -3,6 +3,7 @@
   "type": "wordpress",
   "title": "WordPress: Rank Math PRO and UpdraftCentral attacks",
   "date": "2026-10-18",
+  "fixPublished": {"date":null,"why":"compromised plugin releases and keys, not a flaw with a fixed version"},
   "summary": "Rank Math PRO 3.0.123 shipped with a backdoor (downloads 15 Oct 20:02 to 16 Oct 07:12 UTC; clean: 3.0.124). After a breach at TeamUpdraft, stolen UpdraftCentral keys were used from 18 Oct to install backdoor plugins; UpdraftPlus 1.26.13 / 2.26.13 revokes the old keys.",
   "advisory": "https://patchstack.com/articles/updraftcentral-key-compromise-wordpress-backdoors/",
   "addedSince": "2026-10-18T00:00:00Z",

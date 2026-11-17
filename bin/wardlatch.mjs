@@ -31,6 +31,7 @@ import { lockfilesUnder, checkLockfile, pyLockKind, LOCK_DEPTH, NOT_WALKED as LO
 import { measure as measureReach, lines as reachLines, toJson as reachJson } from '../lib/reach.mjs';
 import { checkIocs } from '../lib/iocs.mjs';
 import { checkClaudeCode } from '../lib/claudecode.mjs';
+import { fixAge, effectiveNow } from '../lib/clock.mjs';
 
 // npx puts the current project's node_modules/.bin, and each parent folder's, first on PATH. Wardlatch finds git,
 // python3, node, curl, php, go and the container engines on PATH and runs some of them, so a project could otherwise
@@ -142,7 +143,12 @@ const c = (code, s) => (tty ? `\x1b[${code}m${clean(s)}\x1b[0m` : clean(s));
 const STATUS = { SAFE: c('32', 'SAFE   '), EXPOSED: c('31;1', 'EXPOSED'), UNKNOWN: c('33', 'UNKNOWN'), REVIEW: c('33', 'REVIEW ') };
 const short = (p) => p.replace(HOME, '~');
 // an EXPOSED line sets the exit code as it is printed, so a crash after it can't turn it into "could not be tested"
-const print = (status, what, extra = '') => { if (status === 'EXPOSED') process.exitCode = 1; if (!json) console.log(`${STATUS[status]}  ${clean(what)}${extra}`); };
+// release/0.1.19-candidate (the machine-speed moves): under every EXPOSED line, how long the incident's fix has been
+// public, from its fixPublished date and the same "today" as every other date check (lib/clock.mjs). The incident
+// loop sets fixAgeNow for the incident it is running; --json carries the same as fixAgeDays on each EXPOSED row.
+let fixAgeNow = null;
+const TODAY = effectiveNow();
+const print = (status, what, extra = '') => { if (status === 'EXPOSED') process.exitCode = 1; if (!json) { console.log(`${STATUS[status]}  ${clean(what)}${extra}`); if (status === 'EXPOSED' && fixAgeNow) console.log(c('31', `         ${clean(fixAgeNow.text)}`)); } };
 const note = (code, text) => { if (!json) console.log(c(code, `         ${text}`)); };
 
 // --reach (lib/reach.mjs, docs/REACH.md): a mode of its own, like --list. It runs instead of the incident checks, never
@@ -381,6 +387,7 @@ if (!json) {
 }
 
 for (const inc of chosen) {
+  fixAgeNow = fixAge(inc.fixPublished, TODAY);
   if (!json) console.log(`\n${c('1', inc.title)} ${c('2', `(${inc.date})`)}`);
   // CISA's KEV rows the incident file carries (lib/kev.mjs): copied from the catalog before release, never fetched here
   if (!json) for (const line of kevLines(inc)) console.log(c('33', clean(line)));
@@ -931,7 +938,9 @@ const n = (s) => count[s];
 // lib/escape.mjs says which characters count as hidden. Up to this fix only DEL and C1 were escaped, and only the second way.
 const prose = (v) => (Array.isArray(v) ? v.map(prose) : v && typeof v === 'object'
   ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, k === 'reason' && typeof x === 'string' ? clean(x) : prose(x)])) : v);
-if (json) console.log(escapeJsonHidden(JSON.stringify(prose({ tool: 'wardlatch', version: VERSION, incidents: chosen.map((i) => ({ id: i.id, title: i.title, advisory: i.advisory, ...(i.kev ? { kev: kevRows(i) } : {}) })), results: all, ...(appleSaid ? { macos: appleSaid } : {}) }), null, 1)));
+// every EXPOSED row carries its incident's fix age (null when the fix date is unknown), as the text line says it
+const aged = all.map((r) => { if (r.status !== 'EXPOSED') return r; const a = fixAge(chosen.find((i) => i.id === r.incident)?.fixPublished, TODAY); return { ...r, fixAgeDays: a.days, fixAge: a.text }; });
+if (json) console.log(escapeJsonHidden(JSON.stringify(prose({ tool: 'wardlatch', version: VERSION, incidents: chosen.map((i) => ({ id: i.id, title: i.title, advisory: i.advisory, ...(i.kev ? { kev: kevRows(i) } : {}), ...(i.fixPublished ? { fixPublished: i.fixPublished } : {}) })), results: aged, ...(appleSaid ? { macos: appleSaid } : {}) }), null, 1)));
 else {
   console.log(`\n${count.SAFE} safe · ${n('EXPOSED')} exposed · ${n('UNKNOWN')} could not be tested${n('REVIEW') ? ` · ${n('REVIEW')} to review` : ''}`);
   const trust = chosen.find((i) => i.type === 'trust');

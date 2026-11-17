@@ -3,6 +3,7 @@
   "type": "installs",
   "title": "Fortinet FortiClient for Mac: origin validation error in a local API endpoint (CVE-2026-121529)",
   "date": "2026-11-10",
+  "fixPublished": {"date":"2026-11-10","source":"Fortinet's advisory FG-IR-26-194, 10 Nov 2026"},
   "summary": "Fortinet published advisory FG-IR-26-194 on 10 November 2026 for CVE-2026-121529, an origin validation error in a local API endpoint of FortiClient, which in Fortinet's words \"may allow an unauthorized remote attacker to execute unauthorized code or commands. Successful exploitation requires interaction with the victim.\" On a Mac, Fortinet lists FortiClientMac 7.4.0 through 7.4.7 as affected, fixed in 7.4.8; it lists FortiClientMac 8.0 and 7.2 as not affected, and names no older line. Fortinet rates it Critical, with a CVSS 3.1 score of 9.1. As read on 11 November 2026, Fortinet's page says Known Exploited: No, and CISA's Known Exploited Vulnerabilities catalog (version 2026.11.10) does not list it. Wardlatch reads the version of the FortiClient that is installed from the app's Info.plist; it never starts FortiClient and sends nothing.",
   "advisory": "https://fortiguard.fortinet.com/psirt/FG-IR-26-194",
   "sources": [

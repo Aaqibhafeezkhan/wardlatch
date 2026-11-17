@@ -54,6 +54,11 @@ cut lockfile or dpkg status file, and a Mac at Apple's newest release once Wardl
   upgrading. Wardlatch lists Docker Desktop's log folder by file name and date only, never a file's contents. A file
   older than 4.97.0's release, or older than this copy of Docker.app, makes the row REVIEW, naming the folder and
   telling you to delete the logs and rotate the tokens. A folder that can't be listed is UNKNOWN. Not in CISA's catalog.
+- **Fix age on every EXPOSED line**: "fix public for N days (since YYYY-MM-DD)", and `fixAgeDays` (with `fixAge`) on
+  each EXPOSED row in `--json`. Attackers can now turn a public fix into an exploit within hours, so the line says how
+  long the fix has been out. Every incident file carries `fixPublished`, the advisory's date with its source. Where
+  there is no fixed release (a malicious release, a leaked key, a compromised authority) it carries no date and the
+  reason, and the line says "fix date unknown". "Today" is the same as every other date check's (`lib/clock.mjs`).
 - **Two new patterns, P8 and P9** ([docs/PATTERNS.md](docs/PATTERNS.md)). P8: a self-erasing compromise (a commit
   reverted, its run and logs deleted) is not "never ran", so an incident of that kind must read history and say UNKNOWN
   when history is absent. P9: the fixed version is not the fixed state (a fix that is a setting, or residue an update

@@ -3,6 +3,7 @@
   "type": "installs",
   "title": "GitLab: unauthenticated code execution (CVE-2026-110264)",
   "date": "2026-10-21",
+  "fixPublished": {"date":"2026-10-21","source":"GitLab's patch release of 21 Oct 2026 (19.5.1)"},
   "summary": "GitLab released critical patches on 21 October 2026 for CVE-2026-110264 (CVSS 10.0): an unauthenticated user could run code on a self-managed GitLab server. Affected: CE and EE from 7.0 before 18.11.13, 19.0 before 19.0.10, 19.1 before 19.1.9, 19.2 before 19.2.9, 19.3 before 19.3.6, 19.4 before 19.4.3 and 19.5 before 19.5.1; 18.10 and older get no patch. GitLab.com is already patched. Wardlatch reads the installed version from GitLab's own version files and never runs GitLab.",
   "advisory": "https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-5-1-released/",
   "versionFiles": {

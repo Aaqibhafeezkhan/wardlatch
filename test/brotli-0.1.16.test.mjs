@@ -100,7 +100,9 @@ require('node:module').syncBuiltinESMExports();\n`);
   const lines = r.stdout.split('\n');
   const at = lines.findIndex((l) => l.startsWith('EXPOSED  macOS\'s own Brotli (the copy inside macOS)'));
   assert.ok(at > 0, r.stdout + r.stderr);
-  assert.match(lines[at + 1], /macOS 27\.2, read from \/System\/Library\/CoreServices\/SystemVersion\.plist: Apple's security notes of 9 Nov 2026 list CVE-2026-111497/);
+  // 0.1.19: the fix age comes first under every EXPOSED line (test/fix-age-0.1.19.test.mjs), then the reason
+  assert.match(lines[at + 1], /^ +fix public for \d+ days? \(since 2026-10-21\)$/);
+  assert.match(lines[at + 2], /macOS 27\.2, read from \/System\/Library\/CoreServices\/SystemVersion\.plist: Apple's security notes of 9 Nov 2026 list CVE-2026-111497/);
   assert.match(r.stdout, /fix: Update macOS to 27\.2\.1 or later/);
   // the all-clear for copies on disk is still there: the macOS row stands in for no other
   assert.match(r.stdout, /^SAFE {5}no copy of the Brotli decoder found/m);
