@@ -1,0 +1,47 @@
+{
+  "id": "docker-desktop-2026-10",
+  "type": "installs",
+  "title": "Docker Desktop before 4.97.0 on a Mac writes third-party API keys and OAuth tokens in clear to its logs and diagnostics bundles (CVE-2026-114409); logs written before the update can remain",
+  "date": "2026-10-26",
+  "summary": "Docker's security announcement and release notes for Docker Desktop 4.97.0 (26 Oct 2026) say that before 4.97.0 Docker Desktop could write third-party API keys and OAuth access tokens in cleartext to local application logs and diagnostics bundles (CVE-2026-114409; the OAuth tokens are not Docker account tokens). 4.94.0 and 4.95.0 addressed the known logging paths, but logs containing credentials can remain after upgrading; 4.97.0 also cleans up existing host logs and crash dumps. 4.94.0 had fixed CVE-2026-123082, in which 4.43.0 through 4.93.x could write the signed-in user's Docker Hub access token in cleartext to the same logs and bundles. CISA's catalog (2026.11.13) lists neither, so Wardlatch says \"fixed in\", not \"exploited\". Wardlatch reads the version from Docker.app's Info.plist in /Applications and ~/Applications; it never starts Docker. Below 4.97.0 is EXPOSED. At or past it, Docker Desktop's log folder (~/Library/Containers/com.docker.docker/Data/log, which Docker's documentation names) is listed by file name and date only, never a file's contents: a file dated before 4.97.0's release, or before this copy of Docker.app was put on the disk, whichever is later, was written by an earlier version and may hold a credential, so the row is REVIEW and names the folder (pattern P9: the fixed version is not the fixed state). A log folder that can't be listed is UNKNOWN.",
+  "advisory": "https://docs.docker.com/security/security-announcements/",
+  "sources": [
+    "https://docs.docker.com/desktop/release-notes/",
+    "https://docs.docker.com/engine/daemon/logs/",
+    "https://docs.docker.com/desktop/troubleshoot-and-support/troubleshoot/",
+    "https://www.cve.org/CVERecord?id=CVE-2026-114409"
+  ],
+  "versionFiles": {
+    "product": "Docker Desktop",
+    "minVersion": "4.97.0",
+    "files": [
+      {
+        "path": "/Applications/Docker.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>(\\d+(?:\\.\\d+)+)</string>",
+        "label": "Mac app",
+        "residueWhenFixed": {
+          "dir": "~/Library/Containers/com.docker.docker/Data/log",
+          "before": "2026-10-26",
+          "what": "Docker Desktop",
+          "reason": "Docker says logs containing credentials can remain after upgrading. Delete the old files in this folder, delete any diagnostics bundle made with 4.96.x or earlier (/tmp/<diagnostics ID>.zip, and copies you shared), and rotate the third-party API keys and OAuth tokens Docker Desktop used."
+        }
+      },
+      {
+        "path": "~/Applications/Docker.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>(\\d+(?:\\.\\d+)+)</string>",
+        "label": "Mac app",
+        "residueWhenFixed": {
+          "dir": "~/Library/Containers/com.docker.docker/Data/log",
+          "before": "2026-10-26",
+          "what": "Docker Desktop",
+          "reason": "Docker says logs containing credentials can remain after upgrading. Delete the old files in this folder, delete any diagnostics bundle made with 4.96.x or earlier (/tmp/<diagnostics ID>.zip, and copies you shared), and rotate the third-party API keys and OAuth tokens Docker Desktop used."
+        }
+      }
+    ],
+    "fix": "Update Docker Desktop to 4.97.0 or later, then delete logs and diagnostics bundles made by earlier versions (Docker: \"delete or sanitize them\"), and rotate the third-party API keys and OAuth tokens Docker Desktop used, and your Docker Hub access token if Docker Desktop was ever below 4.94.0.",
+    "lookedIn": "Docker.app's Info.plist in /Applications and ~/Applications, and, at 4.97.0 or later, the names and dates of the files in Docker Desktop's log folder"
+  },
+  "reviewFix": "Delete the files dated before the update in the folder named, delete diagnostics bundles made with 4.96.x or earlier, and rotate the third-party API keys and OAuth tokens Docker Desktop used.",
+  "safeText": "no Docker Desktop below 4.97.0 found, and no log written by an earlier version left in its log folder",
+  "notCovered": "Docker Desktop on Linux and Windows; diagnostics bundles in /tmp or copied elsewhere (their names are not ones this check can tell from other zip files); log files copied out of the folder; a log file whose date was changed. Whether a log ever held a credential is not read: file contents are never opened."
+}

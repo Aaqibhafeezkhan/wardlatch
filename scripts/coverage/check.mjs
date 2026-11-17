@@ -16,6 +16,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { macApplicable } from './apple-notes.mjs';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 export const SNAPSHOT = join(ROOT, 'test', 'support', 'fixtures', 'coverage-snapshot.json');
@@ -128,7 +129,15 @@ export function incomplete(snapshot, today) {
   for (const id of SOURCES) if (!src.has(id)) why.push(`source ${id} is not in the snapshot`);
   const a = src.get('apple-macos');
   if (a) {
-    if ((snapshot.apple ?? []).length !== a.macosReleasesInWindow) why.push(`apple-macos: ${(snapshot.apple ?? []).length} releases read, the index listed ${a.macosReleasesInWindow} in the window`);
+    // Every Apple release that runs on a Mac, not only macOS (release/0.1.19-candidate, pattern P4: Xcode 27.2's two
+    // fixes were in no incident and no decline because the read took macOS rows only). The index rows in the window are
+    // each read or recorded as skipped; a skipped row whose "Available for" names macOS is a Mac product's page left out.
+    if (!Number.isInteger(a.releasesInWindow) || !Array.isArray(a.skipped)) why.push('apple-macos: the snapshot does not say which of the index\'s rows were skipped (written before every Mac product\'s page was read): run scripts/coverage/refresh.mjs');
+    else {
+      if ((snapshot.apple ?? []).length !== a.macReleasesInWindow) why.push(`apple-macos: ${(snapshot.apple ?? []).length} releases read, the index listed ${a.macReleasesInWindow} Mac releases in the window`);
+      if ((snapshot.apple ?? []).length + a.skipped.length !== a.releasesInWindow) why.push(`apple-macos: ${(snapshot.apple ?? []).length} read and ${a.skipped.length} skipped of the index's ${a.releasesInWindow} rows in the window`);
+      for (const s of a.skipped) if (macApplicable(s)) why.push(`apple-macos: ${s.name} (${s.date}, available for ${s.availableFor}) runs on a Mac and its page was skipped`);
+    }
     if (!a.indexOldest || a.indexOldest > snapshot.since) why.push(`apple-macos: the index read reaches back to ${a.indexOldest}, not to the window's start ${snapshot.since}`);
     for (const r of snapshot.apple ?? []) if (!r.noCves && !(r.entries ?? []).length) why.push(`apple-macos: ${r.name} has a page and no entries read`);
     // the identity class reads the Description line: a snapshot without it (written before 16 Nov 2026) would match
@@ -202,7 +211,7 @@ export function check({ snapshot, named, declined, today }) {
 export function report(r) {
   const out = [];
   out.push(`sources read (snapshot of ${r.read}, window from ${r.since}):`);
-  const said = (s) => (s.id === 'apple-macos' ? `(index rows ${s.indexRows}, back to ${s.indexOldest}; ${s.macosReleasesInWindow} macOS releases in the window)`
+  const said = (s) => (s.id === 'apple-macos' ? `(index rows ${s.indexRows}, back to ${s.indexOldest}; ${s.macReleasesInWindow ?? s.macosReleasesInWindow} Mac releases read in the window${Array.isArray(s.skipped) ? `, ${s.skipped.length} rows for other Apple devices skipped` : ""})`
     : s.id === 'cert-vu' ? `(${s.months?.length} monthly listings, ${s.months?.[0]} to ${s.months?.at(-1)}; ${s.notesRead} notes read, ${s.inClass} in the equivalence class)`
       : `(catalog ${s.catalogVersion}, ${s.read} of ${s.count} rows read; ${s.inWindow} added in the window)`);
   for (const s of r.sources) out.push(`  ${s.id}: ${s.url} ${said(s)}`);

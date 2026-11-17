@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { check, report, items, classesOf, namedCves, incomplete, SNAPSHOT, DECLINED, MAX_AGE_DAYS, SOURCES, RUNS_ON, IDENTITY } from '../scripts/coverage/check.mjs';
-import { parseIndex, parseNotes, macosRelease, isoDate, htmlText } from '../scripts/coverage/apple-notes.mjs';
+import { parseIndex, parseNotes, macosRelease, macApplicable, isoDate, htmlText } from '../scripts/coverage/apple-notes.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SNAP = JSON.parse(readFileSync(SNAPSHOT, 'utf8'));
@@ -78,6 +78,11 @@ test('C4 "no gaps" only from a complete read: a missing source, a short read or 
     'the index read not reaching the window': (s) => { s.sources.find((x) => x.id === 'apple-macos').indexOldest = '2026-10-01'; },
     'KEV read short': (s) => { s.sources.find((x) => x.id === 'cisa-kev').read -= 1; },
     'KEV rows dropped': (s) => { s.kev.pop(); },
+    // P4 (release/0.1.19-candidate): a Mac product's page left out, as the read did before it, is never "no gaps"
+    'Xcode 27.2\'s page skipped': (s) => { const a = s.sources.find((x) => x.id === 'apple-macos'); const i = s.apple.findIndex((r) => r.name === 'Xcode 27.2'); const [x] = s.apple.splice(i, 1); a.macReleasesInWindow -= 1; a.skipped.push({ name: x.name, date: x.date, availableFor: x.availableFor }); },
+    'a Safari page skipped': (s) => { const a = s.sources.find((x) => x.id === 'apple-macos'); const i = s.apple.findIndex((r) => /^Safari /.test(r.name)); const [x] = s.apple.splice(i, 1); a.macReleasesInWindow -= 1; a.skipped.push({ name: x.name, date: x.date, availableFor: x.availableFor }); },
+    'a row dropped from both lists': (s) => { s.sources.find((x) => x.id === 'apple-macos').skipped.pop(); },
+    'a snapshot from the macOS-only read': (s) => { const a = s.sources.find((x) => x.id === 'apple-macos'); delete a.skipped; delete a.releasesInWindow; },
   };
   for (const [name, f] of Object.entries(cases)) {
     const s = clone(SNAP); f(s);
@@ -96,9 +101,38 @@ test('C4 "no gaps" only from a complete read: a missing source, a short read or 
   assert.match(incomplete(SNAP, day(MAX_AGE_DAYS + 1)).join(' '), /read \d+ days ago/);
 });
 
+test('C4p P4: every Apple release that runs on a Mac is read, not only macOS; the rows skipped are for other devices, each named', () => {
+  const a = SNAP.sources.find((x) => x.id === 'apple-macos');
+  const names = SNAP.apple.map((r) => r.name);
+  // the products this read must carry, in the window measured on 17 Nov 2026
+  for (const re of [/^macOS /, /^Safari /, /^Xcode 27\.2$/, /^Xcode 27$/]) assert.ok(names.some((n) => re.test(n)), `${re} read`);
+  assert.equal(SNAP.apple.length + a.skipped.length, a.releasesInWindow);
+  assert.ok(a.skipped.length > 0, 'the control: the window holds rows for other devices');
+  for (const s of a.skipped) { assert.equal(macApplicable(s), false, s.name); assert.ok(s.name && s.date && typeof s.availableFor === 'string', JSON.stringify(s)); }
+  // the rule itself: macOS by name, any product whose Available for column names macOS, nothing else
+  assert.equal(macApplicable({ name: 'Xcode 27.2', availableFor: 'macOS Tahoe 26.6 and later' }), true);
+  assert.equal(macApplicable({ name: 'Safari 27.2', availableFor: 'macOS Sequoia and macOS Tahoe' }), true);
+  assert.equal(macApplicable({ name: 'macOS Golden Gate 27.2', availableFor: '' }), true);
+  assert.equal(macApplicable({ name: 'iOS 27.2 and iPadOS 27.2', availableFor: 'iPhone 11 and later' }), false);
+  // Xcode 27.2's two fixes, which the macOS-only read never saw, are items now, and named
+  const r = check({ snapshot: SNAP, named: NAMED, declined: DEC, today: TODAY });
+  for (const c of ['CVE-2026-112605', 'CVE-2026-112602', 'CVE-2026-86948', 'CVE-2026-86949']) assert.ok(r.named.some((i) => i.key === c && i.incidents.includes('xcode-2026-10')), c);
+});
+
+test('C4pm P4 mutation: with the read back to macOS rows only, Xcode 27.2\'s page is skipped and the check fails', () => {
+  // the refresh's old filter, applied to this snapshot: what it would have read, and what it would have skipped
+  const s = clone(SNAP), a = s.sources.find((x) => x.id === 'apple-macos');
+  const keep = s.apple.filter((x) => macosRelease(x.name)), drop = s.apple.filter((x) => !macosRelease(x.name));
+  assert.ok(drop.some((x) => x.name === 'Xcode 27.2'), 'the mutant drops Xcode');
+  s.apple = keep; a.macReleasesInWindow = keep.length; a.skipped.push(...drop.map((x) => ({ name: x.name, date: x.date, availableFor: x.availableFor })));
+  const r = check({ snapshot: s, named: NAMED, declined: DEC, today: TODAY });
+  assert.equal(r.ok, false);
+  assert.match(r.why.join('\n'), /Xcode 27\.2 \(2026-10-29, available for macOS Tahoe 26\.6 and later\) runs on a Mac and its page was skipped/);
+});
+
 test('C5 the snapshot is the sources\' own words: Apple entries carry a component, an impact and CVE numbers; KEV rows a date', () => {
   for (const r of SNAP.apple) {
-    assert.ok(macosRelease(r.name), r.name); assert.match(r.date, /^\d{4}-\d{2}-\d{2}$/); assert.ok(r.date >= SNAP.since, r.name);
+    assert.ok(macApplicable(r), r.name); assert.match(r.date, /^\d{4}-\d{2}-\d{2}$/); assert.ok(r.date >= SNAP.since, r.name);
     if (!r.noCves) assert.match(r.url, /^https:\/\/support\.apple\.com\/en-us\/\d+$/, r.name);
     for (const e of r.entries) { assert.ok(e.component && e.impact, r.name); for (const c of e.cves) assert.match(c, /^CVE-\d{4}-\d{4,}$/); }
   }

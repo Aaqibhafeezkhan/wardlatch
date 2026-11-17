@@ -1975,13 +1975,6 @@
    "candidate": true
   },
   {
-   "key": "CVE-2026-48710",
-   "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
-   "runsOn": "both",
-   "reviewBy": "2026-11-30",
-   "candidate": true
-  },
-  {
    "key": "CVE-2026-49869",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
    "runsOn": "both",

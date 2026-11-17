@@ -451,7 +451,7 @@ test('Pm mutation proof: each invariant above fails on a planted mutation of lib
   await red('c2: no stale-list rule (staleList always null)', c2, plant('clock.mjs', 'export function staleList(listedOn, today, { what, check, maxDays = STALE_AFTER_DAYS }) {', 'export function staleList(listedOn, today, { what, check, maxDays = STALE_AFTER_DAYS }) {\n  return null;'));
   await red('c3: "today" from the clock alone, the update files not read', c3, plant('clock.mjs', 'if (Number.isFinite(t) && t > best.now) best =', 'if (false) best ='));
   await red('e1: the first lockfile listed in a folder kept, the rest dropped', e1, plant('lockfiles.mjs', 'if (!once.has(key)) { once.add(key); out.push', 'if (!once.has(dirId)) { once.add(dirId); out.push'));
-  await red('e2: overlapping roots walked twice with no once-only rule', e2, plant('lockfiles.mjs', 'if (!once.has(key)) { once.add(key); out.push({ path: p, kind: LOCK_NAMES[lock] }); }', 'out.push({ path: p, kind: LOCK_NAMES[lock] });'));
+  await red('e2: overlapping roots walked twice with no once-only rule', e2, plant('lockfiles.mjs', 'if (!once.has(key)) { once.add(key); out.push({ path: p, kind }); }', 'out.push({ path: p, kind });'));
   await red('f: a lockfile in a folder deeper than 2 levels passed over', f, plant('lockfiles.mjs', 'if (depth === 0) continue;', 'if (depth <= LOCK_DEPTH - 2) continue;'));
   // d: the command itself, its summary miscounted
   const copy = T.fresh('dmut'); cpSync(join(ROOT, 'bin'), join(copy, 'bin'), { recursive: true }); cpSync(join(ROOT, 'lib'), join(copy, 'lib'), { recursive: true }); cpSync(join(ROOT, 'package.json'), join(copy, 'package.json'));

@@ -326,7 +326,7 @@ test('Om mutation proof: each oracle fails on a planted mutation of lib/', async
   const plant = async (file, from, to) => load(await mutatedLib(T.dir, file, from, to));
   const caught = [];
   const red = async (label, r) => { assert.notEqual(await r, null, `mutant survived: ${label}`); caught.push(label); };
-  await red('O1: links to lockfiles passed over', o1(await plant('lockfiles.mjs', "if (lock && !e.isDirectory() && pathState(p) !== 'dir') {", "if (lock && !e.isDirectory() && !e.isSymbolicLink() && pathState(p) !== 'dir') {")));
+  await red('O1: links to lockfiles passed over', o1(await plant('lockfiles.mjs', "if (kind && !e.isDirectory() && pathState(p) !== 'dir') {", "if (kind && !e.isDirectory() && !e.isSymbolicLink() && pathState(p) !== 'dir') {")));
   if (!o2skip) await red('O2: a mix of fixed and unfixed candidates taken as fixed', o2(await plant('brotli.mjs', "if (!bad.length) return { all: 'fixed', libs };", "if (!bad.length || good.length) return { all: 'fixed', libs };")));
   if (OPENSSL) await red('O3: the first withdrawn key in a bundle not counted', o3(await plant('macos.mjs', '    read++;\n    if (want.has(spki)) held.add(want.get(spki));', '    read++;\n    if (want.has(spki) && read > 1) held.add(want.get(spki));')));
   await red('O4x: the last copy on PATH taken as the first', o4(await plant('binaries.mjs', 'if (!seen.has(real)) { seen.add(real); out.push(p); }', 'if (!seen.has(real)) { seen.add(real); out.unshift(p); }'), O4_PASSING));

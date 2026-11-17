@@ -1,14 +1,201 @@
 {
- "read": "2026-11-16T23:25:35Z",
- "since": "2026-05-16",
+ "read": "2026-11-17T01:57:51Z",
+ "since": "2026-05-17",
  "sources": [
   {
    "id": "apple-macos",
    "url": "https://support.apple.com/en-us/100100",
    "indexRows": 342,
    "indexOldest": "2024-01-09",
-   "macosReleasesInWindow": 21,
-   "descriptionsRead": "2026-11-16T23:32:17Z"
+   "releasesInWindow": 65,
+   "macReleasesInWindow": 28,
+   "skipped": [
+    {
+     "name": "tvOS 27.2.1",
+     "date": "2026-11-13",
+     "availableFor": "Apple TV 4K 2nd generation and later"
+    },
+    {
+     "name": "HomeView Software Version 27.2",
+     "date": "2026-11-12",
+     "availableFor": "Apple HomeView"
+    },
+    {
+     "name": "iOS 27.2.1 and iPadOS 27.2.1",
+     "date": "2026-11-09",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 4th generation and later, iPad Pro 11-inch 2nd generation and later, iPad Air 4th generation and later, iPad 9th generation and later, and iPad mini 6th generation and later"
+    },
+    {
+     "name": "iOS 26.7.3 and iPadOS 26.7.3",
+     "date": "2026-11-09",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 3rd generation and later, iPad Pro 11-inch 1st generation and later, iPad Air 3rd generation and later, iPad 8th generation and later, and iPad mini 5th generation and later"
+    },
+    {
+     "name": "iOS 18.7.12 and iPadOS 18.7.12",
+     "date": "2026-11-09",
+     "availableFor": "iPhone XS, iPhone XS Max, iPhone XR, iPad 7th generation"
+    },
+    {
+     "name": "watchOS 27.2.1",
+     "date": "2026-11-09",
+     "availableFor": "Apple Watch Series 9 and later"
+    },
+    {
+     "name": "watchOS 26.6.1",
+     "date": "2026-11-09",
+     "availableFor": "Apple Watch Series 6, Apple Watch Series 7, Apple Watch Series 8, Apple Watch SE (2nd generation), and Apple Watch Ultra"
+    },
+    {
+     "name": "visionOS 27.2.1",
+     "date": "2026-11-09",
+     "availableFor": "Apple Vision Pro (all models)"
+    },
+    {
+     "name": "iOS 27.2 and iPadOS 27.2",
+     "date": "2026-10-26",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 4th generation and later, iPad Pro 11-inch 2nd generation and later, iPad Air 4th generation and later, iPad 9th generation and later, and iPad mini 6th generation and later"
+    },
+    {
+     "name": "iOS 26.7.2 and iPadOS 26.7.2",
+     "date": "2026-10-26",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 3rd generation and later, iPad Pro 11-inch 1st generation and later, iPad Air 3rd generation and later, iPad 8th generation and later, and iPad mini 5th generation and later"
+    },
+    {
+     "name": "iOS 18.7.11 and iPadOS 18.7.11",
+     "date": "2026-10-26",
+     "availableFor": "iPhone XS, iPhone XS Max, iPhone XR, iPad 7th generation"
+    },
+    {
+     "name": "tvOS 27.2",
+     "date": "2026-10-26",
+     "availableFor": "Apple TV 4K 2nd generation and later"
+    },
+    {
+     "name": "watchOS 27.2",
+     "date": "2026-10-26",
+     "availableFor": "Apple Watch Series 9 and later"
+    },
+    {
+     "name": "visionOS 27.2",
+     "date": "2026-10-26",
+     "availableFor": "Apple Vision Pro (all models)"
+    },
+    {
+     "name": "tvOS 26.6.1",
+     "date": "2026-10-26",
+     "availableFor": "Apple TV HD and Apple TV 4K 1st generation"
+    },
+    {
+     "name": "iOS 27.1",
+     "date": "2026-10-23",
+     "availableFor": "iPhone Duo"
+    },
+    {
+     "name": "iOS 27.0.1 and iPadOS 27.0.1",
+     "date": "2026-09-28",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 4th generation and later, iPad Pro 11-inch 2nd generation and later, iPad Air 4th generation and later, iPad 9th generation and later, and iPad mini 6th generation and later"
+    },
+    {
+     "name": "iOS 26.7.1 and iPadOS 26.7.1",
+     "date": "2026-09-28",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 3rd generation and later, iPad Pro 11-inch 1st generation and later, iPad Air 3rd generation and later, iPad 8th generation and later, and iPad mini 5th generation and later"
+    },
+    {
+     "name": "watchOS 27.0.1",
+     "date": "2026-09-28",
+     "availableFor": "Apple Watch Series 9 and later"
+    },
+    {
+     "name": "visionOS 27.0.1",
+     "date": "2026-09-28",
+     "availableFor": "Apple Vision Pro (all models)"
+    },
+    {
+     "name": "watchOS 27.0.1",
+     "date": "2026-09-23",
+     "availableFor": "Apple Watch Series 12 and Apple Watch Ultra 4"
+    },
+    {
+     "name": "iOS 27 and iPadOS 27",
+     "date": "2026-09-14",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 4th generation and later, iPad Pro 11-inch 2nd generation and later, iPad Air 4th generation and later, iPad 9th generation and later, and iPad mini 6th generation and later"
+    },
+    {
+     "name": "iOS 26.7 and iPadOS 26.7",
+     "date": "2026-09-14",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 3rd generation and later, iPad Pro 11-inch 1st generation and later, iPad Air 3rd generation and later, iPad 8th generation and later, and iPad mini 5th generation and later"
+    },
+    {
+     "name": "tvOS 27",
+     "date": "2026-09-14",
+     "availableFor": "Apple TV 4K 2nd generation and later"
+    },
+    {
+     "name": "watchOS 27",
+     "date": "2026-09-14",
+     "availableFor": "Apple Watch Series 9 and later"
+    },
+    {
+     "name": "visionOS 27",
+     "date": "2026-09-14",
+     "availableFor": "Apple Vision Pro (all models)"
+    },
+    {
+     "name": "iOS 26.6.2 and iPadOS 26.6.2",
+     "date": "2026-09-08",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 3rd generation and later, iPad Pro 11-inch 1st generation and later, iPad Air 3rd generation and later, iPad 8th generation and later, and iPad mini 5th generation and later"
+    },
+    {
+     "name": "iOS 26.6.1 and iPadOS 26.6.1",
+     "date": "2026-08-17",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 3rd generation and later, iPad Pro 11-inch 1st generation and later, iPad Air 3rd generation and later, iPad 8th generation and later, and iPad mini 5th generation and later"
+    },
+    {
+     "name": "iOS 18.7.10 and iPadOS 18.7.10",
+     "date": "2026-08-17",
+     "availableFor": "iPhone XS, iPhone XS Max, iPhone XR, iPad 7th generation"
+    },
+    {
+     "name": "visionOS 26.6.1",
+     "date": "2026-08-17",
+     "availableFor": "Apple Vision Pro (all models)"
+    },
+    {
+     "name": "iOS 26.6 and iPadOS 26.6",
+     "date": "2026-07-27",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 3rd generation and later, iPad Pro 11-inch 1st generation and later, iPad Air 3rd generation and later, iPad 8th generation and later, and iPad mini 5th generation and later"
+    },
+    {
+     "name": "tvOS 26.6",
+     "date": "2026-07-27",
+     "availableFor": "Apple TV HD and Apple TV 4K (all models)"
+    },
+    {
+     "name": "watchOS 26.6",
+     "date": "2026-07-27",
+     "availableFor": "Apple Watch Series 6 and later"
+    },
+    {
+     "name": "visionOS 26.6",
+     "date": "2026-07-27",
+     "availableFor": "Apple Vision Pro (all models)"
+    },
+    {
+     "name": "iOS 26.5.2 and iPadOS 26.5.2",
+     "date": "2026-06-29",
+     "availableFor": "iPhone 11 and later, iPad Pro 12.9-inch 3rd generation and later, iPad Pro 11-inch 1st generation and later, iPad Air 3rd generation and later, iPad 8th generation and later, and iPad mini 5th generation and later"
+    },
+    {
+     "name": "Beats Firmware Update 1B211",
+     "date": "2026-06-16",
+     "availableFor": "Beats Studio Buds"
+    },
+    {
+     "name": "iOS 26.5.1",
+     "date": "2026-06-01",
+     "availableFor": "iPhone 17 (all models) and iPhone Air"
+    }
+   ]
   },
   {
    "id": "cisa-kev",
@@ -41,6 +228,7 @@
    "name": "macOS Golden Gate 27.2.1",
    "date": "2026-11-09",
    "url": "https://support.apple.com/en-us/149718",
+   "availableFor": "macOS Golden Gate",
    "entries": [
     {
      "component": "AirPlay",
@@ -112,6 +300,7 @@
    "name": "macOS Tahoe 26.7.3",
    "date": "2026-11-09",
    "url": "https://support.apple.com/en-us/149719",
+   "availableFor": "macOS Tahoe",
    "entries": [
     {
      "component": "AirPlay",
@@ -183,6 +372,7 @@
    "name": "macOS Sequoia 15.8.3",
    "date": "2026-11-09",
    "url": "https://support.apple.com/en-us/149720",
+   "availableFor": "macOS Sequoia",
    "entries": [
     {
      "component": "AirPlay",
@@ -251,9 +441,34 @@
    ]
   },
   {
+   "name": "Xcode 27.2",
+   "date": "2026-10-29",
+   "url": "https://support.apple.com/en-us/149589",
+   "availableFor": "macOS Tahoe 26.6 and later",
+   "entries": [
+    {
+     "component": "CoreDevice",
+     "impact": "An app may be able to read arbitrary files",
+     "description": "This issue was addressed with improved handling of symlinks.",
+     "cves": [
+      "CVE-2026-112605"
+     ]
+    },
+    {
+     "component": "Instruments",
+     "impact": "An app may be able to access sensitive user data",
+     "description": "An authorization issue was addressed with improved state management.",
+     "cves": [
+      "CVE-2026-112602"
+     ]
+    }
+   ]
+  },
+  {
    "name": "macOS Golden Gate 27.2",
    "date": "2026-10-26",
    "url": "https://support.apple.com/en-us/149521",
+   "availableFor": "macOS Golden Gate",
    "entries": [
     {
      "component": "Accelerate Framework",
@@ -2134,6 +2349,7 @@
    "name": "macOS Tahoe 26.7.2",
    "date": "2026-10-26",
    "url": "https://support.apple.com/en-us/149522",
+   "availableFor": "macOS Tahoe",
    "entries": [
     {
      "component": "Accelerate Framework",
@@ -3733,6 +3949,7 @@
    "name": "macOS Sequoia 15.8.2",
    "date": "2026-10-26",
    "url": "https://support.apple.com/en-us/149523",
+   "availableFor": "macOS Sequoia",
    "entries": [
     {
      "component": "Accelerate",
@@ -5208,9 +5425,212 @@
    ]
   },
   {
+   "name": "Safari 27.2",
+   "date": "2026-10-26",
+   "url": "https://support.apple.com/en-us/149527",
+   "availableFor": "macOS Sequoia and macOS Tahoe",
+   "entries": [
+    {
+     "component": "LinkPresentation",
+     "impact": "Processing a maliciously crafted image may result in memory corruption",
+     "description": "An out-of-bounds write issue was addressed with improved bounds checking.",
+     "cves": [
+      "CVE-2026-112621"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-113904",
+      "CVE-2026-112599"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to memory corruption",
+     "description": "A type confusion issue was addressed with improved checks.",
+     "cves": [
+      "CVE-2026-86974"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-86986",
+      "CVE-2026-112693"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process crash",
+     "description": "This issue was addressed with improved input validation.",
+     "cves": [
+      "CVE-2026-86985"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may result in the disclosure of process memory",
+     "description": "An out-of-bounds read was addressed with improved bounds checking.",
+     "cves": [
+      "CVE-2026-112699",
+      "CVE-2026-112680"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to arbitrary code execution",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-112697",
+      "CVE-2026-112655",
+      "CVE-2026-112651",
+      "CVE-2026-112623"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process termination",
+     "description": "A race condition was addressed with improved locking.",
+     "cves": [
+      "CVE-2026-112686"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process crash",
+     "description": "This issue was addressed through improved state management.",
+     "cves": [
+      "CVE-2026-112684"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process termination",
+     "description": "A type confusion issue was addressed with improved state handling.",
+     "cves": [
+      "CVE-2026-112673"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A race condition was addressed with improved state handling.",
+     "cves": [
+      "CVE-2026-112669"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process termination",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-112695",
+      "CVE-2026-112666",
+      "CVE-2026-112654",
+      "CVE-2026-112653",
+      "CVE-2026-112615"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to arbitrary code execution",
+     "description": "A type confusion issue was addressed with improved memory handling.",
+     "cves": [
+      "CVE-2026-112659"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to memory corruption",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-112640"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "A website may be able to use a media format that should be restricted in Lockdown Mode",
+     "description": "A logic issue was addressed with improved checks.",
+     "cves": [
+      "CVE-2026-113952"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to memory corruption",
+     "description": "A type confusion issue was addressed with improved state management.",
+     "cves": [
+      "CVE-2026-113949"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to unexpected memory modification",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-113903"
+     ]
+    },
+    {
+     "component": "WebKit Canvas",
+     "impact": "Processing maliciously crafted web content may lead to arbitrary code execution",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-112637"
+     ]
+    },
+    {
+     "component": "WebKit JavaScript Bindings",
+     "impact": "Processing maliciously crafted web content may lead to arbitrary code execution",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-112626"
+     ]
+    },
+    {
+     "component": "WebKit Process Model",
+     "impact": "A remote attacker may be able to break out of Web Content sandbox",
+     "description": "This issue was addressed by removing the vulnerable code.",
+     "cves": [
+      "CVE-2026-113897"
+     ]
+    },
+    {
+     "component": "WebKit Process Model",
+     "impact": "Processing maliciously crafted web content may lead to arbitrary code execution",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-112639"
+     ]
+    },
+    {
+     "component": "WebRTC",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-113901"
+     ]
+    },
+    {
+     "component": "WebRTC",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process crash",
+     "description": "An out-of-bounds read was addressed with improved bounds checking.",
+     "cves": [
+      "CVE-2026-86973"
+     ]
+    }
+   ]
+  },
+  {
    "name": "macOS Golden Gate 27.0.1",
    "date": "2026-09-28",
    "url": "",
+   "availableFor": "macOS Golden Gate",
    "noCves": true,
    "entries": []
   },
@@ -5218,6 +5638,7 @@
    "name": "macOS Tahoe 26.7.1",
    "date": "2026-09-28",
    "url": "https://support.apple.com/en-us/149228",
+   "availableFor": "macOS Tahoe",
    "entries": [
     {
      "component": "CoreGraphics",
@@ -5233,6 +5654,7 @@
    "name": "macOS Sequoia 15.8.1",
    "date": "2026-09-28",
    "url": "https://support.apple.com/en-us/149229",
+   "availableFor": "macOS Sequoia",
    "entries": [
     {
      "component": "CoreGraphics",
@@ -5248,6 +5670,7 @@
    "name": "macOS Golden Gate 27",
    "date": "2026-09-14",
    "url": "https://support.apple.com/en-us/149035",
+   "availableFor": "MacBook Neo (2026), MacBook Air with Apple silicon (2020 and later), MacBook Pro with Apple silicon (2020 and later), iMac with Apple silicon (2021 and later), Mac mini with Apple silicon (2020 and later), Mac Studio (2022 and later), and Mac Pro with Apple silicon (2023)",
    "entries": [
     {
      "component": "Accelerate Framework",
@@ -7414,6 +7837,7 @@
    "name": "macOS Tahoe 26.7",
    "date": "2026-09-14",
    "url": "https://support.apple.com/en-us/149042",
+   "availableFor": "macOS Tahoe",
    "entries": [
     {
      "component": "Accelerate Framework",
@@ -8818,6 +9242,7 @@
    "name": "macOS Sequoia 15.8",
    "date": "2026-09-14",
    "url": "https://support.apple.com/en-us/149043",
+   "availableFor": "macOS Sequoia",
    "entries": [
     {
      "component": "Accelerate Framework",
@@ -10246,9 +10671,266 @@
    ]
   },
   {
+   "name": "Safari 27",
+   "date": "2026-09-14",
+   "url": "https://support.apple.com/en-us/149039",
+   "availableFor": "macOS Sequoia and macOS Tahoe",
+   "entries": [
+    {
+     "component": "Safari",
+     "impact": "A malicious website may be able to determine what apps a user has installed",
+     "description": "This issue was addressed through improved state management.",
+     "cves": [
+      "CVE-2026-84518"
+     ]
+    },
+    {
+     "component": "Safe Browsing",
+     "impact": "An app may be able to access sensitive user data",
+     "description": "This issue was addressed with additional entitlement checks.",
+     "cves": [
+      "CVE-2026-86897"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process termination",
+     "description": "A logic issue was addressed with improved state management.",
+     "cves": [
+      "CVE-2026-84635"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may disclose sensitive user information",
+     "description": "A permissions issue was addressed by removing the vulnerable code.",
+     "cves": [
+      "CVE-2026-64753"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Opening a maliciously crafted webarchive file may lead to universal cross-site scripting",
+     "description": "A logic issue was addressed with improved state management.",
+     "cves": [
+      "CVE-2026-86898"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to arbitrary code execution",
+     "description": "A type confusion issue was addressed with improved state management.",
+     "cves": [
+      "CVE-2026-86922"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to unexpected behavior",
+     "description": "A logic issue was addressed with improved state management.",
+     "cves": [
+      "CVE-2026-86872"
+     ]
+    },
+    {
+     "component": "WebKit Canvas",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-64718"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Xcode 27",
+   "date": "2026-09-14",
+   "url": "https://support.apple.com/en-us/149040",
+   "availableFor": "macOS Tahoe 26.6 and later",
+   "entries": [
+    {
+     "component": "App Store",
+     "impact": "An app may be able to break out of its sandbox",
+     "description": "This issue was addressed by enforcing library validation on the affected binaries.",
+     "cves": [
+      "CVE-2026-86948"
+     ]
+    },
+    {
+     "component": "CoreSymbolication",
+     "impact": "Parsing a maliciously crafted binary may lead to unexpected app termination",
+     "description": "An input validation issue was addressed with improved input validation.",
+     "cves": [
+      "CVE-2026-86875"
+     ]
+    },
+    {
+     "component": "otool",
+     "impact": "Parsing a maliciously crafted binary may lead to unexpected tool termination",
+     "description": "An out-of-bounds read was addressed with improved input validation.",
+     "cves": [
+      "CVE-2026-86874"
+     ]
+    },
+    {
+     "component": "Xcode",
+     "impact": "A malicious app may be able to break out of its sandbox",
+     "description": "This issue was addressed by enforcing library validation on the affected binaries.",
+     "cves": [
+      "CVE-2026-86949"
+     ]
+    },
+    {
+     "component": "Xcode IDE",
+     "impact": "An app may be able to access user-sensitive data",
+     "description": "A permissions issue was addressed with improved validation.",
+     "cves": [
+      "CVE-2026-65393"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Safari 26.6.1",
+   "date": "2026-08-18",
+   "url": "https://support.apple.com/en-us/148286",
+   "availableFor": "macOS Sonoma and macOS Sequoia",
+   "entries": [
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "An out-of-bounds access issue was addressed with improved bounds checking.",
+     "cves": [
+      "CVE-2026-64784"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "The issue was addressed with improved memory handling.",
+     "cves": [
+      "CVE-2026-43795",
+      "CVE-2026-65338"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to memory corruption",
+     "description": "The issue was addressed with improved memory handling.",
+     "cves": [
+      "CVE-2026-65341"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A memory corruption vulnerability was addressed with improved locking.",
+     "cves": [
+      "CVE-2026-64782"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "The issue was addressed with improved input validation.",
+     "cves": [
+      "CVE-2026-64781"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "This issue was addressed through improved state management.",
+     "cves": [
+      "CVE-2026-65351",
+      "CVE-2026-65340",
+      "CVE-2026-65337",
+      "CVE-2026-65336",
+      "CVE-2026-65335",
+      "CVE-2026-65333",
+      "CVE-2026-65332",
+      "CVE-2026-65331"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-64715"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "The issue was addressed with improved checks.",
+     "cves": [
+      "CVE-2026-64780"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A memory corruption issue was addressed with improved state management.",
+     "cves": [
+      "CVE-2026-65334"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to memory corruption",
+     "description": "A memory corruption issue was addressed with improved memory handling.",
+     "cves": [
+      "CVE-2026-43794"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process termination",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-64787"
+     ]
+    },
+    {
+     "component": "WebKit History",
+     "impact": "Visiting a maliciously crafted website may leak sensitive data",
+     "description": "The issue was addressed with improved checks.",
+     "cves": [
+      "CVE-2026-64778"
+     ]
+    },
+    {
+     "component": "WebKit Storage",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A memory corruption vulnerability was addressed with improved locking.",
+     "cves": [
+      "CVE-2026-64779"
+     ]
+    },
+    {
+     "component": "WebRTC",
+     "impact": "Processing maliciously crafted web content may lead to memory corruption",
+     "description": "An out-of-bounds write issue was addressed with improved bounds checking.",
+     "cves": [
+      "CVE-2026-65391"
+     ]
+    },
+    {
+     "component": "WebRTC",
+     "impact": "Processing maliciously crafted web content may lead to memory corruption",
+     "description": "An integer overflow was addressed with improved input validation.",
+     "cves": [
+      "CVE-2026-65390"
+     ]
+    }
+   ]
+  },
+  {
    "name": "macOS Tahoe 26.6.2",
    "date": "2026-08-17",
    "url": "https://support.apple.com/en-us/148281",
+   "availableFor": "macOS Tahoe",
    "entries": [
     {
      "component": "Audio",
@@ -10465,6 +11147,7 @@
    "name": "macOS Tahoe 26.6.1",
    "date": "2026-08-06",
    "url": "https://support.apple.com/en-us/148170",
+   "availableFor": "macOS Tahoe",
    "entries": [
     {
      "component": "Screen Sharing",
@@ -10480,6 +11163,7 @@
    "name": "macOS Sequoia 15.7.9",
    "date": "2026-08-06",
    "url": "https://support.apple.com/en-us/148171",
+   "availableFor": "macOS Sequoia",
    "entries": [
     {
      "component": "Screen Sharing",
@@ -10495,6 +11179,7 @@
    "name": "macOS Sonoma 14.8.9",
    "date": "2026-08-06",
    "url": "https://support.apple.com/en-us/148172",
+   "availableFor": "macOS Sonoma",
    "entries": [
     {
      "component": "Screen Sharing",
@@ -10510,6 +11195,7 @@
    "name": "macOS Tahoe 26.6",
    "date": "2026-07-27",
    "url": "https://support.apple.com/en-us/128067",
+   "availableFor": "macOS Tahoe",
    "entries": [
     {
      "component": "Accounts",
@@ -11772,6 +12458,7 @@
    "name": "macOS Sequoia 15.7.8",
    "date": "2026-07-27",
    "url": "https://support.apple.com/en-us/128071",
+   "availableFor": "macOS Sequoia",
    "entries": [
     {
      "component": "Accounts",
@@ -12886,6 +13573,7 @@
    "name": "macOS Sonoma 14.8.8",
    "date": "2026-07-27",
    "url": "https://support.apple.com/en-us/128072",
+   "availableFor": "macOS Sonoma",
    "entries": [
     {
      "component": "Accounts",
@@ -13930,9 +14618,98 @@
    ]
   },
   {
+   "name": "Safari 26.6",
+   "date": "2026-07-27",
+   "url": "https://support.apple.com/en-us/128073",
+   "availableFor": "macOS Sonoma and macOS Sequoia",
+   "entries": [
+    {
+     "component": "Safari",
+     "impact": "An app may be able to access sensitive user data",
+     "description": "An authorization issue was addressed with improved state management.",
+     "cves": [
+      "CVE-2026-43792"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Websites may know if the user has visited a given link",
+     "description": "This issue was addressed with improved checks.",
+     "cves": [
+      "CVE-2026-64713"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Visiting a website that frames malicious content may lead to UI spoofing",
+     "description": "The issue was addressed with improved UI.",
+     "cves": [
+      "CVE-2026-64730"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Maliciously crafted web content may violate iframe sandboxing policy",
+     "description": "A permissions issue was addressed with improved validation.",
+     "cves": [
+      "CVE-2026-64728"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-64783"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A memory corruption issue was addressed with improved state management.",
+     "cves": [
+      "CVE-2026-64757"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Visiting a website may lead to an app denial-of-service",
+     "description": "This issue was addressed through improved state management.",
+     "cves": [
+      "CVE-2026-43804"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "An app may be able to read files outside of its sandbox",
+     "description": "An access issue was addressed with improved access restrictions.",
+     "cves": [
+      "CVE-2026-43821"
+     ]
+    },
+    {
+     "component": "WebKit Canvas",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-64718"
+     ]
+    },
+    {
+     "component": "WebRTC",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "An out-of-bounds access issue was addressed with improved bounds checking.",
+     "cves": [
+      "CVE-2026-64719"
+     ]
+    }
+   ]
+  },
+  {
    "name": "macOS Tahoe 26.5.2",
    "date": "2026-06-29",
    "url": "https://support.apple.com/en-us/127595",
+   "availableFor": "macOS Tahoe",
    "entries": [
     {
      "component": "IOGPUFamily",
@@ -14185,9 +14962,210 @@
    ]
   },
   {
+   "name": "Safari 26.5.2",
+   "date": "2026-06-29",
+   "url": "https://support.apple.com/en-us/127685",
+   "availableFor": "macOS Sonoma and macOS Sequoia",
+   "entries": [
+    {
+     "component": "Web Extensions",
+     "impact": "A malicious web extension may be able to cause an unexpected process crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-43704"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may disclose sensitive user information",
+     "description": "A cross-origin issue was addressed with improved tracking of security origins.",
+     "cves": [
+      "CVE-2026-43700"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "A malicious website may exfiltrate data cross-origin",
+     "description": "The issue was addressed with improved checks.",
+     "cves": [
+      "CVE-2026-43735"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-43734",
+      "CVE-2026-43726",
+      "CVE-2026-43709",
+      "CVE-2026-43699",
+      "CVE-2026-43742"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may disclose sensitive user information",
+     "description": "A path handling issue was addressed with improved validation.",
+     "cves": [
+      "CVE-2026-43732"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to memory corruption",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-43731",
+      "CVE-2026-43715"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-43727"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "A malicious website may be able to process restricted web content outside the sandbox",
+     "description": "The issue was addressed with improved input validation.",
+     "cves": [
+      "CVE-2026-43725"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process crash",
+     "description": "The issue was addressed with improved memory handling.",
+     "cves": [
+      "CVE-2026-43663",
+      "CVE-2026-39872",
+      "CVE-2026-43712"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "The issue was addressed with improved memory handling.",
+     "cves": [
+      "CVE-2026-43716"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "An out-of-bounds access issue was addressed with improved bounds checking.",
+     "cves": [
+      "CVE-2026-43676"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may result in the disclosure of process memory",
+     "description": "The issue was addressed with improved memory handling.",
+     "cves": [
+      "CVE-2026-43740"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Visiting a website may leak sensitive data",
+     "description": "A permissions issue was addressed with additional restrictions.",
+     "cves": [
+      "CVE-2026-43713"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "A malicious website may exfiltrate data cross-origin",
+     "description": "The issue was addressed with improved input validation.",
+     "cves": [
+      "CVE-2026-43708"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process crash",
+     "description": "A memory corruption issue was addressed with improved memory handling.",
+     "cves": [
+      "CVE-2026-43707"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to memory corruption",
+     "description": "A type confusion issue was addressed with improved checks.",
+     "cves": [
+      "CVE-2026-43705"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "A malicious website may be able to process restricted web content outside the sandbox",
+     "description": "The issue was addressed with improved checks.",
+     "cves": [
+      "CVE-2026-43701"
+     ]
+    },
+    {
+     "component": "WebKit",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "An out-of-bounds write issue was addressed with improved input validation.",
+     "cves": [
+      "CVE-2026-43745"
+     ]
+    },
+    {
+     "component": "WebKit Canvas",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-43720"
+     ]
+    },
+    {
+     "component": "WebKit Storage",
+     "impact": "A malicious website may be able to silently hijack clipboard data",
+     "description": "This issue was addressed through improved state management.",
+     "cves": [
+      "CVE-2026-43721"
+     ]
+    },
+    {
+     "component": "WebRTC",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected process crash",
+     "description": "An out-of-bounds access issue was addressed with improved bounds checking.",
+     "cves": [
+      "CVE-2026-28979"
+     ]
+    },
+    {
+     "component": "WebRTC",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A stack overflow was addressed with improved input validation.",
+     "cves": [
+      "CVE-2026-43718"
+     ]
+    },
+    {
+     "component": "WebRTC",
+     "impact": "Processing maliciously crafted web content may lead to an unexpected Safari crash",
+     "description": "A use-after-free issue was addressed with improved memory management.",
+     "cves": [
+      "CVE-2026-43717",
+      "CVE-2026-43746"
+     ]
+    }
+   ]
+  },
+  {
    "name": "macOS Tahoe 26.5.1",
    "date": "2026-06-01",
    "url": "",
+   "availableFor": "macOS Tahoe",
    "noCves": true,
    "entries": []
   }

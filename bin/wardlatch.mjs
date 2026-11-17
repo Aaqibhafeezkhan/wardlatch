@@ -27,7 +27,7 @@ import { safe, saw, withdrawUnreceipted } from '../lib/report.mjs';
 import { escapeHidden, escapeJsonHidden } from '../lib/escape.mjs';
 import { trustFix, readMacosRelease, appleVersionLabel, appleNote, appleFixState, appleUnknownNote, appleFileCheck, appleSystemRow, appleCveRow, backupRows, certPemReviewRow, macosUpdateRow } from '../lib/macos.mjs';
 import { checkSshole } from '../lib/sshd.mjs';
-import { lockfilesUnder, checkLockfile, LOCK_DEPTH, NOT_WALKED as LOCK_NOT_WALKED } from '../lib/lockfiles.mjs';
+import { lockfilesUnder, checkLockfile, pyLockKind, LOCK_DEPTH, NOT_WALKED as LOCK_NOT_WALKED } from '../lib/lockfiles.mjs';
 import { measure as measureReach, lines as reachLines, toJson as reachJson } from '../lib/reach.mjs';
 import { checkIocs } from '../lib/iocs.mjs';
 import { checkClaudeCode } from '../lib/claudecode.mjs';
@@ -689,6 +689,20 @@ for (const inc of chosen) {
       // environment in it left nothing in the receipt, so the all-clear could not be read as having searched the one
       // place the reader named (AUDIT-11)
       searched.push(...dirs, ...walked.filter((r) => !dirs.includes(r)));
+    }
+    // release/0.1.19-candidate (Starlette, the MCP Python SDK, FastMCP): the Python lockfiles and requirements files
+    // under the folders searched, read as text (lib/lockfiles.mjs pyLockKind). What a project pins is what its next
+    // install fetches; what is installed now is the site-packages part above. Nothing in a project is run.
+    if (inc.pyLockfiles) {
+      const lockDenied = [...lockedRoots], lockLinks = [], lockDeep = [];
+      for (const f of lockfilesUnder(searchable, LOCK_DEPTH, lockDenied, lockLinks, { deep: lockDeep, kindOf: pyLockKind })) {
+        const r = checkLockfile(f, inc.pyLockfiles);
+        if (r.read) searched.push(f.path);
+        for (const row of r.rows) show({ path: f.path, ...row }, `${row.what}  ${short(f.path)}`, row.fix ?? inc.pyLockfiles.fix);
+      }
+      // into this check's own gap lists, each folder once: the one gaps() call below reports them, and the --paths
+      // folders that are not there, once
+      for (const [to, from] of [[denied, lockDenied], [links, lockLinks], [deep, lockDeep]]) for (const d of from) if (!to.includes(d)) to.push(d);
     }
     if (inc.tmpTrace) {
       const temps = tempDirs();

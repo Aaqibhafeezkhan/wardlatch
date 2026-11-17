@@ -18,7 +18,7 @@
 import { writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseIndex, parseNotes, macosRelease, CVE_RE } from './apple-notes.mjs';
+import { parseIndex, parseNotes, macApplicable, CVE_RE } from './apple-notes.mjs';
 import { EQUIVALENCE } from './check.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -61,13 +61,18 @@ async function getRetry(url) {
 const index = parseIndex(await getRetry(INDEX));
 // the index must reach back past the window, or the window was not read whole
 if (index.at(-1).date > since) throw new Error(`the index's oldest row is ${index.at(-1).date}, after the window's start ${since}: not read whole`);
-const inWindow = index.filter((r) => r.date >= since && macosRelease(r.name));
+// Every row in the window is either read (a release that runs on a Mac: macOS, Safari, Xcode, Mac apps) or recorded as
+// skipped with its "Available for" column, so check.mjs can tell a skipped Mac product (pattern P4; release/0.1.19-
+// candidate: the read took macOS rows only, and Xcode 27.2's fixes were never items).
+const allInWindow = index.filter((r) => r.date >= since);
+const inWindow = allInWindow.filter(macApplicable);
+const skipped = allInWindow.filter((r) => !macApplicable(r)).map((r) => ({ name: r.name, date: r.date, availableFor: r.availableFor }));
 const releases = [];
 for (const r of inWindow) {
-  if (!r.url) { releases.push({ name: r.name, date: r.date, url: '', noCves: true, entries: [] }); continue; }
+  if (!r.url) { releases.push({ name: r.name, date: r.date, url: '', availableFor: r.availableFor, noCves: true, entries: [] }); continue; }
   const n = parseNotes(await getRetry(r.url));
   if (n.title !== r.name) throw new Error(`${r.url}: the page is titled "${n.title}", the index says "${r.name}"`);
-  releases.push({ name: r.name, date: r.date, url: r.url, entries: n.entries.map((e) => ({ component: e.component, impact: e.impact, description: e.description, cves: e.cves })) });
+  releases.push({ name: r.name, date: r.date, url: r.url, availableFor: r.availableFor, entries: n.entries.map((e) => ({ component: e.component, impact: e.impact, description: e.description, cves: e.cves })) });
   console.error(`${r.name} (${r.date}): ${n.entries.length} entries, ${n.cves.length} CVEs`);
 }
 
@@ -107,7 +112,7 @@ const snapshot = {
   read: now.toISOString().slice(0, 19) + 'Z',
   since,
   sources: [
-    { id: 'apple-macos', url: INDEX, indexRows: index.length, indexOldest: index.at(-1).date, macosReleasesInWindow: inWindow.length },
+    { id: 'apple-macos', url: INDEX, indexRows: index.length, indexOldest: index.at(-1).date, releasesInWindow: allInWindow.length, macReleasesInWindow: inWindow.length, skipped },
     { id: 'cisa-kev', url: KEV, catalogVersion: feed.catalogVersion, dateReleased: feed.dateReleased, count: feed.count, read: rows.length, inWindow: kev.length },
     { id: 'cert-vu', url: VINCE, months: vuMonths, monthsInWindow: vuMonths.length, notesRead, inClass: cert.length },
   ],
@@ -116,4 +121,4 @@ const snapshot = {
   cert,
 };
 writeFileSync(out, JSON.stringify(snapshot, null, 1) + '\n');
-console.error(`wrote ${out}: ${releases.length} macOS releases since ${since}, ${releases.reduce((n, r) => n + r.entries.length, 0)} entries; ${kev.length} KEV rows (catalog ${feed.catalogVersion})`);
+console.error(`wrote ${out}: ${releases.length} Mac releases (${skipped.length} other Apple rows skipped) since ${since}, ${releases.reduce((n, r) => n + r.entries.length, 0)} entries; ${kev.length} KEV rows (catalog ${feed.catalogVersion})`);
