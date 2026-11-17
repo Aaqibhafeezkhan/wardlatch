@@ -125,10 +125,11 @@ export function swapAfterStat(target, swap) {
 // ---- the command on a stand-in home
 /**
  * Runs bin/wardlatch.mjs with HOME at `home`, PATH /usr/bin:/bin unless given, from `cwd`. `preload`: files given to
- * node --require (this suite's clock.cjs). → { code, rows (with --json), text, stderr }.
+ * node --require (this suite's clock.cjs). `bin`: the command to run (a mutated copy, for a mutation proof).
+ * → { code, rows (with --json), text, stderr }.
  */
-export function cli(args, { home, cwd = home, env = {}, json = true, preload = [] } = {}) {
-  const r = spawnSync(process.execPath, [...preload.flatMap((p) => ['--require', p]), BIN, ...args, ...(json ? ['--json'] : [])], {
+export function cli(args, { home, cwd = home, env = {}, json = true, preload = [], bin = BIN } = {}) {
+  const r = spawnSync(process.execPath, [...preload.flatMap((p) => ['--require', p]), bin, ...args, ...(json ? ['--json'] : [])], {
     encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, cwd, timeout: 180000,
     env: { HOME: home, PATH: '/usr/bin:/bin', LANG: 'C', ...(process.env.NODE_OPTIONS ? { NODE_OPTIONS: process.env.NODE_OPTIONS } : {}), ...env },
   });
@@ -152,14 +153,10 @@ export async function mutatedLib(tmp, file, from, to) {
 export const realLib = (m) => import(pathToFileURL(join(ROOT, 'lib', m)).href);
 
 /** Tests that FAIL today, each with the reason and the branch whose landing is to turn it green. Run as node:test todo
- *  tests: a todo that fails is reported and does not fail the run; one that passes is reported too, so it is noticed. */
+ *  tests: a todo that fails is reported and does not fail the run; one that passes is reported too, so it is noticed.
+ *  release/0.1.19-candidate: c2, c3, H11, H12 (fix/no-stale-safe's lib), b4d (lib/installs.mjs) and H9b
+ *  (deno-2026-06 reads mise's and asdf's program) are real tests now, each with a planted mutation that turns it red. */
 export const KNOWN_FAILING = {
-  'c2 stale list': 'macos-2026-11 says SAFE for "at or past Apple\'s latest release" however old its list of releases is (lib/macos.mjs macosUpdateRow has no clock). fix/no-stale-safe-2026-11-16 (lib/clock.mjs, STALE_AFTER_DAYS) makes it REVIEW (measured against that branch\'s lib); remove this entry when that branch lands',
-  'c3 clock set back': 'with the clock set back to the day after the release list was read and the machine\'s own update files 400 days newer, the same SAFE stands (no clock and no file time is read). fix/no-stale-safe-2026-11-16 takes the later of the clock and those files (lib/clock.mjs effectiveNow; measured against that branch\'s lib: REVIEW); remove this entry when that branch lands',
-  'H11 clock set back': 'the command, its clock set back and the machine\'s update files newer than the list, reads SAFE; fix/no-stale-safe-2026-11-16 takes the later of the clock and those files; remove when it lands',
-  'H12 stale built-in list': 'the command, 400 days on, reads macOS SAFE from the 13 Nov 2026 list; fix/no-stale-safe-2026-11-16; remove when it lands',
-  'b4d dpkg status cut': 'lib/installs.mjs checkVersionFiles reads /var/lib/dpkg/status for Chrome, VS Code, git and Plex only when `presentRe` finds the product\'s record; a status file cut inside that record ("Package: google-chrome-") has none, so the product reads as not installed and the check says its all-clear (SAFE). Left for the owner: installs.mjs is being changed on fix/no-stale-safe-2026-11-16 (a shared file that does not end in a line break could be UNKNOWN)',
-  'H9b deno by folder name': 'a mise or asdf Deno is judged by its folder\'s name (installs/deno/<version>), not by the version in the program inside it: a folder named 2.7.14 holding a 2.7.13 deno reads SAFE. Left for the owner (lib/incidents/deno-2026-06.json: a scan of installs/deno/*/bin/deno would judge by content)',
   'O4 PATH non-executable': 'lib/binaries.mjs findAllOnPath takes the first regular file of the name on PATH, executable or not; the shell skips a file it cannot execute. With a mode 644 php first on PATH, Wardlatch names that file as the one that runs and the shell runs the next one. No SAFE comes of it today (the next copy is still run or reported not run), so it is left for the owner',
 };
 export const todo = (key) => ({ todo: `KNOWN-FAILING: ${KNOWN_FAILING[key]}` });

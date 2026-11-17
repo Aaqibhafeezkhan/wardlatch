@@ -10,7 +10,7 @@
 //   a  name equivalence: a spelling the disk opens as the same file gets the same verdict (asked of the disk, not assumed)
 //   b  monotonic unknowns: taking away or corrupting an input never turns a non-SAFE into SAFE, nor makes SAFE from nothing
 //   c  time: moving the clock either way never turns a non-SAFE into SAFE; a SAFE from a list of "latest" releases
-//      does not outlive the list (KNOWN-FAILING until fix/no-stale-safe-2026-11-16 lands)
+//      does not outlive the list (it was KNOWN-FAILING until fix/no-stale-safe-2026-11-16 landed)
 //   d  output agreement: the text, --json and the summary counts agree for one machine state
 //   e  order and duplicates: listing order, a folder given twice or inside another, and links never change a verdict
 //      or a count
@@ -24,7 +24,7 @@ import assert from 'node:assert/strict';
 import { writeFileSync, mkdirSync, symlinkSync, chmodSync, cpSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { property, holds, scratch, inode, variant, name, withClock, withFs, shuffledListings, cli, countOf, mutatedLib, realLib, incident, todo, MAC, ROOT, BIN } from './support.mjs';
+import { property, holds, scratch, inode, variant, name, withClock, withFs, shuffledListings, cli, countOf, mutatedLib, realLib, incident, MAC, ROOT, BIN } from './support.mjs';
 
 const T = scratch('props');
 after(() => T.done());
@@ -261,7 +261,7 @@ test('b1 monotonic unknowns: a lockfile cut inside a string or mapping never rea
 test('b2 monotonic unknowns: an empty, gone, folder, looping, FIFO, unreadable or binary lockfile never reads SAFE', () => holds(b2(REAL)));
 test('b3 monotonic unknowns: a cut or broken SystemVersion.plist never reads SAFE unless version and build survive whole', () => holds(b3(REAL)));
 test('b4 monotonic unknowns: a version file cut or closed never turns a non-SAFE verdict into SAFE', () => holds(b4(REAL)));
-test('b4d monotonic unknowns: dpkg\'s status cut inside the product\'s own record never reads as the product not installed', todo('b4d dpkg status cut'), () => holds(b4(REAL, true)));
+test('b4d monotonic unknowns: dpkg\'s status cut inside the product\'s own record never reads as the product not installed', () => holds(b4(REAL, true)));
 
 // ---------------------------------------------------------------- c: time
 
@@ -297,8 +297,8 @@ const c2 = (L) => { for (const m of atLatest()) { const s = withClock(listDay + 
 const c3 = (L) => { for (const m of atLatest()) { const s = withFs(filesSay(listDay + 400 * DAY), () => withClock(listDay + DAY, () => L.macos.macosUpdateRow(MACOS, m.v, 'darwin', m.b).status)); if (s === 'SAFE') return `c3: macOS ${m.v} is SAFE with the clock set to the day after the list and the machine's files 400 days newer`; } return null; };
 
 test('c1 time: moving the clock forward or back never turns a REVIEW, UNKNOWN or EXPOSED row into SAFE', () => holds(c1(REAL)));
-test('c2 time: a SAFE from a list of "latest" releases does not outlive the list (400 days on)', todo('c2 stale list'), () => holds(c2(REAL)));
-test('c3 time: a clock set back cannot hide a stale list when the machine\'s own update files are newer', todo('c3 clock set back'), () => holds(c3(REAL)));
+test('c2 time: a SAFE from a list of "latest" releases does not outlive the list (400 days on)', () => holds(c2(REAL)));
+test('c3 time: a clock set back cannot hide a stale list when the machine\'s own update files are newer', () => holds(c3(REAL)));
 
 // ---------------------------------------------------------------- d: output agreement
 
@@ -440,7 +440,16 @@ test('Pm mutation proof: each invariant above fails on a planted mutation of lib
   await red('b2: a lockfile that is not JSON read as pinning nothing', b2, plant('lockfiles.mjs', "try { j = JSON.parse(text); } catch { return { error: 'is not valid JSON, so it could not be read as an npm lockfile' }; }", 'try { j = JSON.parse(text); } catch { return { pins: [], entries: 0 }; }'));
   await red('b3: an unread build taken as a release build', b3, plant('macos.mjs', "const b = String(build ?? '');", "const b = String(build || '26B131');"));
   await red('b4: a version file that could not be read passed over', b4, plant('installs.mjs', "if (!buf) { out.push({ group: f.group, status: 'UNKNOWN', path, version: '', label: f.label, ...own, reason: 'found, but the file could not be read (or is larger than expected)' }); continue; }", 'if (!buf) continue;'), { skip: AS_ROOT && 'root reads every file' });
-  await red('c1: a REVIEW that turns SAFE after 1 Jan 2027', c1, plant('macos.mjs', 'if (compare(v, line.latest) < 0) return { ...base, status: \'REVIEW\'', 'if (compare(v, line.latest) < 0 && Date.now() < Date.UTC(2027, 0, 1)) return { ...base, status: \'REVIEW\''));
+  // b4d (was KNOWN-FAILING): a cut dpkg status that names no record of the product taken as "not installed" again
+  await red('b4d: a cut dpkg status read as the product not installed', (L) => b4(L, true), plant('installs.mjs', "if (!text.length || !text.endsWith('\\n')) out.push(", 'if (false) out.push('));
+  // c1's mutant returns SAFE itself after 1 Jan 2027 (release/0.1.19-candidate: the old one only skipped the REVIEW and
+  // fell through to the at-the-latest SAFE, which fix/no-stale-safe's stale-list rule now turns REVIEW on any clock
+  // that far on, so it no longer proved c1)
+  await red('c1: a REVIEW that turns SAFE after 1 Jan 2027', c1, plant('macos.mjs', 'if (compare(v, line.latest) < 0) return { ...base, status: \'REVIEW\'', 'if (compare(v, line.latest) < 0 && Date.now() > Date.UTC(2027, 0, 1)) return { ...base, status: \'SAFE\', reason: \'mutant\' }; if (compare(v, line.latest) < 0) return { ...base, status: \'REVIEW\''));
+  // c2, c3 (were KNOWN-FAILING until fix/no-stale-safe-2026-11-16 landed): the stale-list rule taken out, and "today"
+  // taken from the clock alone
+  await red('c2: no stale-list rule (staleList always null)', c2, plant('clock.mjs', 'export function staleList(listedOn, today, { what, check, maxDays = STALE_AFTER_DAYS }) {', 'export function staleList(listedOn, today, { what, check, maxDays = STALE_AFTER_DAYS }) {\n  return null;'));
+  await red('c3: "today" from the clock alone, the update files not read', c3, plant('clock.mjs', 'if (Number.isFinite(t) && t > best.now) best =', 'if (false) best ='));
   await red('e1: the first lockfile listed in a folder kept, the rest dropped', e1, plant('lockfiles.mjs', 'if (!once.has(key)) { once.add(key); out.push', 'if (!once.has(dirId)) { once.add(dirId); out.push'));
   await red('e2: overlapping roots walked twice with no once-only rule', e2, plant('lockfiles.mjs', 'if (!once.has(key)) { once.add(key); out.push({ path: p, kind: LOCK_NAMES[lock] }); }', 'out.push({ path: p, kind: LOCK_NAMES[lock] });'));
   await red('f: a lockfile in a folder deeper than 2 levels passed over', f, plant('lockfiles.mjs', 'if (depth === 0) continue;', 'if (depth <= LOCK_DEPTH - 2) continue;'));

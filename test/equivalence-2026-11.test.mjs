@@ -9,7 +9,7 @@
 import './support/no-real-home.cjs';
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, realpathSync, symlinkSync, statSync, readdirSync, cpSync, openSync, writeSync, closeSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, realpathSync, symlinkSync, statSync, readdirSync, cpSync, openSync, writeSync, closeSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -51,7 +51,7 @@ test('E1 the facts are the vendors\' and CERT/CC\'s, and none says "exploited" (
   assert.match(TF.versionFiles.fix, /1\.15\.9, 1\.16\.0 or later/);
 });
 
-const DENO_BIN = DENO.versionFiles.files.find((f) => f.scan);
+const DENO_BIN = DENO.versionFiles.files.find((f) => f.label === 'deno.land installer');
 const DENO_KEG = DENO.versionFiles.files.find((f) => f.path === '/opt/homebrew/opt/deno');
 const DENO_MISE = DENO.versionFiles.files.find((f) => f.label === 'mise');
 const TF_BIN = TF.versionFiles.files[0];
@@ -68,8 +68,21 @@ const denoTable = (v = DENO.versionFiles, F = { keg: DENO_KEG, mise: DENO_MISE, 
   want(verdict(v, F.keg, keg('2.7.14'), 'darwin'), [['SAFE', '2.7.14']], 'keg 2.7.14');
   want(verdict(v, F.keg, keg('2.7.14_1'), 'darwin'), [['SAFE', '2.7.14']], 'a revised keg');
   want(verdict(v, F.keg, keg('2.7.13'), 'linux'), [['SAFE', '2.7.13']], 'keg 2.7.13 on Linux: not affected');
-  const m = fresh('mise'); mkdirSync(join(m, 'installs', 'deno', '1.46.3'), { recursive: true });
-  want(verdict(v, F.mise, join(m, 'installs', 'deno', '*'), 'darwin'), [['EXPOSED', '1.46.3']], 'mise 1.46.3');
+  // mise and asdf (release/0.1.19-candidate, the never-false-safe suite's H9b): the program inside the install folder is
+  // read, never the folder's name. A folder named 2.7.14 holding a 2.7.13 deno is EXPOSED; one whose program can't be
+  // read, or carries no version, is UNKNOWN
+  const miseAt = (folder, content) => { const m = fresh('mise'); const d = join(m, 'installs', 'deno', folder, 'bin'); mkdirSync(d, { recursive: true }); if (content !== null) writeFileSync(join(d, 'deno'), Buffer.concat([Buffer.alloc(256, 0xcf), Buffer.from(content, 'latin1'), Buffer.alloc(64)])); return join(m, 'installs', 'deno', '*', 'bin', 'deno'); };
+  want(verdict(v, F.mise, miseAt('1.46.3', 'Deno/1.46.3+a1b2c3d\0'), 'darwin'), [['EXPOSED', '1.46.3']], 'mise 1.46.3');
+  want(verdict(v, F.mise, miseAt('2.7.14', 'Deno/2.7.13+a1b2c3d\0'), 'darwin'), [['EXPOSED', '2.7.13']], 'mise: a folder named 2.7.14 holding 2.7.13');
+  want(verdict(v, F.mise, miseAt('2.7.13', 'Deno/2.7.14+a1b2c3d\0'), 'darwin'), [['SAFE', '2.7.14']], 'mise: judged by the bytes the other way too');
+  want(verdict(v, F.mise, miseAt('2.7.14', 'deno 2.7.14 (stable)'), 'darwin'), [['UNKNOWN', '']], 'mise: a program without the constant is UNKNOWN');
+  {
+    const p = miseAt('2.7.14', 'Deno/2.7.14+a1b2c3d\0'), real = p.replace('*', '2.7.14');
+    chmodSync(real, 0o000);
+    const root = process.getuid?.() === 0;
+    want(verdict(v, F.mise, p, 'darwin'), root ? [['SAFE', '2.7.14']] : [['UNKNOWN', '']], 'mise: a program that can\'t be read is UNKNOWN');
+    chmodSync(real, 0o644);
+  }
   // the constant Deno compiles in: Deno/<version>+<commit>. A bare Deno/<version> beside another constant that starts
   // with digits (TYPESCRIPT "5.9.2", laid out next to it) would read 2.7.145: the +<commit> anchor is what prevents it
   want(verdict(v, F.bin, bytes('xxDeno/2.7.145.9.2\0Deno/2.7.13+a1b2c3d\0'), 'darwin'), [['EXPOSED', '2.7.13']], 'the anchored constant, not the bare one');
@@ -99,6 +112,9 @@ test('E2m Deno mutation proof: each planted mistake fails the table', () => {
     'the +commit anchor dropped': [v, { keg: DENO_KEG, mise: DENO_MISE, bin: { ...DENO_BIN, re: 'Deno/(\\d+\\.\\d+\\.\\d+)' } }],
     'scan off (the program read whole, over its cap)': [v, { keg: DENO_KEG, mise: DENO_MISE, bin: { ...DENO_BIN, scan: false, maxBytes: 1024 } }],
     'the keg revision suffix not stripped': [v, { keg: { ...DENO_KEG, versionFromRealPath: '/Cellar/deno/([^/]+)$' }, mise: DENO_MISE, bin: DENO_BIN }],
+    // H9b: mise's Deno judged by the folder it sits in, as before release/0.1.19-candidate
+    'mise judged by its folder name (H9b)': [v, { keg: DENO_KEG, mise: { label: 'mise', versionFromRealPath: '/installs/deno/(\\d+\\.\\d+\\.\\d+)/bin/deno$' }, bin: DENO_BIN }],
+    'mise read whole, not scanned (the cap)': [v, { keg: DENO_KEG, mise: { ...DENO_MISE, scan: false, maxBytes: 64 }, bin: DENO_BIN }],
   };
   assert.ok(allTrue(denoTable()), 'the true rules pass');
   for (const [name, args] of Object.entries(mutants)) assert.equal(allTrue(denoTable(...args)), false, `mutant survived: ${name}`);

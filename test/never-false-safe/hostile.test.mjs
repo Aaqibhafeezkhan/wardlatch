@@ -17,10 +17,10 @@
 import '../support/no-real-home.cjs';
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdirSync, symlinkSync, chmodSync, rmSync, utimesSync, unlinkSync, existsSync } from 'node:fs';
+import { writeFileSync, mkdirSync, symlinkSync, chmodSync, rmSync, utimesSync, unlinkSync, existsSync, cpSync, readFileSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-import { scratch, cli, incident, withFs, swapAfterStat, inode, variant, gen, mutatedLib, realLib, todo, MAC, HERE } from './support.mjs';
+import { scratch, cli, incident, withFs, swapAfterStat, inode, variant, gen, mutatedLib, realLib, MAC, HERE, ROOT } from './support.mjs';
 
 const T = scratch('hostile');
 const mounts = [];
@@ -235,15 +235,28 @@ test('H9 a Brotli library named for a fixed release whose bytes lack the fix is 
 });
 
 const DENO = incident('deno-2026-06');
-test('H9b a Deno that mise or asdf keeps in a folder named 2.7.14, whose program inside is 2.7.13, is not SAFE', todo('H9b deno by folder name'), async () => {
+test('H9b a Deno that mise or asdf keeps in a folder named 2.7.14, whose program inside is 2.7.13, is not SAFE', async () => {
   const { checkVersionFiles } = await realLib('installs.mjs');
   const root = T.fresh('h9b');
   const mise = DENO.versionFiles.files.find((x) => x.label === 'mise');
+  // the entry is the program inside the install folder (release/0.1.19-candidate), never the folder itself
+  assert.match(mise.path, /\/installs\/deno\/\*\/bin\/deno$/); assert.equal(mise.scan, true); assert.equal(mise.versionFromRealPath, undefined);
   // checkVersionFiles puts `root` in front of the pattern as text (a ~ there is then a folder named ~)
-  const bin = T.put(`${root}${mise.path.replace('*', '2.7.14')}/bin/deno`, Buffer.concat([Buffer.alloc(256, 0xcf), Buffer.from('Deno/2.7.13+a1b2c3d\0'), Buffer.alloc(64)]));
+  const bin = T.put(`${root}${mise.path.replace('*', '2.7.14')}`, Buffer.concat([Buffer.alloc(256, 0xcf), Buffer.from('Deno/2.7.13+a1b2c3d\0'), Buffer.alloc(64)]));
   chmodSync(bin, 0o755);
   const rows = checkVersionFiles({ ...DENO.versionFiles, files: [mise] }, { root, os: 'darwin' });
-  assert.ok(rows.length && rows.every((x) => x.status !== 'SAFE'), JSON.stringify(rows.map((x) => [x.status, x.version, x.path?.slice(root.length)])));
+  // judged by the program's bytes: EXPOSED at 2.7.13, whatever the folder says
+  assert.deepEqual(rows.map((x) => [x.status, x.version, x.path?.slice(root.length)]), [['EXPOSED', '2.7.13', mise.path.replace('*', '2.7.14')]]);
+  // the program unreadable: UNKNOWN, never the folder's 2.7.14
+  if (process.getuid?.() !== 0) {
+    chmodSync(bin, 0o000);
+    const closed = checkVersionFiles({ ...DENO.versionFiles, files: [mise] }, { root, os: 'darwin' });
+    chmodSync(bin, 0o755);
+    assert.deepEqual(closed.map((x) => x.status), ['UNKNOWN']);
+  }
+  // the mutation: the same folder judged by its name, as before, reads SAFE (the instrument can tell the two apart)
+  const byName = { path: mise.path.replace('/bin/deno', ''), versionFromRealPath: '/installs/deno/(\\d+\\.\\d+\\.\\d+)$', label: 'mise' };
+  assert.deepEqual(checkVersionFiles({ ...DENO.versionFiles, files: [byName] }, { root, os: 'darwin' }).map((x) => x.status), ['SAFE']);
 });
 
 // ---------------------------------------------------------------- H10: an empty lockfile
@@ -263,18 +276,18 @@ const DAY = 86400000;
 const listDay = Date.parse(MACOS.latestListed ?? MACOS.macosLines.map((l) => l.latestDate).sort().at(-1) ?? MACOS.date);
 /** The command's macOS row, its clock at `now` and SystemVersion.plist a release at the newest line's latest (with its
  *  times at `filesAt`). */
-function macosAt(now, filesAt) {
+function macosAt(now, filesAt, bin) {
   const line = MACOS.macosLines.find((l) => !l.frozen);
   const p = T.put(join(T.fresh('h11'), 'SystemVersion.plist'), `<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0">\n<dict>\n\t<key>ProductBuildVersion</key>\n\t<string>26B131</string>\n\t<key>ProductName</key>\n\t<string>macOS</string>\n\t<key>ProductVersion</key>\n\t<string>${line.latest}</string>\n</dict>\n</plist>\n`);
   utimesSync(p, new Date(filesAt), new Date(filesAt));
-  const r = cli(['--incident', 'macos-2026-11'], { home: home(), preload: [join(HERE, 'clock.cjs')], env: { WL_NFS_NOW: String(now), WL_NFS_PLIST: p } });
+  const r = cli(['--incident', 'macos-2026-11'], { home: home(), preload: [join(HERE, 'clock.cjs')], env: { WL_NFS_NOW: String(now), WL_NFS_PLIST: p }, ...(bin ? { bin } : {}) });
   return r.rows.find((x) => x.kind === 'macos');
 }
-test('H11 a clock set back to the day after the list was read, on a Mac whose update files are 400 days newer, does not read SAFE', { skip: !MAC && 'the macOS row is made on a Mac', ...todo('H11 clock set back') }, () => {
+test('H11 a clock set back to the day after the list was read, on a Mac whose update files are 400 days newer, does not read SAFE', { skip: !MAC && 'the macOS row is made on a Mac'}, () => {
   const row = macosAt(listDay + DAY, listDay + 400 * DAY);
   assert.notEqual(row.status, 'SAFE', row.reason);
 });
-test('H12 a stale built-in list: 400 days after Apple\'s releases were listed, macOS at the listed latest does not read SAFE', { skip: !MAC && 'the macOS row is made on a Mac', ...todo('H12 stale built-in list') }, () => {
+test('H12 a stale built-in list: 400 days after Apple\'s releases were listed, macOS at the listed latest does not read SAFE', { skip: !MAC && 'the macOS row is made on a Mac'}, () => {
   const row = macosAt(listDay + 400 * DAY, listDay + 400 * DAY);
   assert.notEqual(row.status, 'SAFE', row.reason);
 });
@@ -349,4 +362,23 @@ test('Hm mutation proof: the hostile fixtures fail on planted mutations of lib/'
     caught.push('H13: a failed listing read as an empty folder');
   }
   assert.equal(caught.length, 4, caught.join('\n'));
+});
+
+/** The command from a copy of bin/ and lib/ with one planted mutation in lib/`file`. → the copy's bin/wardlatch.mjs. */
+function mutatedCommand(file, from, to) {
+  const copy = T.fresh('cmdmut');
+  for (const d of ['bin', 'lib']) cpSync(join(ROOT, d), join(copy, d), { recursive: true });
+  cpSync(join(ROOT, 'package.json'), join(copy, 'package.json'));
+  const p = join(copy, 'lib', file), src = readFileSync(p, 'utf8');
+  assert.ok(src.includes(from), `the planted mutation's text is in lib/${file}: ${from}`);
+  writeFileSync(p, src.replace(from, to));
+  return join(copy, 'bin', 'wardlatch.mjs');
+}
+test('Hm2 mutation proof: H11 and H12 (were KNOWN-FAILING until fix/no-stale-safe-2026-11-16) fail on the command with lib/clock.mjs mutated', { skip: !MAC && 'the macOS row is made on a Mac' }, () => {
+  // H12: no stale-list rule, so a 400-day-old list still says SAFE
+  const noStale = mutatedCommand('clock.mjs', 'export function staleList(listedOn, today, { what, check, maxDays = STALE_AFTER_DAYS }) {', 'export function staleList(listedOn, today, { what, check, maxDays = STALE_AFTER_DAYS }) {\n  return null;');
+  assert.equal(macosAt(listDay + 400 * DAY, listDay + 400 * DAY, noStale).status, 'SAFE', 'mutant survived: H12 with no stale-list rule');
+  // H11: "today" from the clock alone, so a clock set back hides the update files that are 400 days newer
+  const clockOnly = mutatedCommand('clock.mjs', 'if (Number.isFinite(t) && t > best.now) best =', 'if (false) best =');
+  assert.equal(macosAt(listDay + DAY, listDay + 400 * DAY, clockOnly).status, 'SAFE', 'mutant survived: H11 with the update files not read');
 });

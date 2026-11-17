@@ -285,8 +285,9 @@ incident file before a release.
   2.7.14: a `--deny-*` rule misses the other spelling (CVE-2026-49401); Terraform built with go-slug before 0.18.3
   (Terraform 1.15.9 and 1.16.0 have 0.18.3): a `.terraformignore` rule misses it and the file is uploaded
   (CVE-2026-14978); setuptools before 83.0.0: a `MANIFEST.in` exclusion misses it and the file is packed into the sdist
-  (CVE-2026-59890). Read without running anything: Deno from Homebrew's keg, mise, asdf or the version compiled into
-  `~/.deno/bin/deno`; Terraform from the go-slug line in its own module list; setuptools from its `.dist-info` folder.
+  (CVE-2026-59890). Read without running anything: Deno from Homebrew's keg, or from the version compiled into the
+  program (mise's and asdf's `bin/deno`, `~/.deno/bin/deno`), never from a folder's name; Terraform from the go-slug
+  line in its own module list; setuptools from its `.dist-info` folder.
   Below the fix on a Mac is EXPOSED; the flaws are a Mac's only, so Linux is SAFE (Deno, Terraform) or adds no row
   (setuptools). None is in CISA's catalog. [docs/PATTERN-IDENTITY-EQUIVALENCE.md](docs/PATTERN-IDENTITY-EQUIVALENCE.md)
   has the pattern behind them.
