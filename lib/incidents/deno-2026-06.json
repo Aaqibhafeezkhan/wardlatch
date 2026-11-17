@@ -1,0 +1,32 @@
+{
+  "id": "deno-2026-06",
+  "type": "installs",
+  "title": "Deno before 2.7.14 on a Mac: a --deny-read, --deny-write, --deny-run or --deny-ffi rule misses the same file spelled another way (CVE-2026-49401)",
+  "date": "2026-06-23",
+  "summary": "Deno's advisory GHSA-8xpq-cjcf-3wh9 (CVE-2026-49401, high, CWE-41 and CWE-176) says that before 2.7.14 its permission checks compared the path a program asked for with the path given to --deny-read, --deny-write, --deny-run or --deny-ffi byte for byte, while a Mac's disk (APFS) opens the same file for other spellings of its name: another Unicode form (an accented letter written as a letter and a combining accent), another case, a ligature (U+FB01 for fi) or ß for ss. A program Deno was told to keep out of a file could read or write it under another spelling. Deno 2.7.14 compares both paths in NFC with Unicode case folding; the advisory says Linux and Windows are not affected by this variant. CERT/CC lists it in VU#604762 (16 Nov 2026). CISA's catalog (2026.11.13) does not list it. A Deno below 2.7.14 on a Mac is EXPOSED; on Linux it is SAFE for this flaw, with that reason, since the advisory says Linux is not affected. A Deno whose version can't be read is UNKNOWN anywhere. Wardlatch reads Homebrew's Deno from the keg its opt link names, a mise or asdf install from its folder's name, and the official installer's ~/.deno/bin/deno from the version Deno compiles into its own file (the user agent Deno/<version>+<commit>, a constant in cli/lib/version.rs; read from Deno's source, not yet measured on a release build, so a build without it reads UNKNOWN, never SAFE); it never runs deno.",
+  "advisory": "https://github.com/denoland/deno/security/advisories/GHSA-8xpq-cjcf-3wh9",
+  "sources": [
+    "https://www.cve.org/CVERecord?id=CVE-2026-49401",
+    "https://nvd.nist.gov/vuln/detail/CVE-2026-49401",
+    "https://kb.cert.org/vuls/id/604762",
+    "https://github.com/denoland/deno/blob/v2.7.14/cli/lib/version.rs"
+  ],
+  "versionFiles": {
+    "product": "Deno",
+    "minVersion": "2.7.14",
+    "onlyOn": ["darwin"],
+    "notAffectedOn": "Deno's advisory says this flaw is on macOS only: Linux and Windows are not affected by it",
+    "files": [
+      { "path": "/opt/homebrew/opt/deno", "versionFromRealPath": "/Cellar/deno/(\\d+\\.\\d+\\.\\d+)(?:_\\d+)?$", "label": "Homebrew" },
+      { "path": "/usr/local/opt/deno", "versionFromRealPath": "/Cellar/deno/(\\d+\\.\\d+\\.\\d+)(?:_\\d+)?$", "label": "Homebrew" },
+      { "path": "/home/linuxbrew/.linuxbrew/opt/deno", "versionFromRealPath": "/Cellar/deno/(\\d+\\.\\d+\\.\\d+)(?:_\\d+)?$", "label": "Homebrew" },
+      { "path": "~/.local/share/mise/installs/deno/*", "versionFromRealPath": "/installs/deno/(\\d+\\.\\d+\\.\\d+)$", "label": "mise" },
+      { "path": "~/.asdf/installs/deno/*", "versionFromRealPath": "/installs/deno/(\\d+\\.\\d+\\.\\d+)$", "label": "asdf" },
+      { "path": "~/.deno/bin/deno", "re": "Deno/(\\d+\\.\\d+\\.\\d+)\\+[0-9a-f]{7,40}", "scan": true, "maxBytes": 536870912, "label": "deno.land installer" }
+    ],
+    "fix": "Update Deno to 2.7.14 or later: deno upgrade, or brew upgrade deno. Until then, on a Mac, use --allow-read, --allow-write, --allow-run and --allow-ffi lists instead of --deny-* rules (the advisory's own workaround).",
+    "lookedIn": "Homebrew's opt/deno link, mise's and asdf's Deno installs, and ~/.deno/bin/deno"
+  },
+  "safeText": "no Deno below 2.7.14 found in the places this check reads",
+  "notCovered": "Deno installed another way (MacPorts, Nix, a binary copied somewhere else, the npm package), Deno compiled into a program with deno compile, and Deno inside other tools. Whether a program ever used the flaw is not something a version can tell. A version is read without running deno; a canary build's number is its upstream number."
+}

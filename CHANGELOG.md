@@ -18,6 +18,24 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
   26.6.2 (17 Aug 2026) and Sequoia 15.8 (14 Sep 2026). Below the fix on its own line is EXPOSED; Sonoma 14 and older,
   a beta, an unread build or an unplaceable version is UNKNOWN; off a Mac the row says iPhones and iPads are not
   checked. CISA's catalog (2026.11.13) does not list it. Tests: `test/apple-audio-2026-08.test.mjs`.
+- **CERT/CC VU#604762, a Mac's disk opening one file for two spellings of its name** (16 Nov 2026): Deno before 2.7.14
+  (`deno-2026-06`, CVE-2026-49401, `--deny-*` rules), Terraform built with go-slug before 0.18.3 (`terraform-2026-08`,
+  CVE-2026-14978, `.terraformignore`; read from the go-slug line Go writes into the program) and setuptools before
+  83.0.0 (`setuptools-2026-07`, CVE-2026-59890, `MANIFEST.in`). EXPOSED below the fix on a Mac; on Linux, where the
+  vendors say the flaws are not, SAFE with that reason (Deno, Terraform) or no row (setuptools). Nothing is run. Two
+  new keys for version files: `scan` (a program's bytes read in pieces) and `onlyOn` (the systems the flaw is on).
+  Tests: `test/equivalence-2026-11.test.mjs`.
+
+### Fixed
+
+- **The same bug in Wardlatch itself** ([docs/PATTERN-IDENTITY-EQUIVALENCE.md](docs/PATTERN-IDENTITY-EQUIVALENCE.md)).
+  On a Mac's case-insensitive disk three comparisons missed a file the program using it opens: a lockfile named
+  `Package-Lock.json` (npm reads it; its pins were never read, and the run said SAFE), a folder matched by a `*`
+  pattern in another case (`xcode.app` for `Xcode*.app`), and a program on PATH listed as `PHP` (the shell runs it for
+  `php`). Lockfile names are now compared as the disk resolves them (`sameNameOnDisk`, which asks for the file's device
+  and inode, so Linux is unchanged); `*` segments also match by case and Unicode form on a Mac; and a PATH program is
+  also asked for by its exact name. A lint (`test/support/equivalence-lint.mjs`) now fails the suite on any new exact
+  comparison of a listed name or path prefix that nobody has classified.
 
 ### Development (no code in the package changes)
 
@@ -27,7 +45,10 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
   `test/coverage-protocol.test.mjs` fails. It reads a committed snapshot (`scripts/coverage/refresh.mjs` is the one
   network step) and says "no gaps" only from a complete read that names each source. First run, 16 Nov 2026: 442 items
   in scope, 14 named, 428 declined (32 of them candidates for an incident); before `apple-audio-2026-08` it reported
-  CVE-2026-65339 as a gap.
+  CVE-2026-65339 as a gap. Same day, a seventh class, `equivalence`, matched on Apple's Description lines as well, and a
+  third source, CERT/CC's notes read whole by month (8 of 85 notes in the class): 464 in scope, 17 named, 447 declined.
+  The refresh asked Apple's pages for "text/html,application/json", which Apple answered 404 for Tahoe 26.7's notes,
+  so no refresh could finish; it now asks each source for one type.
 - Coverage floors: `npm run coverage` now fails below 90% of lines, 80% of branches or 80% of functions of `bin/` and
   `lib/` (it was 80% of lines and functions, with no branch floor). CI measured 99.70% of lines, 93.31% of branches and
   98.82% of functions at 1dfd218. A test fails if a floor is lowered or an exclude is added.

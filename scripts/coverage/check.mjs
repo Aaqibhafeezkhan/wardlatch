@@ -21,8 +21,15 @@ export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 export const SNAPSHOT = join(ROOT, 'test', 'support', 'fixtures', 'coverage-snapshot.json');
 export const DECLINED = join(ROOT, 'scripts', 'coverage', 'declined.json');
 export const INCIDENTS = join(ROOT, 'lib', 'incidents');
-export const SOURCES = ['apple-macos', 'cisa-kev'];
+export const SOURCES = ['apple-macos', 'cisa-kev', 'cert-vu'];
 export const MAX_AGE_DAYS = 31;
+
+/**
+ * The identity-equivalence class (docs/PATTERN-IDENTITY-EQUIVALENCE.md): two spellings of one name (case, Unicode form,
+ * a fold), a path that resolves elsewhere (a link, a path handling issue), or names compared looser or stricter than the
+ * system that uses them (X.509 name constraints). One regex for Apple's lines and CERT/CC's notes.
+ */
+export const EQUIVALENCE = /unicode normali[sz]ation|normali[sz]ation (?:collision|mismatch)|case[- ]?(?:in)?sensitiv|case[- ]fold|path equivalence|\bAPFS\b|HFS\+|homoglyph|confusable|alternat(?:e|ive) (?:unicode )?spellings?|equivalent (?:paths?|names?|spellings?)|\bCWE-(?:41|176|178)\b|name[- ]constraint|path handling|symlink|symbolic link|canonicali[sz]/i;
 
 /**
  * The classes Wardlatch covers, matched on Apple's own "Impact:" line. An Apple entry in any of them is in scope. The
@@ -36,8 +43,11 @@ export const CLASSES = {
   trust: /certificate|\btrust|\bTLS\b|impersonat|spoof/i,
   privilege: /root privileges|elevated privileges|kernel privileges|modify protected parts of the file system|escalate/i,
   exploited: /Apple is aware of a report/i,
+  // 16 Nov 2026 (docs/PATTERN-IDENTITY-EQUIVALENCE.md): a check compared one notion of a name, a path or an identity,
+  // and the system resolved another. Matched on Apple's Impact and Description lines, and on CERT/CC's notes.
+  equivalence: EQUIVALENCE,
 };
-export const classesOf = (impact) => Object.keys(CLASSES).filter((k) => CLASSES[k].test(String(impact ?? '')));
+export const classesOf = (impact, description = '') => Object.keys(CLASSES).filter((k) => CLASSES[k].test(String(impact ?? '')) || (k === 'equivalence' && CLASSES[k].test(String(description ?? ''))));
 
 /**
  * The items each source holds, one per CVE (or, for an Apple entry printed without a CVE number, one per release,
@@ -51,7 +61,7 @@ export function items(snapshot) {
       const keys = e.cves.length ? e.cves : [`apple:${r.name}:${e.component}:${n}`];
       for (const key of keys) {
         const it = out.get(key) ?? { key, source: 'apple-macos', component: e.component, impact: e.impact, classes: new Set(), releases: [] };
-        for (const c of classesOf(e.impact)) it.classes.add(c);
+        for (const c of classesOf(e.impact, e.description)) it.classes.add(c);
         it.releases.push(r.name);
         out.set(key, it);
       }
@@ -61,6 +71,16 @@ export function items(snapshot) {
     const it = out.get(k.cve);
     if (it) { it.classes.add('exploited'); it.kev = k; continue; }
     out.set(k.cve, { key: k.cve, source: 'cisa-kev', component: `${k.vendorProject} ${k.product}`, impact: k.name, classes: new Set(['exploited']), releases: [], kev: k });
+  }
+  // CERT/CC's notes in the equivalence class: every CVE number a note prints anywhere (its list, its text, its
+  // vulnerability rows, its vendors' statements and addenda, its references) is one item. A note with no CVE at all is
+  // one item keyed by its VU number, so it too is named or declined (a decline is the only way: incidents name CVEs).
+  for (const n of snapshot.cert ?? []) {
+    for (const key of n.cves.length ? n.cves : [n.id]) {
+      const it = out.get(key);
+      if (it) { it.classes.add('equivalence'); it.cert = n.id; continue; }
+      out.set(key, { key, source: 'cert-vu', component: n.id, impact: n.name, classes: new Set(['equivalence']), releases: [], cert: n.id });
+    }
   }
   return [...out.values()].map((i) => ({ ...i, classes: [...i.classes].sort() }));
 }
@@ -80,6 +100,13 @@ export function incomplete(snapshot, today) {
   if (k) {
     if (!(k.count > 0) || k.count !== k.read) why.push(`cisa-kev: the feed said ${k.count} rows and ${k.read} were read`);
     if ((snapshot.kev ?? []).length !== k.inWindow) why.push(`cisa-kev: ${(snapshot.kev ?? []).length} rows kept, ${k.inWindow} were in the window`);
+  }
+  const c = src.get('cert-vu');
+  if (c) {
+    if (!Array.isArray(c.months) || c.months.length !== c.monthsInWindow || !(c.monthsInWindow > 0)) why.push(`cert-vu: ${c.months?.length ?? 0} monthly listings read, the window has ${c.monthsInWindow}`);
+    if (!(c.notesRead >= (snapshot.cert ?? []).length)) why.push(`cert-vu: ${c.notesRead} notes read, fewer than the ${(snapshot.cert ?? []).length} kept`);
+    if ((snapshot.cert ?? []).length !== c.inClass) why.push(`cert-vu: ${(snapshot.cert ?? []).length} notes kept, ${c.inClass} were in the class`);
+    for (const n of snapshot.cert ?? []) if (!n.vulsRead || !n.vendorsRead) why.push(`cert-vu: ${n.id}'s vulnerability rows or vendors were not read`);
   }
   const age = (Date.parse(`${today}T00:00:00Z`) - Date.parse(snapshot.read)) / 86400000;
   if (!Number.isFinite(age)) why.push(`the snapshot's read time "${snapshot.read}" or today "${today}" is not a date`);
@@ -132,7 +159,10 @@ export function check({ snapshot, named, declined, today }) {
 export function report(r) {
   const out = [];
   out.push(`sources read (snapshot of ${r.read}, window from ${r.since}):`);
-  for (const s of r.sources) out.push(`  ${s.id}: ${s.url} ${s.id === 'apple-macos' ? `(index rows ${s.indexRows}, back to ${s.indexOldest}; ${s.macosReleasesInWindow} macOS releases in the window)` : `(catalog ${s.catalogVersion}, ${s.read} of ${s.count} rows read; ${s.inWindow} added in the window)`}`);
+  const said = (s) => (s.id === 'apple-macos' ? `(index rows ${s.indexRows}, back to ${s.indexOldest}; ${s.macosReleasesInWindow} macOS releases in the window)`
+    : s.id === 'cert-vu' ? `(${s.months?.length} monthly listings, ${s.months?.[0]} to ${s.months?.at(-1)}; ${s.notesRead} notes read, ${s.inClass} in the equivalence class)`
+      : `(catalog ${s.catalogVersion}, ${s.read} of ${s.count} rows read; ${s.inWindow} added in the window)`);
+  for (const s of r.sources) out.push(`  ${s.id}: ${s.url} ${said(s)}`);
   out.push(`items: ${r.total}; in a covered class: ${r.inScope}; named in an incident: ${r.named.length}; declined: ${r.declined.length}; gaps: ${r.gaps.length}`);
   if (!r.complete) { out.push('INCOMPLETE: no verdict on gaps can be given from this read:'); for (const w of r.why) out.push(`  ${w}`); }
   for (const g of r.gaps) out.push(`GAP ${g.key} [${g.classes.join(',')}] ${g.component}: ${g.impact}${g.releases.length ? ` (${g.releases.join('; ')})` : ''}`);

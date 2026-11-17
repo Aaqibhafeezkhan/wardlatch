@@ -31,7 +31,7 @@ test('C1 the committed snapshot, incidents and declined list pass: a complete re
   assert.deepEqual(r.expired.map((e) => e.key), [], `declines past their review date: run the triage (docs/COVERAGE-PROTOCOL.md)`);
   assert.deepEqual(r.badDeclines, []);
   assert.equal(r.ok, true);
-  assert.match(report(r), /NO GAPS, from a complete read of: apple-macos, cisa-kev$/);
+  assert.match(report(r), /NO GAPS, from a complete read of: apple-macos, cisa-kev, cert-vu$/);
   // the read is named: every source with its own counts
   assert.deepEqual(r.sources.map((s) => s.id), SOURCES);
   assert.ok(r.inScope > 100 && r.total > r.inScope, `${r.inScope} of ${r.total}`);
@@ -165,4 +165,53 @@ test('C9 the command: exit 0 with the sources named on the committed files; exit
     assert.equal((bad.stdout.match(/^GAP /gm) ?? []).length, DEC.entries.length);
     assert.match(bad.stdout, /FAIL$/m);
   } finally { rmSync(d, { recursive: true, force: true }); }
+  assert.match(ok.stdout, /^ {2}cert-vu: https:\/\/kb\.cert\.org\/vuls\/api\/ \(\d+ monthly listings, .* in the equivalence class\)$/m);
+});
+
+// 16 Nov 2026: the identity-equivalence class (docs/PATTERN-IDENTITY-EQUIVALENCE.md) and its third source, CERT/CC's
+// notes, read whole by month. VU#604762 is the note that started it; each of its CVEs is named or declined.
+test('C10 the equivalence class: CERT/CC\'s notes read whole; VU#604762\'s six CVEs are each named or declined; the three incidents, taken out, are gaps', () => {
+  const src = SNAP.sources.find((s) => s.id === 'cert-vu');
+  assert.ok(src && src.months.length === src.monthsInWindow && src.notesRead > 0, 'every month in the window was listed');
+  const vu = SNAP.cert.find((n) => n.id === 'VU#604762');
+  assert.deepEqual(vu.cves, ['CVE-2026-11313', 'CVE-2026-14978', 'CVE-2026-23950', 'CVE-2026-45110', 'CVE-2026-49401', 'CVE-2026-59890']);
+  const r = run();
+  for (const c of vu.cves) assert.ok(r.named.some((i) => i.key === c) || r.declined.some((i) => i.key === c), c);
+  assert.deepEqual(['CVE-2026-49401', 'CVE-2026-14978', 'CVE-2026-59890'].map((c) => NAMED.get(c)), [['deno-2026-06'], ['terraform-2026-08'], ['setuptools-2026-07']]);
+  const named = new Map(NAMED); for (const c of ['CVE-2026-49401', 'CVE-2026-14978', 'CVE-2026-59890']) named.delete(c);
+  const g = run({ named });
+  assert.deepEqual(g.gaps.map((x) => x.key).sort(), ['CVE-2026-14978', 'CVE-2026-49401', 'CVE-2026-59890']);
+  assert.match(report(g), /^GAP CVE-2026-49401 \[equivalence\] VU#604762: Multiple vendors vulnerable to Unicode Normalization Collision on macOS \(APFS\)$/m);
+  // a note with no CVE is one item, by its VU number, and a decline is the only way to cover it
+  assert.ok(r.declined.some((i) => i.key === 'VU#410595'));
+  const noVu = run({ declined: { entries: DEC.entries.filter((e) => e.key !== 'VU#410595') } });
+  assert.deepEqual(noVu.gaps.map((x) => x.key), ['VU#410595']);
+});
+
+test('C11 the CERT/CC source is "whole" only when every month and every in-class note\'s rows and vendors were read', () => {
+  const cases = {
+    'no CERT/CC source': (s) => { s.sources = s.sources.filter((x) => x.id !== 'cert-vu'); s.cert = []; },
+    'a month not listed': (s) => { s.sources.find((x) => x.id === 'cert-vu').months.pop(); },
+    'an in-class note dropped': (s) => { s.cert.pop(); },
+    'a note\'s vendors not read': (s) => { s.cert[0].vendorsRead = false; },
+    'a note\'s rows not read': (s) => { delete s.cert[0].vulsRead; },
+    'fewer notes read than kept': (s) => { s.sources.find((x) => x.id === 'cert-vu').notesRead = 1; },
+  };
+  for (const [name, mutate] of Object.entries(cases)) {
+    const s = clone(SNAP); mutate(s);
+    const r = run({ snapshot: s });
+    assert.equal(r.complete, false, name); assert.equal(r.ok, false, name);
+    assert.match(report(r), /INCOMPLETE/, name);
+  }
+});
+
+test('C12 the class on Apple\'s lines: a path, link or name-handling Description puts an entry in scope; the Impact rule is unchanged', () => {
+  assert.deepEqual(classesOf('Extracting a maliciously crafted archive may allow an attacker to write arbitrary files', 'A path handling issue was addressed with improved validation.'), ['equivalence']);
+  assert.deepEqual(classesOf('An app may be able to access sensitive user data', 'This issue was addressed with improved handling of symlinks.'), ['privacy', 'equivalence']);
+  assert.deepEqual(classesOf('An app may be able to cause unexpected system termination', 'A memory corruption issue was addressed with improved bounds checks.'), []);
+  // the Description alone never adds another class: only equivalence reads it
+  assert.deepEqual(classesOf('An app may be able to cause unexpected system termination', 'A sandbox issue with certificates'), []);
+  for (const t of ['Unicode Normalization Collision on macOS (APFS)', 'a case-insensitive comparison', 'HFS+ volumes', 'Name-Constraint inconsistency', 'CWE-41']) assert.deepEqual(classesOf('', t), ['equivalence'], t);
+  // every Apple entry in the committed snapshot carries its Description, so the class can be read
+  assert.ok(SNAP.apple.every((r) => r.entries.every((e) => typeof e.description === 'string')));
 });

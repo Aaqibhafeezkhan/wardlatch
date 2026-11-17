@@ -2172,6 +2172,107 @@
    "key": "CVE-2026-45498",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
    "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-45110",
+   "reason": "libarchive (VU#604762): no fixed release (the fix is open PR #3359) and no published CVE record on 16 Nov 2026; Apple says Not Affected, the reporter says macOS bsdtar is; no version to judge",
+   "reviewBy": "2026-11-30",
+   "candidate": true
+  },
+  {
+   "key": "CVE-2026-11313",
+   "reason": "yarn pack/publish .npmignore (VU#604762, a vendor addendum only): the CVE record and GHSA-xghw-r27x-p6hc were not public on 16 Nov 2026, so no affected or fixed version to judge",
+   "reviewBy": "2026-11-30",
+   "candidate": true
+  },
+  {
+   "key": "CVE-2026-23950",
+   "reason": "node-tar before 7.5.4 (VU#604762 reference): a library inside projects and tools; a lockfile rule for it would flag most projects; npm drops link entries when it extracts (UNVERIFIED)",
+   "reviewBy": "2026-11-30",
+   "candidate": true
+  },
+  {
+   "key": "CVE-2026-13723",
+   "reason": "Develar app-builder zip extraction on APFS (VU#293714): a build dependency of electron-builder; the note names no fixed version and Wardlatch's lockfile rules match named versions",
+   "reviewBy": "2026-11-30",
+   "candidate": true
+  },
+  {
+   "key": "CVE-2026-34073",
+   "reason": "pyca/cryptography before 46.0.6 (VU#948176): name constraints checked against SANs, not the peer name; a Python package Wardlatch could read from dist-info; not a Mac name-folding flaw",
+   "reviewBy": "2026-11-30",
+   "candidate": true
+  },
+  {
+   "key": "CVE-2026-3833",
+   "reason": "GnuTLS before 3.8.13 (VU#948176): case-sensitive name-constraint matching; a Linux TLS library Wardlatch does not read; distributions backport, so a version alone would be REVIEW",
+   "reviewBy": "2026-11-30",
+   "candidate": true
+  },
+  {
+   "key": "CVE-2026-3547",
+   "reason": "wolfSSL before 5.9.0 (VU#948176): URI name constraints; an embedded TLS library that Wardlatch does not read on a Mac or Linux machine",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "VU#410595",
+   "reason": "Google BoringSSL name constraints (no CVE): BoringSSL is built into Chrome and other programs, which chrome-2026-11 judges by the program's version, not by the library",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-15611",
+   "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-15612",
+   "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-15614",
+   "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-15615",
+   "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-15616",
+   "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-15617",
+   "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-8501",
+   "reason": "a Windows kernel driver (VU#158530), in the class by its note's path wording: Wardlatch runs on macOS and Linux only",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-10621",
+   "reason": "Collibra Agent (VU#873170), in the class by its note's path wording: a self-hosted server product, out of scope as D2 declines them",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-10622",
+   "reason": "Collibra Agent (VU#873170), in the class by its note's path wording: a self-hosted server product, out of scope as D2 declines them",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-112511",
+   "reason": "D5 pending: an Apple fix in the equivalence class (links), not in KEV. A Mac below its release is below its line's latest, which macos-2026-11 reports as REVIEW; not named",
+   "reviewBy": "2026-11-30"
+  },
+  {
+   "key": "CVE-2026-84534",
+   "reason": "D5 pending: an Apple fix in the equivalence class (archive paths), not in KEV. A Mac below its release is below its line's latest, which macos-2026-11 reports as REVIEW; not named",
+   "reviewBy": "2026-11-30"
   }
  ]
 }
