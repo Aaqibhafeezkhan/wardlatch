@@ -242,11 +242,11 @@ test('H9b a Deno that mise or asdf keeps in a folder named 2.7.14, whose program
   // the entry is the program inside the install folder (release/0.1.19-candidate), never the folder itself
   assert.match(mise.path, /\/installs\/deno\/\*\/bin\/deno$/); assert.equal(mise.scan, true); assert.equal(mise.versionFromRealPath, undefined);
   // checkVersionFiles puts `root` in front of the pattern as text (a ~ there is then a folder named ~)
-  const bin = T.put(`${root}${mise.path.replace('*', '2.7.14')}`, Buffer.concat([Buffer.alloc(256, 0xcf), Buffer.from('Deno/2.7.13+a1b2c3d\0'), Buffer.alloc(64)]));
+  const bin = T.put(`${root}${mise.path.replaceAll('*', '2.7.14')}`, Buffer.concat([Buffer.alloc(256, 0xcf), Buffer.from('Deno/2.7.13+a1b2c3d\0'), Buffer.alloc(64)]));
   chmodSync(bin, 0o755);
   const rows = checkVersionFiles({ ...DENO.versionFiles, files: [mise] }, { root, os: 'darwin' });
   // judged by the program's bytes: EXPOSED at 2.7.13, whatever the folder says
-  assert.deepEqual(rows.map((x) => [x.status, x.version, x.path?.slice(root.length)]), [['EXPOSED', '2.7.13', mise.path.replace('*', '2.7.14')]]);
+  assert.deepEqual(rows.map((x) => [x.status, x.version, x.path?.slice(root.length)]), [['EXPOSED', '2.7.13', mise.path.replaceAll('*', '2.7.14')]]);
   // the program unreadable: UNKNOWN, never the folder's 2.7.14
   if (process.getuid?.() !== 0) {
     chmodSync(bin, 0o000);

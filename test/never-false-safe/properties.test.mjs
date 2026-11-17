@@ -24,6 +24,7 @@ import assert from 'node:assert/strict';
 import { writeFileSync, mkdirSync, symlinkSync, chmodSync, cpSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { escapeRegExp } from '../../lib/escape.mjs';
 import { property, holds, scratch, inode, variant, name, withClock, withFs, shuffledListings, cli, countOf, mutatedLib, realLib, incident, MAC, ROOT, BIN } from './support.mjs';
 
 const T = scratch('props');
@@ -115,7 +116,7 @@ const a4 = (L) => property('a4 PATH by name', (g) => {
   const wanted = spelled.toLowerCase().normalize('NFC').replace(/[^\x20-\x7e]/g, '') || 'php';
   try { writeFileSync(join(d, spelled), '#!/bin/sh\n', { mode: 0o755 }); } catch { return null; }
   const opens = inode(join(d, wanted)) !== null;
-  const r = L.binaries.copiesMatching(`^${wanted.replace(/[.]/g, '\\.')}$`, d, [], [], wanted, []);
+  const r = L.binaries.copiesMatching(`^${escapeRegExp(wanted)}$`, d, [], [], wanted, []);
   const found = r.run.length + r.notRun.length > 0;
   return found === opens ? null : { spelled, wanted, diskOpens: opens, found };
 });

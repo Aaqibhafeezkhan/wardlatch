@@ -40,7 +40,7 @@ test('SC1 the facts are the sources\': the client, not the server; 26.6.5; KEV 1
   assert.equal(INC.versionFiles.minVersion, '26.6.5');
   assert.match(INC.summary, /says ScreenConnect servers are not affected\. So upgrading a server does not fix a client/);
   assert.match(INC.versionFiles.fix, /upgrading the server alone does not fix this machine/);
-  assert.ok(INC.sources.includes('https://www.huntress.com/blog/rogue-screenconnect-installations'));
+  assert.ok(INC.sources.some((s) => { const u = new URL(s); return u.protocol === 'https:' && u.host === 'www.huntress.com' && u.pathname === '/blog/rogue-screenconnect-installations'; }));
   // the Windows indicators are listed as not checked, by name
   for (const n of ['1.vbs', 'WindowsServiceHost.vbs', 'runner.ps1', 'svcdrv64.sys', 'Run key']) assert.ok(INC.notCovered.includes(n), n);
   // no longer declined: it is named, and the coverage check would call a decline of it stale

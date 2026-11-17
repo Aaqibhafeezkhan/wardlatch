@@ -12,7 +12,7 @@
 import './support/no-real-home.cjs';
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, symlinkSync, chmodSync, utimesSync, readFileSync, writeFileSync, cpSync } from 'node:fs';
+import { mkdirSync, symlinkSync, chmodSync, utimesSync } from 'node:fs';
 import { join } from 'node:path';
 import { scratch, mutatedLib, realLib, incident, cli, MAC, ROOT } from './never-false-safe/support.mjs';
 
@@ -22,7 +22,6 @@ const { checkVersionFiles, checkSitePackages } = await realLib('installs.mjs');
 const { pinnedIn, checkLockfile, lockfilesUnder, pyLockKind, judgePinned, LOCK_DEPTH } = await realLib('lockfiles.mjs');
 const STAR = incident('starlette-2026-06'), MCP = incident('mcp-python-2026-10'), XC = incident('xcode-2026-10'), DD = incident('docker-desktop-2026-10');
 const HIDE = join(ROOT, 'test', 'support', 'hide-machine-places.cjs');
-const st = (rows) => rows.map((r) => [r.status, r.version ?? '']);
 const site = (pkgs) => { const d = T.fresh('site'); for (const p of pkgs) mkdirSync(join(d, `${p}.dist-info`)); return d; };
 const siteRows = (inc, pkgs) => checkSitePackages(inc.sitePackages, [site(pkgs)]).map((r) => [r.status, r.version]);
 const lock = (kind, text, rule) => { const name = { uv: 'uv.lock', poetry: 'poetry.lock', pylock: 'pylock.toml', pipfile: 'Pipfile.lock', requirements: 'requirements.txt' }[kind]; const p = T.put(join(T.fresh('proj'), name), text); return checkLockfile({ path: p, kind }, rule); };

@@ -10,6 +10,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { escapeRegExp } from '../lib/escape.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => {
@@ -137,7 +138,7 @@ test('no release tarball is committed; SHA256SUMS keeps the digests of the three
   assert.match(read('SHA256SUMS'), /^# {3}gh release download v0\.1\.10 -p wardlatch-0\.1\.10\.tgz -R deimos-hq\/wardlatch$/m);
   assert.match(read('SHA256SUMS'), /^# {3}grep ' wardlatch-0\.1\.10\.tgz\$' SHA256SUMS \| shasum -a 256 -c$/m);
   // the changelog names where each one still lives
-  for (const v of ['0.1.7', '0.1.9', '0.1.10']) assert.match(read('CHANGELOG.md'), new RegExp(`releases/tag/v${v.replace(/\./g, '\\.')}\\b`), v);
+  for (const v of ['0.1.7', '0.1.9', '0.1.10']) assert.match(read('CHANGELOG.md'), new RegExp(`releases/tag/v${escapeRegExp(v)}\\b`), v);
 });
 
 test('the coverage gate holds the floors: 90% of lines, 80% of branches and of functions, over all of bin/ and lib/', () => {

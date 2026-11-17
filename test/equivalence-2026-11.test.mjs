@@ -9,7 +9,7 @@
 import './support/no-real-home.cjs';
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, realpathSync, symlinkSync, statSync, readdirSync, cpSync, openSync, writeSync, closeSync, chmodSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, realpathSync, symlinkSync, statSync, readdirSync, cpSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -43,7 +43,7 @@ test('E1 the facts are the vendors\' and CERT/CC\'s, and none says "exploited" (
   for (const [i, cve, adv] of [[DENO, 'CVE-2026-49401', 'GHSA-8xpq-cjcf-3wh9'], [TF, 'CVE-2026-14978', 'node/7284170'], [ST, 'CVE-2026-59890', 'GHSA-h35f-9h28-mq5c']]) {
     assert.ok(i.title.includes(cve) && i.summary.includes(cve), i.id);
     assert.ok(i.advisory.includes(adv), i.id);
-    assert.ok(i.sources.includes('https://kb.cert.org/vuls/id/604762'), `${i.id}: names the CERT/CC note`);
+    assert.ok(i.sources.some((s) => { const u = new URL(s); return u.protocol === 'https:' && u.host === 'kb.cert.org' && u.pathname === '/vuls/id/604762'; }), `${i.id}: names the CERT/CC note`);
     assert.match(i.summary, /CISA's catalog \(2026\.11\.13\) does not list it/, i.id);
     assert.doesNotMatch(JSON.stringify(i), /exploited/i, `${i.id}: the house rule: "exploited" only for a KEV row`);
   }
@@ -83,7 +83,7 @@ const denoTable = (v = DENO.versionFiles, F = { keg: DENO_KEG, mise: DENO_MISE, 
   want(verdict(v, F.mise, miseAt('2.7.13', 'Deno/2.7.14+a1b2c3d\0'), 'darwin'), [['SAFE', '2.7.14']], 'mise: judged by the bytes the other way too');
   want(verdict(v, F.mise, miseAt('2.7.14', 'deno 2.7.14 (stable)'), 'darwin'), [['UNKNOWN', '']], 'mise: a program without the constant is UNKNOWN');
   {
-    const p = miseAt('2.7.14', 'Deno/2.7.14+a1b2c3d\0'), real = p.replace('*', '2.7.14');
+    const p = miseAt('2.7.14', 'Deno/2.7.14+a1b2c3d\0'), real = p.replaceAll('*', '2.7.14');
     chmodSync(real, 0o000);
     const root = process.getuid?.() === 0;
     want(verdict(v, F.mise, p, 'darwin'), root ? [['SAFE', '2.7.14']] : [['UNKNOWN', '']], 'mise: a program that can\'t be read is UNKNOWN');
