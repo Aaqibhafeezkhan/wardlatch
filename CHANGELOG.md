@@ -9,19 +9,10 @@ Every release has a signed tag (`v0.1.0` onwards; 0.1.0 to 0.1.2 were tagged aft
 each one's `gitHead`), and 0.1.3 onwards were built and attested by the release workflow. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [Unreleased] (0.1.19 candidate)
 
-### Fixed
-
-- **No SAFE from a stale list of Apple releases** (`macos-2026-11`, `lib/clock.mjs`). A SAFE there means "at the newest
-  release Wardlatch knows", read from Apple's index on 13 Nov 2026. Once that list is more than 30 days old, a Mac at
-  its newest release reads REVIEW and says how old the list is and to check Software Update. Today's date is the
-  later of the clock and the newest change to macOS's own update files, so a clock set back can't keep it SAFE.
-- **ConnectWise ScreenConnect client, CVE-2026-84869** (`screenconnect-2026-09`, CISA KEV 11 Sep 2026). Wrongly
-  declined as a "self-hosted server" in the coverage list: the flaw is in the client, and ConnectWise says servers
-  are not affected. Reads the host client's and the access agent's `Info.plist` on a Mac: below 26.6.5 is EXPOSED;
-  at or past it REVIEW (no real bundle read yet); a Linux agent folder UNKNOWN; an agent named for the attacker
-  instance in Huntress's report EXPOSED. Every declined coverage item now says where its flawed code runs.
+Four branches in one release: the coverage protocol (PR #37), the identity-equivalence pattern (VU#604762), no SAFE
+from a stale list, and the never-a-false-SAFE suite, with what the suite found fixed.
 
 ### Added
 
@@ -36,10 +27,21 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
   83.0.0 (`setuptools-2026-07`, CVE-2026-59890, `MANIFEST.in`). EXPOSED below the fix on a Mac; on Linux, where the
   vendors say the flaws are not, SAFE with that reason (Deno, Terraform) or no row (setuptools). Nothing is run. Two
   new keys for version files: `scan` (a program's bytes read in pieces) and `onlyOn` (the systems the flaw is on).
+  Deno from mise or asdf is read from the program in the install folder (`installs/deno/<version>/bin/deno`), never
+  from the folder's name, which need not match it; a program that can't be read, or carries no version, is UNKNOWN.
   Tests: `test/equivalence-2026-11.test.mjs`.
+- **ConnectWise ScreenConnect client, CVE-2026-84869** (`screenconnect-2026-09`, CISA KEV 11 Sep 2026). PR #37's
+  coverage list declined it as a "self-hosted server": the flaw is in the client, and ConnectWise says servers are not
+  affected. Reads the host client's and the access agent's `Info.plist` on a Mac: below 26.6.5 is EXPOSED; at or past
+  it REVIEW (no real bundle read yet); a Linux agent folder UNKNOWN; an agent named for the attacker instance in
+  Huntress's report EXPOSED.
 
-### Fixed (Wardlatch's own comparisons)
+### Fixed
 
+- **No SAFE from a stale list of Apple releases** (`macos-2026-11`, `lib/clock.mjs`). A SAFE there means "at the newest
+  release Wardlatch knows", read from Apple's index on 13 Nov 2026. Once that list is more than 30 days old, a Mac at
+  its newest release reads REVIEW and says how old the list is and to check Software Update. Today's date is the
+  later of the clock and the newest change to macOS's own update files, so a clock set back can't keep it SAFE.
 - **The same bug in Wardlatch itself** ([docs/PATTERN-IDENTITY-EQUIVALENCE.md](docs/PATTERN-IDENTITY-EQUIVALENCE.md)).
   On a Mac's case-insensitive disk three comparisons missed a file the program using it opens: a lockfile named
   `Package-Lock.json` (npm reads it; its pins were never read, and the run said SAFE), a folder matched by a `*`
@@ -48,19 +50,48 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
   and inode, so Linux is unchanged); `*` segments also match by case and Unicode form on a Mac; and a PATH program is
   also asked for by its exact name. A lint (`test/support/equivalence-lint.mjs`) now fails the suite on any new exact
   comparison of a listed name or path prefix that nobody has classified.
+- **A cut lockfile read SAFE** (found by the never-a-false-SAFE suite). A `yarn.lock` or `pnpm-lock.yaml` cut inside a
+  quoted string or a `{ }` mapping (a write that stopped, a full disk) read as pinning nothing, the all-clear, where
+  yarn itself refuses the file. Such a file is now UNKNOWN. And a folder's lockfile reached from two `--paths` roots
+  is one row, not two.
+- **A WordPress `Version:` header that names no version** (`Version: 3.0.` with `123` on the next line, Rank Math
+  PRO's compromised 3.0.123 split) read SAFE as version "3.0.". It is UNKNOWN now.
+- **A cut dpkg status file read as "not installed"** (`lib/installs.mjs`; Chrome, VS Code, git and Plex on Linux). A
+  `/var/lib/dpkg/status` cut inside the product's own record names no record of it, and the check gave its
+  all-clear. A shared file like it that is empty or ends part way through a line is now UNKNOWN.
+- **macOS 27 wording on the `apple-cve` and Brotli SAFE lines.** On macOS 27.x the CVE-2026-65339 line called 26.6.2
+  and 15.8, other release lines, "one of them or later". It now says why a newer major has the fix, in the source's
+  own words (Apple's 26.6.2 notes: first available in the macOS 27 beta), or only that it is newer than every macOS
+  named. Verdicts are unchanged.
+- **The Safari and Apple apps row says what its SAFE rests on** (`emudhra-2026-10`). "refused all 12 test hosts
+  through Apple's trust layer; Apple blocks the 12 certificates through valid.apple.com (support.apple.com/en-us/149555);
+  the cert.pem removal is a separate step, for command-line tools". The status logic is unchanged. A caveat: macOS
+  ships Apple's `valid.sqlite` without the six serials, so a Mac that never fetched the update would accept the
+  chains; the live nscurl probe is what catches that, and it reads EXPOSED there. Checked by the suite's O5 oracle:
+  Apple's own `SecTrustEvaluateWithError`, offline, on the 12 chains as served on 16 Nov 2026 (0 of 12 trusted on the
+  Mac measured), must agree with the row host by host.
 
 ### Development (no code in the package changes)
 
+- **The never-a-false-SAFE suite** (`test/never-false-safe/`, run by `npm test`): invariants on generated inputs
+  (`properties`), the operating system as oracle (`oracle`: which file a name opens, which library loads, which
+  certificates a bundle holds, which program PATH runs, whether Apple's trust layer accepts the test chains) and
+  hostile fixture machines (`hostile`), each with a planted mutation that must turn it red. One todo remains, O4 (a
+  non-executable file first on PATH: the shell skips it, Wardlatch names it; no SAFE comes of it), a design question
+  for the owner.
 - Coverage protocol ([docs/COVERAGE-PROTOCOL.md](docs/COVERAGE-PROTOCOL.md)): every Apple macOS fix in the owner's
-  classes (privacy and TCC, sandbox, code signing, trust, privilege, exploited) and every row CISA added to its catalog
-  in the last six months must be named in an incident or declined with a one-line reason and a review date, or
+  classes and every row CISA added to its catalog in the last six months must be named in an incident or declined with
+  a one-line reason, a review date and where the flawed code runs (`runsOn`: server, client, both or unknown), or
   `test/coverage-protocol.test.mjs` fails. It reads a committed snapshot (`scripts/coverage/refresh.mjs` is the one
   network step) and says "no gaps" only from a complete read that names each source. First run, 16 Nov 2026: 442 items
-  in scope, 14 named, 428 declined (32 of them candidates for an incident); before `apple-audio-2026-08` it reported
-  CVE-2026-65339 as a gap. Same day, a seventh class, `equivalence`, matched on Apple's Description lines as well, and a
-  third source, CERT/CC's notes read whole by month (8 of 85 notes in the class): 464 in scope, 17 named, 447 declined.
-  The refresh asked Apple's pages for "text/html,application/json", which Apple answered 404 for Tahoe 26.7's notes,
-  so no refresh could finish; it now asks each source for one type.
+  in scope, 14 named, 428 declined; before `apple-audio-2026-08` it reported CVE-2026-65339 as a gap. Same day, three
+  more pieces: a third source, CERT/CC's notes read whole by month; the `equivalence` class (name or path folding:
+  case, Unicode form, links, name constraints) and the `identity` class (an impersonated or forged caller or
+  authority), both read on Apple's Description line too, which the snapshot now keeps; one CVE may be in both and is
+  counted once. Now: 1,026 items, 464 in scope, 18 named, 446 declined (48 of them candidates for an incident), no
+  gaps. The refresh asked Apple's pages for "text/html,application/json", which Apple answered 404 for Tahoe 26.7's
+  notes, so no refresh could finish; it now asks each source for one type, and retries each request up to 5 times
+  (Apple's pages answer 404 now and then) before it stops loudly with nothing written.
 - Coverage floors: `npm run coverage` now fails below 90% of lines, 80% of branches or 80% of functions of `bin/` and
   `lib/` (it was 80% of lines and functions, with no branch floor). CI measured 99.70% of lines, 93.31% of branches and
   98.82% of functions at 1dfd218. A test fails if a floor is lowered or an exclude is added.
