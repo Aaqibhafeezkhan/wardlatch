@@ -38,6 +38,19 @@ from a stale list, and the never-a-false-SAFE suite, with what the suite found f
 
 ### Fixed
 
+- **Eight false SAFEs found by an attacker's pass** (`test/never-false-safe/attack.test.mjs`, A1 to A9, each with a
+  planted mutation). A program naming two versions that would be judged differently (a fixed one's text ahead of its
+  own) is UNKNOWN, not the first one's verdict, and a scanned program not read to its end is UNKNOWN (A1). Terraform
+  built with go-slug replaced (a `=>` line) is UNKNOWN (A2). Homebrew's `bin/deno` and `bin/git`, the copies a shell
+  runs, are read beside `opt/` (A3). A PATH entry written `~/bin`, which bash and `/bin/sh` search, is read as they read
+  it instead of being dropped (A4). On an updated Mac, a shell start-up file that names `SSL_CERT_FILE`, `SSL_CERT_DIR`
+  or `CURL_CA_BUNDLE` keeps the built-in curl and python3 from being judged by `/etc/ssl/cert.pem` (A5). PYTHONPATH's
+  folders are searched as site-packages is (A6). Lockfiles: classic yarn's `npm:` alias read from its spec, a listed
+  name installed from another package (`"react-server-dom-webpack": "npm:@acme/fork@1.0.0"`) is UNKNOWN in npm and yarn
+  lockfiles, and a pnpm lockfile re-indented or written inline is UNKNOWN, not "pins nothing" (A7, A8). Two are left as
+  todos for the owner: Homebrew's Deno keg judged by its folder name (needs D8's measurement) and the pnpm alias (A3t,
+  A7t). The suite's clock preload now stands in for every file `lib/clock.mjs` reads, so H11c no longer turns REVIEW by
+  itself once this Mac's own update files are a month newer than the list (A9).
 - **No SAFE from a stale list of Apple releases** (`macos-2026-11`, `lib/clock.mjs`). A SAFE there means "at the newest
   release Wardlatch knows", read from Apple's index on 13 Nov 2026. Once that list is more than 30 days old, a Mac at
   its newest release reads REVIEW and says how old the list is and to check Software Update. Today's date is the
