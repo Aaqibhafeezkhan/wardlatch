@@ -208,6 +208,14 @@ export function check({ snapshot, named, declined, today }) {
   return { complete, why, sources: snapshot.sources ?? [], since: snapshot.since, read: snapshot.read, total: all.length, inScope: inScope.length, ...res, expired, badDeclines, unusedDeclines, ok: complete && !res.gaps.length && !expired.length && !badDeclines.length };
 }
 
+/** The classes whose gaps are listed first (release/0.1.19-candidate, machine-speed move 4): the "logic issue …
+ *  improved checks" fixes of the identity class and the name and path folding of the equivalence class are the ones an
+ *  attacker diffing an update reads first, so a maintainer reads them first too. */
+export const FIRST = ['identity', 'equivalence'];
+const firstRank = (g) => { const i = FIRST.findIndex((c) => (g.classes ?? []).includes(c)); return i < 0 ? FIRST.length : i; };
+/** Gaps, identity-class first, then equivalence-class, then the rest, each group by key. */
+export const classFirst = (gaps) => [...gaps].sort((a, b) => firstRank(a) - firstRank(b) || String(a.key).localeCompare(String(b.key)));
+
 export function report(r) {
   const out = [];
   out.push(`sources read (snapshot of ${r.read}, window from ${r.since}):`);
@@ -217,7 +225,7 @@ export function report(r) {
   for (const s of r.sources) out.push(`  ${s.id}: ${s.url} ${said(s)}`);
   out.push(`items: ${r.total}; in a covered class: ${r.inScope}; named in an incident: ${r.named.length}; declined: ${r.declined.length}; gaps: ${r.gaps.length}`);
   if (!r.complete) { out.push('INCOMPLETE: no verdict on gaps can be given from this read:'); for (const w of r.why) out.push(`  ${w}`); }
-  for (const g of r.gaps) out.push(`GAP ${g.key} [${g.classes.join(',')}] ${g.component}: ${g.impact}${g.releases.length ? ` (${g.releases.join('; ')})` : ''}`);
+  for (const g of classFirst(r.gaps)) out.push(`GAP ${g.key} [${g.classes.join(',')}] ${g.component}: ${g.impact}${g.releases.length ? ` (${g.releases.join('; ')})` : ''}`);
   for (const e of r.expired) out.push(`EXPIRED ${e.key}: declined until ${e.decline.reviewBy} (${e.decline.reason})`);
   for (const b of r.badDeclines) out.push(`BAD DECLINE ${b.entry?.key ?? '?'}: ${b.why}`);
   for (const u of r.unusedDeclines) out.push(`note: declined entry ${u.key} matches nothing in scope, or is now named: remove it`);
