@@ -310,6 +310,8 @@ blob and its fingerprint, never by the `svc-telemetry` comment, which anyone can
 of the two strings in an `extension.js`, and a `.stk_` file holding another key are REVIEW lines. A folder it can't open
 is UNKNOWN. The malicious `extension.js` is not in this repository: the tests use a stand-in with the hash pointed at it.
 
+**One Apple CVE, by its own fix, never SAFE on a guess.** `apple-audio-2026-08` (type `apple-cve`) judges CVE-2026-65339 on the version and build in `SystemVersion.plist` against the releases Apple's notes list its fix in (26.6.2, 15.8). Below the fix on its own line is EXPOSED; a line Apple's notes don't name (Sonoma 14 and older) is UNKNOWN, not SAFE and not EXPOSED; a beta, an unread build or an unplaceable version is UNKNOWN. It is not in CISA's catalog, so nothing it prints says exploited. *Evidence:* `test/apple-audio-2026-08.test.mjs` (every boundary, six planted mutants, the command on a Mac with its own plist).
+
 **A macOS version is read, never asked for, and a frozen line is not called exposed.** `macos-2026-11` reads
 `ProductVersion` and `ProductBuildVersion` from `SystemVersion.plist` (no `sw_vers`); a SAFE stands on a release build
 only, since a beta carries the next release's number. It says EXPOSED only below the fix Apple's CVE record names for

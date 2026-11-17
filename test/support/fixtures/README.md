@@ -118,3 +118,13 @@ eMudhra's own list of the certificates 0.1.17 adds: Appendix C of comment 82 (th
 rows of Appendices A and B. Read on 11 November 2026 through Bugzilla's REST API, not through a summariser; its header
 says so. It is a witness, as `emudhra-2026-10-apple-ht149555.tsv` is: nothing is derived from it, and the test checks
 the PEM above and the incident record against it, so a fingerprint, a name, an issuer or a serial that differs fails.
+
+## `coverage-snapshot.json`
+
+The sources of the coverage check (docs/COVERAGE-PROTOCOL.md), as `scripts/coverage/refresh.mjs` read them: every
+macOS release in Apple's security releases index for the six months before the read, each with its notes page's
+entries (component, Impact line, CVE numbers), and every row CISA added to its Known Exploited Vulnerabilities feed in
+the same window. First written 16 November 2026 (342 index rows back to 9 Jan 2024; 21 macOS releases since
+16 May 2026, 1,735 entries; KEV catalog 2026.11.13, 1,781 of 1,781 rows read, 189 in the window). Only the refresh
+script writes it; nothing is edited by hand. The Impact lines are Apple's own short words, kept because the classes
+are matched on them.

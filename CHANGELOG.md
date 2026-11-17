@@ -11,8 +11,23 @@ each one's `gitHead`), and 0.1.3 onwards were built and attested by the release 
 
 ## [Unreleased]
 
+### Added
+
+- **macOS Audio flaw CVE-2026-65339** (`apple-audio-2026-08`, a new kind of check, `apple-cve`, `lib/macos.mjs`
+  `appleCveRow`). Apple's "Audio" entry, "An app may be able to leak sensitive user information", fixed in Tahoe
+  26.6.2 (17 Aug 2026) and Sequoia 15.8 (14 Sep 2026). Below the fix on its own line is EXPOSED; Sonoma 14 and older,
+  a beta, an unread build or an unplaceable version is UNKNOWN; off a Mac the row says iPhones and iPads are not
+  checked. CISA's catalog (2026.11.13) does not list it. Tests: `test/apple-audio-2026-08.test.mjs`.
+
 ### Development (no code in the package changes)
 
+- Coverage protocol ([docs/COVERAGE-PROTOCOL.md](docs/COVERAGE-PROTOCOL.md)): every Apple macOS fix in the owner's
+  classes (privacy and TCC, sandbox, code signing, trust, privilege, exploited) and every row CISA added to its catalog
+  in the last six months must be named in an incident or declined with a one-line reason and a review date, or
+  `test/coverage-protocol.test.mjs` fails. It reads a committed snapshot (`scripts/coverage/refresh.mjs` is the one
+  network step) and says "no gaps" only from a complete read that names each source. First run, 16 Nov 2026: 442 items
+  in scope, 14 named, 428 declined (32 of them candidates for an incident); before `apple-audio-2026-08` it reported
+  CVE-2026-65339 as a gap.
 - Coverage floors: `npm run coverage` now fails below 90% of lines, 80% of branches or 80% of functions of `bin/` and
   `lib/` (it was 80% of lines and functions, with no branch floor). CI measured 99.70% of lines, 93.31% of branches and
   98.82% of functions at 1dfd218. A test fails if a floor is lowered or an exclude is added.

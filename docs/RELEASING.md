@@ -6,6 +6,13 @@ Releases are cut by the maintainer or the successor, the two owners of the `ward
 ## How to cut one
 
 ```bash
+# 0. Coverage (docs/COVERAGE-PROTOCOL.md): refresh the sources, re-copy the incidents' KEV rows, and the check must
+#    say NO GAPS. Each new gap becomes an incident or a decline with a reason before the release goes ahead.
+node scripts/coverage/refresh.mjs
+curl -sSo kev.json https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+node scripts/kev-snapshot.mjs kev.json && rm kev.json
+node scripts/coverage/check.mjs
+
 # 1. The changelog: move "Unreleased" under "## [X.Y.Z] - YYYY-MM-DD" and update the links at the bottom.
 # 2. The version. It must match the tag exactly; the release workflow refuses otherwise.
 npm version X.Y.Z --no-git-tag-version
