@@ -11,7 +11,9 @@
 //   1. Apple's security releases index, support.apple.com/en-us/100100, and the notes page of every macOS release it
 //      lists in the window (parseNotes refuses a page whose CVE numbers are not all placed in an entry);
 //   2. CISA's Known Exploited Vulnerabilities feed (its `count` must equal the rows read, as scripts/kev-snapshot.mjs
-//      requires), keeping every row added in the window.
+//      requires), keeping every row added in the window;
+//   3. CERT/CC's vulnerability notes in the equivalence class, with their vulnerability rows and vendors.
+// Every request asks for one Accept type and goes through getRetry (5 tries, then a loud stop with nothing written).
 // Wardlatch itself never runs this: it is a maintainer's step, like scripts/kev-snapshot.mjs.
 import { writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -42,20 +44,34 @@ async function get(url, accept = url.startsWith('https://support.apple.com/') ? 
   return r.text();
 }
 
-const index = parseIndex(await get(INDEX));
+// MEASURED 16 Nov 2026: Apple's notes pages answer HTTP 404 to Node now and then for a page that exists (curl had 200;
+// 3 and then 2 retries were needed). A bounded retry with backoff (2, 4, 8, 16 s); a page that still fails after the
+// last try stops the refresh loudly and nothing is written, so a short read never becomes a snapshot.
+const TRIES = 5;
+async function getRetry(url) {
+  for (let i = 1; ; i++) {
+    try { return await get(url); } catch (e) {
+      if (i >= TRIES) throw new Error(`${e.message}, ${TRIES} tries: the source was not read whole, nothing written`);
+      console.error(`${url}: ${e.message}; try ${i + 1} of ${TRIES} in ${2 ** i} s`);
+      await new Promise((r) => setTimeout(r, 1000 * 2 ** i));
+    }
+  }
+}
+
+const index = parseIndex(await getRetry(INDEX));
 // the index must reach back past the window, or the window was not read whole
 if (index.at(-1).date > since) throw new Error(`the index's oldest row is ${index.at(-1).date}, after the window's start ${since}: not read whole`);
 const inWindow = index.filter((r) => r.date >= since && macosRelease(r.name));
 const releases = [];
 for (const r of inWindow) {
   if (!r.url) { releases.push({ name: r.name, date: r.date, url: '', noCves: true, entries: [] }); continue; }
-  const n = parseNotes(await get(r.url));
+  const n = parseNotes(await getRetry(r.url));
   if (n.title !== r.name) throw new Error(`${r.url}: the page is titled "${n.title}", the index says "${r.name}"`);
   releases.push({ name: r.name, date: r.date, url: r.url, entries: n.entries.map((e) => ({ component: e.component, impact: e.impact, description: e.description, cves: e.cves })) });
   console.error(`${r.name} (${r.date}): ${n.entries.length} entries, ${n.cves.length} CVEs`);
 }
 
-const feed = JSON.parse(await get(KEV));
+const feed = JSON.parse(await getRetry(KEV));
 const rows = feed.vulnerabilities;
 if (!Array.isArray(rows) || !rows.length || feed.count !== rows.length) throw new Error(`KEV feed says count ${feed.count} and holds ${Array.isArray(rows) ? rows.length : 'no'} rows: not a whole catalog`);
 const kev = rows.filter((v) => v.dateAdded >= since)
@@ -72,14 +88,14 @@ const cert = [];
 let notesRead = 0;
 const cvesIn = (...texts) => [...new Set(texts.flatMap((t) => JSON.stringify(t ?? '').match(CVE_RE) ?? []))].sort();
 for (const m of vuMonths) {
-  const list = JSON.parse(await get(`${VINCE}${m}/`));
+  const list = JSON.parse(await getRetry(`${VINCE}${m}/`));
   if (!Array.isArray(list)) throw new Error(`${VINCE}${m}/: not a list of notes: not read whole`);
   notesRead += list.length;
   for (const n of list) {
     if ((n.datefirstpublished ?? n.publicdate ?? '') < since) continue;
     if (!EQUIVALENCE.test(`${n.name}\n${n.overview}`)) continue;
-    const vuls = JSON.parse(await get(`${VINCE}${n.idnumber}/vuls/`));
-    const vendors = JSON.parse(await get(`${VINCE}${n.idnumber}/vendors/`));
+    const vuls = JSON.parse(await getRetry(`${VINCE}${n.idnumber}/vuls/`));
+    const vendors = JSON.parse(await getRetry(`${VINCE}${n.idnumber}/vendors/`));
     if (!Array.isArray(vuls) || !Array.isArray(vendors)) throw new Error(`${n.vuid}: its vulnerability rows or vendors are not lists: not read whole`);
     cert.push({ id: n.vuid, name: n.name, published: (n.datefirstpublished ?? '').slice(0, 10), url: `https://kb.cert.org/vuls/id/${n.idnumber}`,
       cves: cvesIn(n.cveids, n.overview, n.public, vuls.map((v) => [v.cve && `CVE-${v.cve}`, v.description]), vendors.map((v) => [v.statement, v.addendum, v.references])), vulsRead: true, vendorsRead: true });

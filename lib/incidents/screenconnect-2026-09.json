@@ -1,0 +1,77 @@
+{
+  "id": "screenconnect-2026-09",
+  "type": "installs",
+  "title": "ConnectWise ScreenConnect client before 26.6.5: files transferred and run without the host's confirmation, exploited (CVE-2026-84869)",
+  "date": "2026-09-08",
+  "kev": [{"cve": "CVE-2026-84869", "vendorProject": "ConnectWise", "product": "ScreenConnect", "dateAdded": "2026-09-11", "dueDate": "2026-09-14"}],
+  "summary": "ConnectWise's security bulletin of 8 Sep 2026 and the CVE record it published the same day (CVE-2026-84869, CWE-862 and CWE-269, CVSS 3.1 score 9.9) say that the ScreenConnect client, in versions before 26.6.5, can in certain circumstances let files be transferred and run during an active remote session without authorization or the host's confirmation; ConnectWise's disclosure names both the host client (the one a technician runs) and the access agents, and says ScreenConnect servers are not affected. So upgrading a server does not fix a client: ConnectWise tells on-premises partners to upgrade to 26.6.5 and then reinstall host clients and update access agents. CISA added it to its Known Exploited Vulnerabilities catalog on 11 Sep 2026, due 14 Sep. Wardlatch reads the version from the Info.plist of the ScreenConnect apps installed on a Mac, the host client (ScreenConnect Client.app, bundle identifier com.screenconnect.client) and the access agent (connectwisecontrol-<instance>.app); it never starts ScreenConnect. No real ScreenConnect bundle has been read by this check yet, so a version at or past 26.6.5 is REVIEW, not SAFE. An access agent's folder on Linux (/opt/screenconnect-<instance>) has no version file this check knows, so it is UNKNOWN. Huntress's report of rogue ScreenConnect installs gives one indicator that can be seen on a Mac: the attacker's instance ID 7a4d7d66502d4260, which a Mac access agent carries in its app's name; an app with that name is EXPOSED. Every other indicator in that report is a Windows file, registry key or network address, and is not checked.",
+  "advisory": "https://www.connectwise.com/company/trust/security-bulletins/2026-09-08-screenconnect-bulletin",
+  "sources": [
+    "https://www.cve.org/CVERecord?id=CVE-2026-84869",
+    "https://github.com/ConnectWise-Advisories/Disclosures/tree/main/CVE-2026-84869",
+    "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-84869",
+    "https://www.huntress.com/blog/rogue-screenconnect-installations",
+    "https://screenconnect.product.connectwise.com/communities/67/topics/5045-tip-update-macos-host-client-app"
+  ],
+  "versionFiles": {
+    "product": "ScreenConnect",
+    "minVersion": "26.6.5",
+    "files": [
+      {
+        "path": "/Applications/connectwisecontrol-7a4d7d66502d4260.app",
+        "label": "access agent of the instance Huntress names",
+        "whenFound": {"status": "EXPOSED", "reason": "a ScreenConnect access agent of instance 7a4d7d66502d4260, which Huntress's report names as the attacker's: someone outside may be able to control this Mac"}
+      },
+      {
+        "path": "/opt/connectwisecontrol-7a4d7d66502d4260.app",
+        "label": "access agent of the instance Huntress names",
+        "whenFound": {"status": "EXPOSED", "reason": "a ScreenConnect access agent of instance 7a4d7d66502d4260, which Huntress's report names as the attacker's: someone outside may be able to control this Mac"}
+      },
+      {
+        "path": "/opt/screenconnect-7a4d7d66502d4260",
+        "label": "access agent of the instance Huntress names",
+        "whenFound": {"status": "EXPOSED", "reason": "a ScreenConnect access agent of instance 7a4d7d66502d4260, which Huntress's report names as the attacker's: someone outside may be able to control this machine"}
+      },
+      {
+        "path": "/Applications/ScreenConnect Client*.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>((?:19|2\\d)\\.\\d{1,2}(?:\\.\\d+){0,2})</string>",
+        "label": "host client",
+        "reviewWhenFixed": "this ScreenConnect host client, as installed, is 26.6.5 or later, the version ConnectWise says has the fix; but no real ScreenConnect bundle has been read by this check yet, so that its Info.plist carries ScreenConnect's own version is not confirmed"
+      },
+      {
+        "path": "~/Applications/ScreenConnect Client*.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>((?:19|2\\d)\\.\\d{1,2}(?:\\.\\d+){0,2})</string>",
+        "label": "host client",
+        "reviewWhenFixed": "this ScreenConnect host client, as installed, is 26.6.5 or later, the version ConnectWise says has the fix; but no real ScreenConnect bundle has been read by this check yet, so that its Info.plist carries ScreenConnect's own version is not confirmed"
+      },
+      {
+        "path": "/Applications/ConnectWise Control Client*.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>((?:19|2\\d)\\.\\d{1,2}(?:\\.\\d+){0,2})</string>",
+        "label": "host client",
+        "reviewWhenFixed": "this ScreenConnect host client, as installed, is 26.6.5 or later, the version ConnectWise says has the fix; but no real ScreenConnect bundle has been read by this check yet, so that its Info.plist carries ScreenConnect's own version is not confirmed"
+      },
+      {
+        "path": "/Applications/connectwisecontrol-*.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>((?:19|2\\d)\\.\\d{1,2}(?:\\.\\d+){0,2})</string>",
+        "label": "access agent",
+        "reviewWhenFixed": "this ScreenConnect access agent, as installed, is 26.6.5 or later, the version ConnectWise says has the fix; but no real ScreenConnect bundle has been read by this check yet, so that its Info.plist carries ScreenConnect's own version is not confirmed"
+      },
+      {
+        "path": "/opt/connectwisecontrol-*.app/Contents/Info.plist",
+        "re": "<key>CFBundleShortVersionString</key>\\s*<string>((?:19|2\\d)\\.\\d{1,2}(?:\\.\\d+){0,2})</string>",
+        "label": "access agent",
+        "reviewWhenFixed": "this ScreenConnect access agent, as installed, is 26.6.5 or later, the version ConnectWise says has the fix; but no real ScreenConnect bundle has been read by this check yet, so that its Info.plist carries ScreenConnect's own version is not confirmed"
+      },
+      {
+        "path": "/opt/screenconnect-*",
+        "label": "access agent folder",
+        "whenFound": {"status": "UNKNOWN", "reason": "a ScreenConnect access agent is installed here, but it has no version file this check knows how to read, so whether it is 26.6.5 or later was not checked"}
+      }
+    ],
+    "fix": "Update ScreenConnect on this machine to 26.6.5 or later. The flaw is in the client (the host client a technician runs, and the access agent), and ConnectWise says servers are not affected, so upgrading the server alone does not fix this machine: after an on-premises server is upgraded to 26.6.5, reinstall the host client and update the access agents (ConnectWise's bulletin of 8 Sep 2026). An access agent of an instance you don't run: remove it, and treat this machine as one someone else may have controlled.",
+    "lookedIn": "ScreenConnect's apps in /Applications, ~/Applications and /opt, and its agent folders in /opt"
+  },
+  "reviewFix": "Open ScreenConnect's About window to see the version that runs, and update it from your ScreenConnect server if it is below 26.6.5.",
+  "safeText": "no ScreenConnect client found in the places this check reads",
+  "notCovered": "ScreenConnect on Windows, where Huntress's indicators are (the scripts 1.vbs to 4.vbs, WindowsServiceHost.vbs and .bat, runner.ps1, value.txt and map.txt in %TEMP%, sys_cache.zip, PyTorchFix.ps1, Password.exe, Themes.exe, SearchIndex.exe, svcdrv64.sys, the WindowsServiceHost Run key; Wardlatch does not run on Windows); the report's domains and IP addresses (Wardlatch reads no network logs); a host client left in ~/Downloads or anywhere else, or renamed; a version file of the Linux agent; the ScreenConnect server itself, which ConnectWise says is not affected; which version is running, if ScreenConnect was updated while it was open."
+}

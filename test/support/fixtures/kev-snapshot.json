@@ -101,6 +101,15 @@
         "dueDate": "2026-10-23"
       }
     ],
+    "screenconnect-2026-09": [
+      {
+        "cve": "CVE-2026-84869",
+        "vendorProject": "ConnectWise",
+        "product": "ScreenConnect",
+        "dateAdded": "2026-09-11",
+        "dueDate": "2026-09-14"
+      }
+    ],
     "sshole-2026-11": [
       {
         "cve": "CVE-2026-123158",

@@ -23,6 +23,9 @@ export const DECLINED = join(ROOT, 'scripts', 'coverage', 'declined.json');
 export const INCIDENTS = join(ROOT, 'lib', 'incidents');
 export const SOURCES = ['apple-macos', 'cisa-kev', 'cert-vu'];
 export const MAX_AGE_DAYS = 31;
+/** Where a declined item's flawed code runs: a server or appliance, the machine a person uses (an app, agent, desktop or
+ *  the OS itself), both, or not yet known. */
+export const RUNS_ON = ['server', 'client', 'both', 'unknown'];
 
 /**
  * The identity-equivalence class (docs/PATTERN-IDENTITY-EQUIVALENCE.md): two spellings of one name (case, Unicode form,
@@ -47,7 +50,40 @@ export const CLASSES = {
   // and the system resolved another. Matched on Apple's Impact and Description lines, and on CERT/CC's notes.
   equivalence: EQUIVALENCE,
 };
-export const classesOf = (impact, description = '') => Object.keys(CLASSES).filter((k) => CLASSES[k].test(String(impact ?? '')) || (k === 'equivalence' && CLASSES[k].test(String(description ?? ''))));
+
+/**
+ * Two classes that both read the Description line, kept distinct (release/0.1.19-candidate, 16 Nov 2026):
+ *  - `equivalence`: NAME OR PATH FOLDING. One name, two spellings (case, Unicode form), a path that resolves
+ *    elsewhere, names compared looser or stricter than the system that uses them. `EQUIVALENCE` above, plus, on Apple's
+ *    lines, any "normalization" (fix/no-stale-safe first caught that word under identity; it is folding, so it lives
+ *    here now, and nothing it matched before is lost).
+ *  - `identity`: AN IMPERSONATED OR FORGED CALLER OR AUTHORITY (fix/no-stale-safe, 16 Nov 2026). Either line says one
+ *    party is taken for another (impersonate, spoof, forged), or the Description is Apple's "logic issue / improved
+ *    checks" and either line is about permission, TCC, privacy or an authorization.
+ * One CVE may be in both; an item is one CVE, so the report's totals count it once (items() keys by CVE).
+ */
+export const APPLE_FOLDING = /normali[sz]/i;
+export const IDENTITY = {
+  words: /impersonat|spoof|forged|forger/i,
+  logic: /logic issue|improved checks/i,
+  authority: /permission|\bTCC\b|privacy|sensitive user|protected user data|user data|authori[sz]|entitlement/i,
+};
+const identityOf = (impact, description) => {
+  const both = `${impact}\n${description}`;
+  return IDENTITY.words.test(both) || (IDENTITY.logic.test(description) && IDENTITY.authority.test(both));
+};
+const equivalenceOf = (impact, description) => {
+  const both = `${impact}\n${description}`;
+  return EQUIVALENCE.test(both) || APPLE_FOLDING.test(both);
+};
+/** The classes an Apple entry is in: from its Impact line, and for `equivalence` and `identity` its Description too. */
+export const classesOf = (impact, description = '') => {
+  const i = String(impact ?? ''), d = String(description ?? '');
+  const out = new Set(Object.keys(CLASSES).filter((k) => k !== 'equivalence' && CLASSES[k].test(i)));
+  if (equivalenceOf(i, d)) out.add('equivalence');
+  if (identityOf(i, d)) out.add('identity');
+  return [...out].sort();
+};
 
 /**
  * The items each source holds, one per CVE (or, for an Apple entry printed without a CVE number, one per release,
@@ -95,6 +131,10 @@ export function incomplete(snapshot, today) {
     if ((snapshot.apple ?? []).length !== a.macosReleasesInWindow) why.push(`apple-macos: ${(snapshot.apple ?? []).length} releases read, the index listed ${a.macosReleasesInWindow} in the window`);
     if (!a.indexOldest || a.indexOldest > snapshot.since) why.push(`apple-macos: the index read reaches back to ${a.indexOldest}, not to the window's start ${snapshot.since}`);
     for (const r of snapshot.apple ?? []) if (!r.noCves && !(r.entries ?? []).length) why.push(`apple-macos: ${r.name} has a page and no entries read`);
+    // the identity class reads the Description line: a snapshot without it (written before 16 Nov 2026) would match
+    // nothing there and look clean, so it is not a complete read
+    const bare = (snapshot.apple ?? []).flatMap((r) => (r.entries ?? []).filter((e) => typeof e.description !== 'string' || !e.description.trim()).map(() => r.name));
+    if (bare.length) why.push(`apple-macos: ${bare.length} entries carry no Description line (first in ${bare[0]}), which the identity class reads: run scripts/coverage/refresh.mjs`);
   }
   const k = src.get('cisa-kev');
   if (k) {
@@ -124,7 +164,7 @@ export function namedCves(dir = INCIDENTS) {
 }
 
 /**
- * The check. `declined`: { entries: [{ key, reason, reviewBy, candidate? }] }. → { complete, why, inScope, named,
+ * The check. `declined`: { entries: [{ key, reason, runsOn, reviewBy, candidate? }] }. → { complete, why, inScope, named,
  * declined, gaps, expired, badDeclines, unusedDeclines, ok }. ok only when complete, with no gap, no expired or
  * malformed decline.
  */
@@ -138,6 +178,9 @@ export function check({ snapshot, named, declined, today }) {
     if (!d || typeof d.key !== 'string' || !d.key) { badDeclines.push({ entry: d, why: 'no key' }); continue; }
     if (typeof d.reason !== 'string' || d.reason.trim().length < 12 || d.reason.length > 240 || /\n/.test(d.reason)) badDeclines.push({ entry: d, why: 'the reason must be one line of 12 to 240 characters' });
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d.reviewBy ?? ''))) badDeclines.push({ entry: d, why: 'no reviewBy date (YYYY-MM-DD)' });
+    // where the flawed code runs (fix/no-stale-safe, 16 Nov 2026): PR #37 declined ScreenConnect's client flaw as a
+    // "self-hosted server", and nothing asked. Every skip now says it, so a client-side flaw can't hide behind a server word
+    if (!RUNS_ON.includes(d.runsOn)) badDeclines.push({ entry: d, why: `no runsOn (one of ${RUNS_ON.join(', ')}): where the flawed code runs` });
     if (dec.has(d.key)) badDeclines.push({ entry: d, why: 'declined twice' });
     dec.set(d.key, d);
   }

@@ -4,2274 +4,2725 @@
   {
    "key": "CVE-2026-113898",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112446",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112551",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112690",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112704",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86939",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86937",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112568",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112675",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112672",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112678",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86941",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86896",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112545",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112462",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86990",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-113900",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112530",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112444",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112428",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112483",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112570",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112534",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-113896",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112432",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112518",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112523",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86978",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112647",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112617",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112533",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112543",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112624",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112494",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112497",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-113915",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112421",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-113948",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112442",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65397",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112660",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112562",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112513",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112569",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112498",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86925",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112616",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112521",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112506",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112668",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112437",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86936",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112434",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112652",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112430",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112493",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112559",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112455",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86984",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112685",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112658",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2022-26704",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112567",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112558",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112557",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112441",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112628",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112487",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112548",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112541",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112535",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112504",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112492",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112556",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112512",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112453",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112577",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112447",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-113897",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112537",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112555",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86920",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84610",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84528",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86966",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65368",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84545",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86916",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84542",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64789",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65373",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65363",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86931",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86923",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43736",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-20649",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65392",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43664",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65404",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84582",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84587",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84586",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84633",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65381",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84584",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84522",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84525",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65342",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84570",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84568",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84535",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84607",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65406",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84631",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65399",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43789",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86876",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84624",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84574",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43786",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43698",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64790",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43691",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84540",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84505",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65362",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84569",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86961",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84618",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86928",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2022-3437",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86868",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64756",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65354",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84622",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43689",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65369",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86917",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84514",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84556",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65382",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86932",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86894",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84577",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84573",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43787",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84628",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43741",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65372",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43695",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86902",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64712",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84491",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84580",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84578",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84576",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65403",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86897",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65380",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84555",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86933",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84625",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86881",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84508",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86884",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65356",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65361",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65378",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84621",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86979",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65348",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65345",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86976",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65383",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86909",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84527",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84589",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-28937",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86935",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-28899",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64753",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65379",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65393",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84617",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43763",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43760",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "apple:macOS Sequoia 15.8:Shortcuts:143",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "apple:macOS Sequoia 15.8:Shortcuts:144",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "apple:macOS Sequoia 15.8:Shortcuts:145",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-28850",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-28930",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43819",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43749",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64733",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43801",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43781",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64737",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65353",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43672",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64702",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43730",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64747",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43813",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43797",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43756",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43693",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43775",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43759",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64710",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-39875",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64701",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43758",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64708",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43783",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43753",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43714",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64740",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43796",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43782",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64723",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64721",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-28973",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43766",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64743",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64738",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43723",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43772",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64711",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43765",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64731",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-39874",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43792",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43755",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43762",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43800",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43774",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43770",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84562",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64730",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64728",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43821",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43750",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-28849",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2025-43325",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-20672",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-28900",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-28961",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-28914",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43700",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43732",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43725",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-43701",
    "reason": "D1 pending: not in KEV. A Mac below a release that lists this fix is below its line's latest, which macos-2026-11 reports as REVIEW; the CVE itself is not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-114713",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-123039",
-   "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
-   "reviewBy": "2026-11-30"
+   "reason": "Check Point Multiple Products: which products, and whether its endpoint clients for Mac are among them, not yet read (candidate, 16 Nov re-read)",
+   "runsOn": "unknown",
+   "reviewBy": "2026-11-30",
+   "candidate": true
   },
   {
    "key": "CVE-2026-111560",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-111793",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-116606",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-124194",
-   "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
-   "reviewBy": "2026-11-30"
+   "reason": "Outlook (client side); Microsoft ships Outlook for Mac, and whether that build is affected is not yet read (candidate, client-side re-read of 16 Nov 2026)",
+   "runsOn": "client",
+   "reviewBy": "2026-11-30",
+   "candidate": true
   },
   {
    "key": "CVE-2026-20320",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-116779",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-123218",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-19868",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-119977",
    "reason": "WordPress core: the wordpress check reads plugin folders, not core's version (candidate, D3)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-111357",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-118527",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-76418",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-97229",
    "reason": "GitLab: gitlab-2026-10 reads GitLab's VERSION file for CVE-2026-110264 only; this CVE is not named (candidate)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-41709",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-46300",
    "reason": "Linux kernel: Wardlatch has no kernel-version check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-48356",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-110447",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-114625",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-106931",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-110936",
    "reason": "Windows software: Wardlatch runs on macOS and Linux only",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2025-61624",
-   "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
-   "reviewBy": "2026-11-30"
+   "reason": "Fortinet Multiple Products: which products, and whether FortiClient for Mac or Linux is among them, not yet read (candidate, 16 Nov re-read)",
+   "runsOn": "unknown",
+   "reviewBy": "2026-11-30",
+   "candidate": true
   },
   {
    "key": "CVE-2026-102764",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-21589",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-0322",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-105133",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-105134",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-76519",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-104935",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-96951",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2015-3306",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2015-5477",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2016-3081",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2021-3199",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2023-22894",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-88779",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-102489",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-102490",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-104286",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-76504",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-88771",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-88772",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-65660",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-67279",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-87902",
    "reason": "WordPress core: the wordpress check reads plugin folders, not core's version (candidate, D3)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-5430",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-71362",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-85102",
-   "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
-   "reviewBy": "2026-11-30"
+   "reason": "Check Point Multiple Products: which products, and whether its endpoint clients for Mac are among them, not yet read (candidate, 16 Nov re-read)",
+   "runsOn": "unknown",
+   "reviewBy": "2026-11-30",
+   "candidate": true
   },
   {
    "key": "CVE-2026-93616",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-93952",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-94127",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-7273",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2025-39682",
    "reason": "Linux kernel: Wardlatch has no kernel-version check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2025-39964",
    "reason": "Linux kernel: Wardlatch has no kernel-version check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-53266",
    "reason": "Linux kernel: Wardlatch has no kernel-version check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-58704",
    "reason": "Android phone software: Wardlatch reads no phone",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-76460",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-87886",
-   "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
-   "reviewBy": "2026-11-30"
+   "reason": "Acronis Backup, incorrect default permissions; Acronis agents run on Macs and Linux machines, and whether the flaw is in the agent is not yet read (candidate, 16 Nov re-read)",
+   "runsOn": "both",
+   "reviewBy": "2026-11-30",
+   "candidate": true
   },
   {
    "key": "CVE-2026-76461",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-42016",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-42018",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
-   "reviewBy": "2026-11-30"
-  },
-  {
-   "key": "CVE-2026-84869",
-   "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-85706",
    "reason": "GitLab: gitlab-2026-10 reads GitLab's VERSION file for CVE-2026-110264 only; this CVE is not named (candidate)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-67277",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86060",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2025-25249",
-   "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
-   "reviewBy": "2026-11-30"
+   "reason": "Fortinet Multiple Products: which products, and whether FortiClient for Mac or Linux is among them, not yet read (candidate, 16 Nov re-read)",
+   "runsOn": "unknown",
+   "reviewBy": "2026-11-30",
+   "candidate": true
   },
   {
    "key": "CVE-2026-19490",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-20079",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-87491",
    "reason": "Chrome: chrome-2026-11 requires the 9 Nov 2026 releases (157.0.8103.50, Extended Stable 156.0.8078.96), later than this fix, so an unfixed Chrome is EXPOSED there; not named (candidate)",
+   "runsOn": "client",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-75650",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-81963",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-85880",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-86218",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-85046",
    "reason": "Chrome: chrome-2026-11 requires the 9 Nov 2026 releases (157.0.8103.50, Extended Stable 156.0.8078.96), later than this fix, so an unfixed Chrome is EXPOSED there; not named (candidate)",
+   "runsOn": "client",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-48710",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-49869",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-59822",
    "reason": "LiteLLM: litellm-2026-10 checks the tampered 1.107.0 release only; this CVE is not named (candidate)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-82329",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-83548",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-83549",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-9586",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-81578",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-82078",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2023-49105",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-53362",
    "reason": "Linux kernel: Wardlatch has no kernel-version check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-66384",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2015-3246",
    "reason": "RHEL-family package (2015): Wardlatch reads no rpm database, so it could only ever say UNKNOWN",
+   "runsOn": "both",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2015-5287",
    "reason": "RHEL-family package (2015): Wardlatch reads no rpm database, so it could only ever say UNKNOWN",
+   "runsOn": "both",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2019-1068",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2021-23758",
    "reason": "Windows software: Wardlatch runs on macOS and Linux only",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2022-0995",
    "reason": "Linux kernel: Wardlatch has no kernel-version check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-8452",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-60004",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-21962",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-73570",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-72529",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-72530",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-64849",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-33824",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "both",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-55040",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-59310",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2025-62593",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-20349",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-68820",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-72898",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-8037",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-63077",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-18556",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-34486",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-9198",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-18577",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-20316",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2025-68686",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-16812",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-16232",
-   "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "reason": "Check Point SmartConsole, a Windows desktop client: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-50522",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2021-27137",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-0770",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-60137",
    "reason": "WordPress core: the wordpress check reads plugin folders, not core's version (candidate, D3)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-63030",
    "reason": "WordPress core: the wordpress check reads plugin folders, not core's version (candidate, D3)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-25089",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-39808",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-58644",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2023-4346",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-46817",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-15409",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-15410",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-56155",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-56164",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2008-4128",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-48939",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-56291",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-48282",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-48908",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-55255",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-56290",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-45659",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-48558",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-12569",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-20230",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2025-67038",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-34908",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-34909",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-34910",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-20253",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-48907",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-20262",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-54420",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-35273",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-10520",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-11645",
    "reason": "Chrome: chrome-2026-11 requires the 9 Nov 2026 releases (157.0.8103.50, Extended Stable 156.0.8078.96), later than this fix, so an unfixed Chrome is EXPOSED there; not named (candidate)",
+   "runsOn": "client",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-20245",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-7473",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-42271",
    "reason": "LiteLLM: litellm-2026-10 checks the tampered 1.107.0 release only; this CVE is not named (candidate)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-50751",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-28318",
    "reason": "Windows software: Wardlatch runs on macOS and Linux only",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-45247",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2022-0492",
    "reason": "Linux kernel: Wardlatch has no kernel-version check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2025-48595",
    "reason": "Android phone software: Wardlatch reads no phone",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2024-21182",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-0257",
    "reason": "network appliance, device firmware or hypervisor: not software on the Mac or Linux machine Wardlatch checks",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-45321",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-48027",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-8398",
-   "reason": "Windows software: Wardlatch runs on macOS and Linux only",
-   "reviewBy": "2026-11-30"
+   "reason": "Daemon Tools Lite (desktop app, malicious code in its installer); a Mac build exists, and whether it was affected is not yet read (candidate, 16 Nov re-read)",
+   "runsOn": "client",
+   "reviewBy": "2026-11-30",
+   "candidate": true
   },
   {
    "key": "CVE-2026-48172",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-9082",
    "reason": "self-hosted server or CMS extension with no Wardlatch check; not chosen for an incident (D2: widen scope to servers?)",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2025-34291",
    "reason": "developer package, extension or self-hosted dev tool Wardlatch does not check yet (candidate, D3)",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-34926",
-   "reason": "Windows software: Wardlatch runs on macOS and Linux only",
-   "reviewBy": "2026-11-30"
+   "reason": "Trend Micro Apex One (On-Premise): server or agent not yet read, and Apex One has a Mac agent (candidate, 16 Nov re-read)",
+   "runsOn": "unknown",
+   "reviewBy": "2026-11-30",
+   "candidate": true
   },
   {
    "key": "CVE-2008-4250",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2009-1537",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2009-3459",
    "reason": "a 2009 Adobe Acrobat and Reader flaw: Wardlatch reads no Acrobat version",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2010-0249",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2010-0806",
    "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-41091",
-   "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
-   "reviewBy": "2026-11-30"
+   "reason": "Microsoft Defender (client side); Defender for Endpoint ships for macOS and Linux, and whether those builds are affected is not yet read (candidate, 16 Nov re-read)",
+   "runsOn": "client",
+   "reviewBy": "2026-11-30",
+   "candidate": true
   },
   {
    "key": "CVE-2026-45498",
-   "reason": "Microsoft Windows or Windows server product: Wardlatch runs on macOS and Linux and checks neither",
-   "reviewBy": "2026-11-30"
+   "reason": "Microsoft Defender (client side); Defender for Endpoint ships for macOS and Linux, and whether those builds are affected is not yet read (candidate, 16 Nov re-read)",
+   "runsOn": "client",
+   "reviewBy": "2026-11-30",
+   "candidate": true
   },
   {
    "key": "CVE-2026-45110",
    "reason": "libarchive (VU#604762): no fixed release (the fix is open PR #3359) and no published CVE record on 16 Nov 2026; Apple says Not Affected, the reporter says macOS bsdtar is; no version to judge",
+   "runsOn": "client",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-11313",
    "reason": "yarn pack/publish .npmignore (VU#604762, a vendor addendum only): the CVE record and GHSA-xghw-r27x-p6hc were not public on 16 Nov 2026, so no affected or fixed version to judge",
+   "runsOn": "client",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-23950",
    "reason": "node-tar before 7.5.4 (VU#604762 reference): a library inside projects and tools; a lockfile rule for it would flag most projects; npm drops link entries when it extracts (UNVERIFIED)",
+   "runsOn": "client",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-13723",
    "reason": "Develar app-builder zip extraction on APFS (VU#293714): a build dependency of electron-builder; the note names no fixed version and Wardlatch's lockfile rules match named versions",
+   "runsOn": "client",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-34073",
    "reason": "pyca/cryptography before 46.0.6 (VU#948176): name constraints checked against SANs, not the peer name; a Python package Wardlatch could read from dist-info; not a Mac name-folding flaw",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-3833",
    "reason": "GnuTLS before 3.8.13 (VU#948176): case-sensitive name-constraint matching; a Linux TLS library Wardlatch does not read; distributions backport, so a version alone would be REVIEW",
+   "runsOn": "both",
    "reviewBy": "2026-11-30",
    "candidate": true
   },
   {
    "key": "CVE-2026-3547",
    "reason": "wolfSSL before 5.9.0 (VU#948176): URI name constraints; an embedded TLS library that Wardlatch does not read on a Mac or Linux machine",
+   "runsOn": "both",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "VU#410595",
    "reason": "Google BoringSSL name constraints (no CVE): BoringSSL is built into Chrome and other programs, which chrome-2026-11 judges by the program's version, not by the library",
+   "runsOn": "both",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-15611",
    "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-15612",
    "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-15614",
    "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-15615",
    "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-15616",
    "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-15617",
    "reason": "Logto identity platform (VU#492466): a self-hosted server product, out of scope as D2 declines them",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-8501",
    "reason": "a Windows kernel driver (VU#158530), in the class by its note's path wording: Wardlatch runs on macOS and Linux only",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-10621",
    "reason": "Collibra Agent (VU#873170), in the class by its note's path wording: a self-hosted server product, out of scope as D2 declines them",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-10622",
    "reason": "Collibra Agent (VU#873170), in the class by its note's path wording: a self-hosted server product, out of scope as D2 declines them",
+   "runsOn": "server",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-112511",
    "reason": "D5 pending: an Apple fix in the equivalence class (links), not in KEV. A Mac below its release is below its line's latest, which macos-2026-11 reports as REVIEW; not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   },
   {
    "key": "CVE-2026-84534",
    "reason": "D5 pending: an Apple fix in the equivalence class (archive paths), not in KEV. A Mac below its release is below its line's latest, which macos-2026-11 reports as REVIEW; not named",
+   "runsOn": "client",
    "reviewBy": "2026-11-30"
   }
  ]

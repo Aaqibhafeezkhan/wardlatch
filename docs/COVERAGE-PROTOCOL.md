@@ -52,12 +52,26 @@ owner's list of 16 Nov 2026, plus privilege escalation and anything Apple says m
 - `code-signing`: Gatekeeper and code-signing bypass;
 - `trust`: certificates, trust, TLS, impersonation and spoofing;
 - `privilege`: root, kernel or elevated privileges, and writing protected parts of the file system;
-- `exploited`: Apple's "Apple is aware of a report that this issue may have been exploited".
-- `equivalence` (16 Nov 2026, [docs/PATTERN-IDENTITY-EQUIVALENCE.md](PATTERN-IDENTITY-EQUIVALENCE.md)): a check that
-  compares one notion of a name, a path or an identity while the system resolves another: case and Unicode forms of a
-  file name (APFS, HFS+), path handling and links, name constraints. Matched on Apple's Impact **or Description** line
-  (`EQUIVALENCE` in `scripts/coverage/check.mjs`), and on a CERT/CC note's title and text. Every CVE number an in-class
-  CERT/CC note prints is an item; a note with none is one item keyed by its VU number.
+- `exploited`: Apple's "Apple is aware of a report that this issue may have been exploited";
+- `equivalence` (16 Nov 2026, [docs/PATTERN-IDENTITY-EQUIVALENCE.md](PATTERN-IDENTITY-EQUIVALENCE.md)): **name or
+  path folding**, a check that compares one notion of a name or a path while the system resolves another: case and
+  Unicode forms of a file name (APFS, HFS+), "case-insensitive", "normalization", path handling and links, name
+  constraints. Matched on Apple's Impact **or Description** line (`EQUIVALENCE` and `APPLE_FOLDING` in
+  `scripts/coverage/check.mjs`), and on a CERT/CC note's title and text. Every CVE number an in-class CERT/CC note
+  prints is an item; a note with none is one item keyed by its VU number;
+- `identity` (16 Nov 2026): **an impersonated or forged caller or authority**, matched on the Impact **and** the
+  Description line: "impersonate", "spoof", "forged", or Apple's "logic issue ... improved checks" together with
+  permission, TCC, privacy or an authorization. The snapshot keeps every entry's Description line; one without it is
+  INCOMPLETE, since this class and `equivalence` would then match nothing there.
+
+The two classes are distinct; one CVE may be in both. An item is one CVE (or one VU note, or one Apple entry without
+a CVE), so the totals the check prints count it once whatever its classes.
+
+Every declined entry says where the flawed code runs, `runsOn`: `server` (a server, an appliance, a hosted service),
+`client` (the machine a person uses: an app, an agent, a desktop, the OS), `both`, or `unknown`. A decline without
+it fails the check. PR #37 declined ScreenConnect's client flaw (CVE-2026-84869) as a "self-hosted server"; the
+re-read of 16 Nov 2026 named it (`screenconnect-2026-09`) and marked the client-side declines Wardlatch could see as
+candidates.
 
 Every row CISA adds to its catalog in the window is in scope as `exploited`, whatever the product.
 

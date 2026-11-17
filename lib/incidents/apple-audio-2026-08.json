@@ -21,6 +21,7 @@
     "date": "17 Aug 2026 (Tahoe 26.6.2) and 14 Sep 2026 (Sequoia 15.8)",
     "releases": ["26.6.2", "15.8"],
     "sources": ["https://support.apple.com/en-us/148281", "https://support.apple.com/en-us/149043"],
+    "newerMajor": "Apple's notes for Tahoe 26.6.2 say its fixes \"were first made available in the macOS Golden Gate 27 beta\", and the CVE record names no macOS 27 version as affected, so macOS 27 includes this fix",
     "basis": "The flaw is in macOS itself, which is not read here: this rests on the version and Apple's notes",
     "said": "Audio. Impact: An app may be able to leak sensitive user information. Description: A logic issue was addressed with improved checks. CVE-2026-65339",
     "fix": "Update macOS to {release} or later (System Settings, General, Software Update)."
