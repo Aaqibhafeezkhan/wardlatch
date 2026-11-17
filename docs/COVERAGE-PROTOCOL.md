@@ -29,12 +29,14 @@ Each source is read whole for the window, or the check says INCOMPLETE and fails
 
 | Source | What is read | Whole means |
 |---|---|---|
-| `apple-macos` | Apple's security releases index, [support.apple.com/en-us/100100](https://support.apple.com/en-us/100100), and the notes page of every macOS release it lists in the window | the index reaches back past the window's start; every macOS row in the window has its page read (or Apple's own "no published CVE entries"); every CVE number on each page is placed in an entry (`parseNotes` throws otherwise); every entry has its Impact line |
+| `apple-macos` | Apple's security releases index, [support.apple.com/en-us/100100](https://support.apple.com/en-us/100100), and the notes page of every release it lists in the window that runs on a Mac: macOS, and every product whose "Available for" column names macOS (Safari, Xcode, Mac apps; from 17 Nov 2026, [PATTERNS.md](PATTERNS.md) P4) | the index reaches back past the window's start; every Mac row in the window has its page read (or Apple's own "no published CVE entries"); every other row in the window is recorded as skipped with its column, the read and skipped rows add up to the window, and no skipped row names macOS; every CVE number on each page is placed in an entry (`parseNotes` throws otherwise); every entry has its Impact line |
 | `cisa-kev` | CISA's [Known Exploited Vulnerabilities feed](https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json), every row added in the window | the feed's own `count` equals the rows read; the rows kept equal the rows in the window |
 | `cert-vu` | CERT/CC's vulnerability notes, through the VINCE API's monthly listings ([kb.cert.org/vuls/api/YYYY/MM/](https://kb.cert.org/vuls/api/2026/11/)), every month in the window; for each note in the `equivalence` class, its vulnerability rows and its vendors (added 16 Nov 2026) | every month in the window was listed; the notes kept equal the notes in the class; each kept note's rows and vendors were read, so a CVE printed only in a vendor's addendum or a reference is an item |
 
-Read and not covered, by name: Apple's iOS, iPadOS, watchOS, tvOS, visionOS, Safari, Xcode and other non-macOS rows in
-the same index (Wardlatch runs on the Mac and reads no other Apple device; incidents that also affect them say so in
+Read and not covered, by name: Apple's iOS, iPadOS, watchOS, tvOS, visionOS and other rows in the same index whose
+"Available for" column names no Mac (Wardlatch runs on the Mac and reads no other Apple device; each is in the
+snapshot's `skipped` list, with its column; Safari and Xcode were in this list until 17 Nov 2026, and Xcode 27.2's
+fixes were missed because of it; incidents that also affect them say so in
 their output, as `apple-audio-2026-08` does); and CERT/CC's notes outside the `equivalence` class, which are listed
 and counted but not in scope (77 of the 85 notes from May to 16 Nov 2026; the owner's other classes are not applied to
 them). Not read at all: Linux distributions' security trackers, GitHub's

@@ -30,6 +30,35 @@ cut lockfile or dpkg status file, and a Mac at Apple's newest release once Wardl
 
 ### Added
 
+- **Starlette before 1.0.1, CVE-2026-48710** (`starlette-2026-06`, CISA KEV 2 Sep 2026, so "exploited"). A malformed
+  Host header makes `request.url.path` differ from the path Starlette routed, so a check that allows or denies by
+  `request.url` can be bypassed. Python MCP servers run on Starlette: the MCP Python SDK requires it. Read from
+  `starlette-<version>.dist-info` in site-packages, and, new, from the Python lockfiles and pin files under the folders
+  searched: `uv.lock`, `poetry.lock`, `pylock.toml`, `Pipfile.lock` and `requirements*.txt`, as text, nothing run.
+  Below 1.0.1 is EXPOSED. A pin that is a range, a URL or no version is UNKNOWN, and so is a file cut short, a line the
+  reader can't read, or an include from another folder. It was declined until now as a developer package (D3).
+- **MCP Python SDK and FastMCP** (`mcp-python-2026-10`): CVE-2026-116684 (a token for another resource server
+  accepted), CVE-2026-116685 (credentials sent across a cross-origin redirect) and FastMCP's GHSA-vqqp-x5qm-5qp4 (a
+  client secret sent to an authorization server an MCP server advertises). Below each fix is EXPOSED (mcp 1.8.0 to
+  1.29.1 and 2.0.0 to 2.1.1; fastmcp and fastmcp-slim 4.0.0 to 4.1.1). At or past it, the SDK and FastMCP are REVIEW,
+  never SAFE. The vendors say upgrading alone changes nothing: the fix is a setting off by default, and the row names
+  it (`validate_token_resource=True`; `issuer=`). Not in CISA's catalog.
+- **Xcode before 27.2** (`xcode-2026-10`): CoreDevice's symlink file read (CVE-2026-112605) and an Instruments
+  authorization issue (CVE-2026-112602), and Xcode 27's two sandbox escapes (CVE-2026-86948, CVE-2026-86949). Read
+  from the `version.plist` of every `Xcode*.app` in /Applications and ~/Applications, matched as a Mac's disk matches
+  names, and from the Xcode `xcode-select` points to, each install once. A beta (`Xcode-beta.app`) is REVIEW at the
+  fixed number. Not in CISA's catalog.
+- **Docker Desktop before 4.97.0, CVE-2026-114409** (`docker-desktop-2026-10`): third-party API keys and OAuth
+  tokens written in cleartext to its logs and diagnostics bundles (and, before 4.94.0, the Docker Hub token,
+  CVE-2026-123082). Below 4.97.0 is EXPOSED. At or past it, Docker says logs containing credentials can remain after
+  upgrading. Wardlatch lists Docker Desktop's log folder by file name and date only, never a file's contents. A file
+  older than 4.97.0's release, or older than this copy of Docker.app, makes the row REVIEW, naming the folder and
+  telling you to delete the logs and rotate the tokens. A folder that can't be listed is UNKNOWN. Not in CISA's catalog.
+- **Two new patterns, P8 and P9** ([docs/PATTERNS.md](docs/PATTERNS.md)). P8: a self-erasing compromise (a commit
+  reverted, its run and logs deleted) is not "never ran", so an incident of that kind must read history and say UNKNOWN
+  when history is absent. P9: the fixed version is not the fixed state (a fix that is a setting, or residue an update
+  leaves). Two new incident keys enforce P9: `fixNeedsConfig` (REVIEW at or past the fix) and `residueWhenFixed`
+  (what an earlier version left, by name and date).
 - **macOS Audio flaw CVE-2026-65339** (`apple-audio-2026-08`, a new kind of check, `apple-cve`, `lib/macos.mjs`
   `appleCveRow`). Apple's "Audio" entry, "An app may be able to leak sensitive user information", fixed in Tahoe
   26.6.2 (17 Aug 2026) and Sequoia 15.8 (14 Sep 2026). Below the fix on its own line is EXPOSED; Sonoma 14 and older,
@@ -123,8 +152,11 @@ cut lockfile or dpkg status file, and a Mac at Apple's newest release once Wardl
   more pieces: a third source, CERT/CC's notes read whole by month; the `equivalence` class (name or path folding:
   case, Unicode form, links, name constraints) and the `identity` class (an impersonated or forged caller or
   authority), both read on Apple's Description line too, which the snapshot now keeps; one CVE may be in both and is
-  counted once. Now: 1,026 items, 464 in scope, 18 named, 446 declined (48 of them candidates for an incident), no
-  gaps. The refresh asked Apple's pages for "text/html,application/json", which Apple answered 404 for Tahoe 26.7's
+  counted once. From 17 Nov 2026 the Apple read covers every release that runs on a Mac (Safari, Xcode, Mac apps),
+  not only macOS. Each other row is recorded as skipped, and the check fails if a skipped row names macOS
+  ([docs/PATTERNS.md](docs/PATTERNS.md) P4). The macOS-only read had missed Xcode 27.2's and Xcode 27's fixes. Now
+  (refresh of 17 Nov 2026): 1,033 items, 468 in scope, 23 named, 445 declined (47 of them candidates for an incident),
+  no gaps. 28 Mac releases were read, and 37 rows for other Apple devices were skipped. The refresh asked Apple's pages for "text/html,application/json", which Apple answered 404 for Tahoe 26.7's
   notes, so no refresh could finish; it now asks each source for one type, and retries each request up to 5 times
   (Apple's pages answer 404 now and then) before it stops loudly with nothing written.
 - Coverage floors: `npm run coverage` now fails below 90% of lines, 80% of branches or 80% of functions of `bin/` and
