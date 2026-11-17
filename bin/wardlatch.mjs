@@ -39,7 +39,12 @@ import { checkClaudeCode } from '../lib/claudecode.mjs';
 // .npmrc, before any of this runs; nothing here can undo either: run it from your home folder, as the README says.
 // When nothing is left (PATH unset, or made only of dropped entries), PATH is /usr/bin:/bin, as Node itself assumes for
 // an unset PATH. An empty PATH would make a bare program name resolve in the current folder.
-const kept = (process.env.PATH ?? '').split(delimiter).filter((d) => d && isAbsolute(d) && !/[\\/]node_modules[\\/]\.bin[\\/]?$/.test(d));
+// A PATH entry written ~/bin (export PATH="~/bin:$PATH", the quotes keep the ~) is searched by bash and macOS's /bin/sh,
+// which put the home folder in front of it, so a script or service started by either runs ~/bin's program; zsh and dash
+// skip it. Up to the attack branch of 16 Nov 2026 (A4) it was dropped as relative, and a php there, the one bash runs,
+// was never checked while a fixed one later on PATH read SAFE. It is read as bash reads it: it can only add a copy.
+const tilde = (d) => (d === '~' || d.startsWith('~/') ? `${homedir()}${d.slice(1)}` : d);
+const kept = (process.env.PATH ?? '').split(delimiter).map(tilde).filter((d) => d && isAbsolute(d) && !/[\\/]node_modules[\\/]\.bin[\\/]?$/.test(d));
 process.env.PATH = kept.length ? kept.join(delimiter) : ['/usr/bin', '/bin'].join(delimiter);
 // Programs run from /, so a relative CA file or folder in the person's own environment is made absolute first, against
 // the folder Wardlatch was started from, as their own programs would read it: put in front of it as written, so a '..'

@@ -16,6 +16,9 @@
       { "path": "/opt/homebrew/opt/git", "versionFromRealPath": "/Cellar/git/(\\d+\\.\\d+\\.\\d+)(?:_\\d+)?$", "label": "Homebrew" },
       { "path": "/usr/local/opt/git", "versionFromRealPath": "/Cellar/git/(\\d+\\.\\d+\\.\\d+)(?:_\\d+)?$", "label": "Homebrew" },
       { "path": "/home/linuxbrew/.linuxbrew/opt/git", "versionFromRealPath": "/Cellar/git/(\\d+\\.\\d+\\.\\d+)(?:_\\d+)?$", "label": "Homebrew" },
+      { "path": "/opt/homebrew/bin/git", "versionFromRealPath": "/Cellar/git/(\\d+\\.\\d+\\.\\d+)(?:_\\d+)?/bin/git$", "onlyWhereItLeads": true, "label": "Homebrew (the git on PATH)" },
+      { "path": "/usr/local/bin/git", "versionFromRealPath": "/Cellar/git/(\\d+\\.\\d+\\.\\d+)(?:_\\d+)?/bin/git$", "onlyWhereItLeads": true, "label": "Homebrew (the git on PATH)" },
+      { "path": "/home/linuxbrew/.linuxbrew/bin/git", "versionFromRealPath": "/Cellar/git/(\\d+\\.\\d+\\.\\d+)(?:_\\d+)?/bin/git$", "onlyWhereItLeads": true, "label": "Homebrew (the git on PATH)" },
       {
         "path": "/Library/Developer/CommandLineTools/usr/bin/git",
         "re": "(\\d+\\.\\d+\\.\\d+) \\(Apple Git-\\d+\\)",
@@ -40,7 +43,7 @@
       }
     ],
     "fix": "Update git to 2.56.1 or later, or to its line's backport (2.55.1, 2.54.1, 2.53.1, 2.52.1, 2.51.3 or 2.50.2): with Homebrew, brew upgrade git. Until then, don't clone untrusted repositories with --recurse-submodules.",
-    "lookedIn": "Homebrew's opt/git link, Apple's git in the Command Line Tools and Xcode, and dpkg's record of git"
+    "lookedIn": "Homebrew's opt/git and bin/git links, Apple's git in the Command Line Tools and Xcode, and dpkg's record of git"
   },
   "reviewFix": "Until Apple (or your distribution) ships a git it says has these fixes, don't clone untrusted repositories with --recurse-submodules, or use Homebrew's git (brew install git, 2.56.1 or later) for them.",
   "safeText": "no git found in the places this check reads",
