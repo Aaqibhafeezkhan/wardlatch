@@ -32,7 +32,7 @@ jobs:
 
       # Nothing ships untested.
       - name: Tests
-        run: node --test test/*.test.mjs   # npm test, without npm itself running under these options
+        run: node --test test/*.test.mjs test/never-false-safe/*.test.mjs   # npm test, without npm itself running under these options
         env:
           NODE_OPTIONS: --throw-deprecation --pending-deprecation
 

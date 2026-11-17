@@ -17,7 +17,7 @@
     "node": ">=18.17"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs",
+    "test": "node --test test/*.test.mjs test/never-false-safe/*.test.mjs",
     "coverage": "node --test --experimental-test-coverage --test-coverage-include=bin/** --test-coverage-include=lib/** --test-coverage-lines=90 --test-coverage-branches=80 --test-coverage-functions=80 test/*.test.mjs"
   },
   "keywords": [
