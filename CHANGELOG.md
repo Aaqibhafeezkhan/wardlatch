@@ -9,10 +9,24 @@ Every release has a signed tag (`v0.1.0` onwards; 0.1.0 to 0.1.2 were tagged aft
 each one's `gitHead`), and 0.1.3 onwards were built and attested by the release workflow. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] (0.1.19 candidate)
+## [Unreleased]
+
+## [0.1.19] - 2026-11-16
 
 Four branches in one release: the coverage protocol (PR #37), the identity-equivalence pattern (VU#604762), no SAFE
-from a stale list, and the never-a-false-SAFE suite, with what the suite found fixed.
+from a stale list, and the never-a-false-SAFE suite, with what the suite and an attacker's pass found fixed. From
+this release the workflow publishes to npm itself, through npm's trusted publishing, and each release carries a
+signed SBOM.
+
+<!-- 0.1.19 is open until it is tagged: a change made before the tag gets its entry below. The date above is a
+     pre-tag placeholder for the releaser to set. -->
+
+### Upgrading
+
+Nothing to do: `npx wardlatch@latest` picks it up. A few rows that read SAFE before now read UNKNOWN or REVIEW, on
+purpose: a Homebrew Deno whose keg folder and program name different versions, a program that names two versions, a
+cut lockfile or dpkg status file, and a Mac at Apple's newest release once Wardlatch's list of releases is more than
+30 days old. Each says why.
 
 ### Added
 
@@ -27,8 +41,12 @@ from a stale list, and the never-a-false-SAFE suite, with what the suite found f
   83.0.0 (`setuptools-2026-07`, CVE-2026-59890, `MANIFEST.in`). EXPOSED below the fix on a Mac; on Linux, where the
   vendors say the flaws are not, SAFE with that reason (Deno, Terraform) or no row (setuptools). Nothing is run. Two
   new keys for version files: `scan` (a program's bytes read in pieces) and `onlyOn` (the systems the flaw is on).
-  Deno from mise or asdf is read from the program in the install folder (`installs/deno/<version>/bin/deno`), never
-  from the folder's name, which need not match it; a program that can't be read, or carries no version, is UNKNOWN.
+  Every Deno is read from its program, never from a folder's name, which need not match it: mise's and asdf's
+  (`installs/deno/<version>/bin/deno`), the official installer's `~/.deno/bin/deno` and Homebrew's keg
+  (`Cellar/deno/<version>/bin/deno`, reached by `opt/deno` and `bin/deno`). A program that can't be read, or carries no
+  version, is UNKNOWN, and so is a Homebrew keg whose folder and program name different versions. The version is the
+  user agent Deno compiles in, `Deno/<version>+<commit>`, measured on Deno's own 2.7.13 and 2.7.14 macOS arm64 release
+  builds (16 Nov 2026; [COVERAGE-PROTOCOL D8](docs/COVERAGE-PROTOCOL.md)), which read 2.7.13 EXPOSED and 2.7.14 SAFE.
   Tests: `test/equivalence-2026-11.test.mjs`.
 - **ConnectWise ScreenConnect client, CVE-2026-84869** (`screenconnect-2026-09`, CISA KEV 11 Sep 2026). PR #37's
   coverage list declined it as a "self-hosted server": the flaw is in the client, and ConnectWise says servers are not
@@ -47,10 +65,14 @@ from a stale list, and the never-a-false-SAFE suite, with what the suite found f
   or `CURL_CA_BUNDLE` keeps the built-in curl and python3 from being judged by `/etc/ssl/cert.pem` (A5). PYTHONPATH's
   folders are searched as site-packages is (A6). Lockfiles: classic yarn's `npm:` alias read from its spec, a listed
   name installed from another package (`"react-server-dom-webpack": "npm:@acme/fork@1.0.0"`) is UNKNOWN in npm and yarn
-  lockfiles, and a pnpm lockfile re-indented or written inline is UNKNOWN, not "pins nothing" (A7, A8). Two are left as
-  todos for the owner: Homebrew's Deno keg judged by its folder name (needs D8's measurement) and the pnpm alias (A3t,
-  A7t). The suite's clock preload now stands in for every file `lib/clock.mjs` reads, so H11c no longer turns REVIEW by
+  lockfiles, and a pnpm lockfile re-indented or written inline is UNKNOWN, not "pins nothing" (A7, A8). One is left
+  as a todo for the owner: the same alias in a pnpm lockfile's `importers` section (A7t). The suite's clock preload now stands in for every file `lib/clock.mjs` reads, so H11c no longer turns REVIEW by
   itself once this Mac's own update files are a month newer than the list (A9).
+- **A Homebrew Deno keg named for the fix, holding an older program, read SAFE** (the attacker's pass's A3t, a todo
+  until D8's measurement). `deno-2026-06` judged Homebrew's Deno by its keg folder's name (`Cellar/deno/2.7.14`). It
+  now reads the program in the keg, never running it, and the row stands only when the bytes name the folder's
+  version: a keg named 2.7.14 holding Deno's real 2.7.13 program reads UNKNOWN (it read SAFE). A planted mutation of
+  each part turns the test red (A3tm).
 - **No SAFE from a stale list of Apple releases** (`macos-2026-11`, `lib/clock.mjs`). A SAFE there means "at the newest
   release Wardlatch knows", read from Apple's index on 13 Nov 2026. Once that list is more than 30 days old, a Mac at
   its newest release reads REVIEW and says how old the list is and to check Software Update. Today's date is the
@@ -114,6 +136,26 @@ from a stale list, and the never-a-false-SAFE suite, with what the suite found f
   its tag and compares them with the release's `SHA256SUMS` ([docs/RELEASING.md](docs/RELEASING.md#reproducing-a-release)).
   v0.1.17 and v0.1.18 reproduce byte for byte. A new CI job, `reproducible`, runs it on the newest release and checks
   that the current commit packs to the same bytes from two trees.
+- **npm trusted publishing, with provenance** (`.github/workflows/release.yml`, a new `npm` job). After the
+  `release` job (its approval, tests, attestation and check, and the GitHub release), and after its own approval in
+  the `release` environment, it downloads the npm package from the release. It checks that the file's SHA-256 is the
+  one the release job attested, against the release's `SHA256SUMS` and with `gh attestation verify`, then runs
+  `npm publish --provenance --access public` on that file. It uses GitHub's OIDC token, not an npm token: none is
+  stored, and the job fails if one is set. It needs a one-time setting on npmjs.com by a package owner
+  ([docs/RELEASING.md](docs/RELEASING.md#4-npm-trusted-publishing-from-the-workflow-0119-and-later)). The manual
+  `npm publish`, with 2FA, stays as the fallback.
+- **A signed SBOM per release.** Each release carries `wardlatch-X.Y.Z.spdx.json`, an SPDX 2.3 SBOM of the npm
+  package, bound to the tarball's SHA-256 (`scripts/sbom.mjs`; npm's `npm sbom` where the runner's npm has it). It is
+  attested with `actions/attest-sbom`, pinned by commit, and that attestation is checked before the release. It must
+  list Wardlatch alone, which has no dependencies. `test/release-0.1.19.test.mjs` holds the workflow to both, with a
+  planted mutant of each rule.
+- **The release tarballs committed at the top of the repository are gone**: `wardlatch-0.1.7.tgz`,
+  `wardlatch-0.1.9.tgz` and `wardlatch-0.1.10.tgz`. Each is still attached to its GitHub release
+  ([v0.1.7](https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.7),
+  [v0.1.9](https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.9),
+  [v0.1.10](https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.10)), with its Sigstore bundle, and is on npm
+  (`npm pack wardlatch@0.1.10`). The committed `SHA256SUMS` keeps their three digests unchanged, and says how to check
+  a download against them. GitHub's digest of each release asset matched them on 16 Nov 2026.
 - `test/hardening.test.mjs` runs every offline incident under Node's permission model with reading and child processes
   allowed and nothing else, and requires the same answers as without it; a control shows a write is refused under the
   same flags. [docs/SECURITY-REVIEW.md](docs/SECURITY-REVIEW.md) is a threat model and security review by the project
@@ -2753,7 +2795,8 @@ Published 05:14 UTC. npm `gitHead`: `4d4f295`. The first release.
 npm also lists `0.0.0-stage` (21 October, 05:13 UTC), a 331-byte, two-file placeholder from npm's staged publishing,
 described on npm as a "Temporary package placeholder". It is not a release and holds none of Wardlatch's code.
 
-[Unreleased]: https://github.com/deimos-hq/wardlatch/compare/v0.1.18...main
+[Unreleased]: https://github.com/deimos-hq/wardlatch/compare/v0.1.19...main
+[0.1.19]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.19
 [0.1.18]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.18
 [0.1.17]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.17
 [0.1.16]: https://github.com/deimos-hq/wardlatch/releases/tag/v0.1.16

@@ -111,8 +111,9 @@ earlier). Fixes are not backported.
 Releases 0.1.0 to 0.1.2 were published to npm from the maintainer's machine and carry no signature of the project's
 own (npm's registry signature shows only that npm serves what was uploaded). A release cut from a tag now goes
 through the release workflow, which attaches a Sigstore attestation of its source archive and npm package to the
-GitHub release; 0.1.3 and every release since went through it. How to check one:
-[docs/RELEASING.md](docs/RELEASING.md#verifying-a-release).
+GitHub release; 0.1.3 and every release since went through it. From 0.1.19 the workflow also publishes that exact
+package to npm through npm's trusted publishing (no npm token), so npm shows its provenance, and the release carries
+an attested SBOM. How to check one: [docs/RELEASING.md](docs/RELEASING.md#verifying-a-release).
 
 `fix/fix-macos.sh` in this repository has SHA-256
 `0dae0dc901a23aba216211f4ef6002a6d75b232fe479ef79db463d5c1dc9b98c`. CI pins that hash and also checks that the

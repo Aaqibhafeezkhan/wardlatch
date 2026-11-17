@@ -92,7 +92,7 @@ is not the same as safe.
 ### Pin the version
 
 `wardlatch@latest` picks up new incident checks the day they ship, which is the point of running it daily. If your
-policy wants every tool pinned, use `npx --yes wardlatch@0.1.18` and move the pin when a release adds a check you want.
+policy wants every tool pinned, use `npx --yes wardlatch@0.1.19` and move the pin when a release adds a check you want.
 Each release's changes are in [CHANGELOG.md](../CHANGELOG.md), and each release is attested; to verify the package
 before you trust it, see [RELEASING.md](RELEASING.md#verifying-a-release).
 

@@ -1,6 +1,6 @@
 {
   "name": "wardlatch",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "Security check for macOS and Linux: runtimes trusting revoked or leaked CA keys, vulnerable versions, swapped binaries. Local, no telemetry. npx wardlatch@latest",
   "type": "module",
   "bin": {
